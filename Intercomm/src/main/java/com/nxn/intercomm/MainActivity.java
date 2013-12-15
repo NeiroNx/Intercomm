@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,OnClickListener {
-
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -43,6 +42,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+    ImageButton next;
+    ImageButton prew;
+    EditText freq;
+    NumberFormat Format;
     ToggleButton mEnable;
     Fragment mManual;
     Fragment mChannels;
@@ -56,13 +59,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setIcon(R.drawable.ic_launcher);
-        actionBar.setCustomView(R.layout.actionbar);
-        mManual = new ManualFrequency();
-        mChannels = new Channels();
-        mEnable = (ToggleButton)actionBar.getCustomView().findViewById(R.id.enable);
-        mEnable.setOnClickListener(this);
+        //actionBar.setDisplayShowCustomEnabled(true);
+        //actionBar.setIcon(R.drawable.ic_launcher);
+        //actionBar.setCustomView(R.layout.actionbar);
+        //mEnable = (ToggleButton)actionBar.getCustomView().findViewById(R.id.enable);
+        //mEnable.setOnClickListener(this);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -97,14 +98,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void onClick(View view){
-        if(view.getId() == R.id.enable){
-            EditText ed = (EditText)mManual.getView().findViewById(R.id.freq);
-            if(mEnable.isChecked()){
-                ed.setText("333");
-            }else{
-                ed.setText("222");
-            }
-        }
+
     }
 
 
@@ -146,55 +140,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            switch (position){
-                case 0:
-                    return mManual;
-                case 1:
-                    return mChannels;
-            }
-            return PlaceholderFragment.newInstance(position + 1);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
-            }
-            return null;
-        }
-    }
     public class ManualFrequency extends Fragment
             implements OnClickListener,TextWatcher {
-        ImageButton next;
-        ImageButton prew;
-        EditText freq;
-        NumberFormat Format;
+        public ManualFrequency(){
+
+        }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -260,6 +210,44 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return rootView;
         }
     }
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            return PlaceholderFragment.newInstance(position + 1);
+        }
+
+        @Override
+        public int getCount() {
+            // Show 3 total pages.
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            Locale l = Locale.getDefault();
+            switch (position) {
+                case 0:
+                    return getString(R.string.title_section1).toUpperCase(l);
+                case 1:
+                    return getString(R.string.title_section2).toUpperCase(l);
+                case 2:
+                    return getString(R.string.title_section3).toUpperCase(l);
+            }
+            return null;
+        }
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */

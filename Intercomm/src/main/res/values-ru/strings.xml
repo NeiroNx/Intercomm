@@ -9,6 +9,6 @@
     <string name="freq_next">Следующая частота</string>
     <string name="freq_prew">Предыдущая частота</string>
     <string name="freq">частота</string>
-    <string name="action_quit">Quit</string>
+    <string name="action_quit">Выход</string>
 
 </resources>

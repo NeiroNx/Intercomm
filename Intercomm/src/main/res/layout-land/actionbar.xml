@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?attr/actionButtonStyle"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="fill_horizontal"
+    android:focusable="false"
+    android:baselineAligned="false"
+    android:focusableInTouchMode="false"
+    android:longClickable="false"
+    android:gravity="right">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/app_name"
+        android:id="@+id/title"
+        android:layout_marginLeft="50dp"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:layout_gravity="right" />
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:id="@+id/enable"
+        android:checked="false"
+        android:layout_gravity="right" />
+
+</LinearLayout>
