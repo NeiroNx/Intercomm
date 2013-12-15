@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Рация</string>
+    <string name="title_section1">Частота</string>
+    <string name="title_section2">Каналы</string>
+    <string name="title_section3">Чат</string>
+    <string name="action_settings">Настройки</string>
+    <string name="freq_next">Следующая частота</string>
+    <string name="freq_prew">Предыдущая частота</string>
+    <string name="freq">частота</string>
+    <string name="action_quit">Quit</string>
+
+</resources>

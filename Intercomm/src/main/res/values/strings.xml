@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Intercomm</string>
+    <string name="title_section1">Freq</string>
+    <string name="title_section2">Channel</string>
+    <string name="title_section3">Chat</string>
+    <string name="action_settings">Settings</string>
+    <string name="freq_next">Next Freq</string>
+    <string name="freq_prew">Prev Freq</string>
+    <string name="freq">freq</string>
+    <string name="action_quit">Quit</string>
+
+</resources>
