@@ -208,9 +208,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case R.id.action_settings:
                 return true;
             case R.id.action_quit:
-                EditText t = (EditText)mViewPager.getChildAt(0).findViewById(R.id.freq);
-                if(t != null)t.setText("222");
-                //finish();
+                finish();
                 return true;
             case R.id.power:
                 if(item.isChecked()){
