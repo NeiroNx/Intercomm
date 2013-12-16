@@ -16,5 +16,8 @@
     <string name="power">Power</string>
     <string name="power_disabled">Module Power OFF</string>
     <string name="power_enabled">Module Power ON</string>
+    <string name="nick_lable">Nick name in chat</string>
+    <string name="set_min">Minimal Frequency</string>
+    <string name="set_max">Maximal Frequency</string>
 
 </resources>

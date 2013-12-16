@@ -16,5 +16,8 @@
     <string name="power">Питание</string>
     <string name="power_disabled">Питание рации ВЫКЛЮЧЕНО</string>
     <string name="power_enabled">Питание рации ВКЛЮЧЕНО</string>
+    <string name="nick_lable">Ник в чате</string>
+    <string name="set_min">Минимальная частота</string>
+    <string name="set_max">Максимальная чсатота</string>
 
 </resources>

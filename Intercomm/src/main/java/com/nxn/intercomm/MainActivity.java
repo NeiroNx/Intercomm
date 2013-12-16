@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -66,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Double curFreq = 446.00625;
     public Double minFreq = 400.0;
     public Double maxFreq = 480.0;
+    public Boolean power;
     ImageButton next;
     ImageButton prew;
     EditText freq;
@@ -78,9 +81,23 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     protected void onPause() {
         super.onPause();
+        mSettings.edit()
+                .putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString())
+                .putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString())
+                .putString(APP_PREFERENCES_POWER,power.toString());
         //SharedPreferences.Editor editor = mSettings.edit();
         //editor.putInt(APP_PREFERENCES_COUNTER, counter);
         //editor.apply();
+    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+    }
+    @Override
+    protected void onStop(){
+        super.onStop();
+
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,16 +145,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
         });
 
-        //next = (ImageButton) mViewPager.findViewById(R.id.freq_next);
-
-        //next.setOnClickListener(this);
-        //prew = (ImageButton) mViewPager.findViewById(R.id.freq_perw);
-        //prew.setOnClickListener(this);
-        //freq = (EditText) mSectionsPagerAdapter.getItem(0).getTargetFragment().getView().findViewById(R.id.freq);
-       // freq.setText("446.00625");
-
-
-        // For each of the sections in the app, add a tab to the action bar.
         actionBar.addTab(
                 actionBar.newTab()
                         .setText(getString(R.string.title_section1).toUpperCase())
@@ -152,6 +159,27 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         .setTabListener(this));
 
 
+        Timer autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //runOnUiThread(new Runnable() {
+                //    public void run() {
+
+                        //Toast.makeText(null, R.string.power_disabled, Toast.LENGTH_SHORT).show();
+                        Log.i("Test","CurFreq = "+mManual.curFreq);
+                        //try{
+
+                            curFreq = mManual.getCurFreq();
+                        //    EditText e = (EditText)mViewPager.getFocusedChild().findViewById(R.id.freq);
+                        //    if(e != null) e.setText(setFreq("",0.0));
+
+                        //    }catch(Exception e){
+                        //    Log.i("Error",e.getLocalizedMessage());}
+                //    }
+                //});
+            }
+        }, 0, 10000);
     }
     public String setFreq(String str, Double delta){
         NumberFormat Format = NumberFormat.getInstance(Locale.ENGLISH);
@@ -171,22 +199,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onClick(View view){
 
 
-        /*Double num;
-        try {
-            num = Double.parseDouble(freq.getText().toString());
-        }catch (Exception error){
-            num = 0.0;
-        }
-        switch (view.getId()){
-            case R.id.freq_perw:
-                freq.setText(verify(Format.format(num - 0.00025)));
-                freq.selectAll();
-                break;
-            case R.id.freq_next:
-                freq.setText(verify(Format.format(num + 0.00025)));
-                freq.selectAll();
-                break;
-        }*/
     }
 
 
@@ -206,6 +218,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         switch (item.getItemId()){
             case android.R.id.home:
             case R.id.action_settings:
+                setContentView(R.layout.settings);
                 return true;
             case R.id.action_quit:
                 finish();
@@ -344,6 +357,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             View rootView = inflater.inflate(R.layout.manual_freq, container, false);
             rootView.findViewById(R.id.freq_next).setOnClickListener(this);
             rootView.findViewById(R.id.freq_prew).setOnClickListener(this);
+            EditText e = (EditText)rootView.findViewById(R.id.freq);
+            e.setText(setFreq(null,0.0));
             //minFreq = getArguments().getDouble(APP_PREFERENCES_MIN_FREQ);
             //maxFreq = getArguments().getDouble(APP_PREFERENCES_MAX_FREQ);
             return rootView;
