@@ -10,5 +10,11 @@
     <string name="freq_prew">Prev Freq</string>
     <string name="freq">freq</string>
     <string name="action_quit">Quit</string>
+    <string name="nick"><![CDATA[Nick >]]></string>
+    <string name="message">Message</string>
+    <string name="search">Search ...</string>
+    <string name="power">Power</string>
+    <string name="power_disabled">Module Power OFF</string>
+    <string name="power_enabled">Module Power ON</string>
 
 </resources>

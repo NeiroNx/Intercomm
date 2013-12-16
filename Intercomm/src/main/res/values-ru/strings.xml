@@ -10,5 +10,11 @@
     <string name="freq_prew">Предыдущая частота</string>
     <string name="freq">частота</string>
     <string name="action_quit">Выход</string>
+    <string name="nick"><![CDATA[Ник >]]></string>
+    <string name="message">Сообщение</string>
+    <string name="search">Найти ...</string>
+    <string name="power">Питание</string>
+    <string name="power_disabled">Питание рации ВЫКЛЮЧЕНО</string>
+    <string name="power_enabled">Питание рации ВКЛЮЧЕНО</string>
 
 </resources>

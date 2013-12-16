@@ -1,13 +1,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.nxn.intercomm.MainActivity" >
+    tools:context="com.nxn.intercomm.MainActivity">
     
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         app:showAsAction="never" />
     <item android:id="@+id/action_quit"
         android:title="@string/action_quit"
-        android:orderInCategory="100"/>
+        android:orderInCategory="2"
+        android:icon="@android:drawable/ic_delete"
+        app:showAsAction="always"/>
+    <item android:id="@+id/power"
+        android:title="@string/power"
+        android:checkable="true"
+        android:icon="@android:drawable/ic_lock_power_off"
+        app:showAsAction="always"
+        android:orderInCategory="0"/>
 </menu>

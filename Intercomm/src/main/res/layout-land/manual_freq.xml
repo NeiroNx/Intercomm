@@ -16,14 +16,13 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/freq_perw"
+            android:id="@+id/freq_prew"
             android:src="@android:drawable/ic_media_rew"
             android:layout_gravity="right|top"
             android:focusable="true"
             android:contentDescription="@string/freq_prew"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:onClick="onClick" />
+            android:layout_marginTop="5dp" />
 
         <EditText
             android:layout_width="wrap_content"

@@ -20,7 +20,6 @@
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:textColor="@android:color/primary_text_dark"
-            android:text="test"
             android:singleLine="true"
             android:textSize="30dp"
             android:layout_margin="5dp"
@@ -29,7 +28,8 @@
             android:maxLength="10"
             android:inputType="textNoSuggestions"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/cursor" />
+            android:textCursorDrawable="@drawable/cursor"
+            android:hint="@string/search" />
 
         <ImageButton
             android:layout_width="wrap_content"
