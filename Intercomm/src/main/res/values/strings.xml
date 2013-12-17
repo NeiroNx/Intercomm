@@ -2,9 +2,10 @@
 <resources>
 
     <string name="app_name">Intercomm</string>
-    <string name="title_section1">Freq</string>
-    <string name="title_section2">Channel</string>
-    <string name="title_section3">Chat</string>
+    <string name="title_freq">Freq</string>
+    <string name="title_chan">Channel</string>
+    <string name="title_chat">Chat</string>
+    <string name="title_sets">Settings</string>
     <string name="action_settings">Settings</string>
     <string name="freq_next">Next Freq</string>
     <string name="freq_prew">Prev Freq</string>
@@ -12,12 +13,69 @@
     <string name="action_quit">Quit</string>
     <string name="nick"><![CDATA[Nick >]]></string>
     <string name="message">Message</string>
-    <string name="search">Search ...</string>
+    <string name="search">Search …</string>
     <string name="power">Power</string>
     <string name="power_disabled">Module Power OFF</string>
     <string name="power_enabled">Module Power ON</string>
     <string name="nick_lable">Nick name in chat</string>
     <string name="set_min">Minimal Frequency</string>
     <string name="set_max">Maximal Frequency</string>
+    <string name="step_label">Step</string>
+    <string-array name="ctcss">
+        <item value="0">0HZ</item>
+        <item value="1">67.0HZ</item>
+        <item value="2">71.9HZ</item>
+        <item value="3">74.4HZ</item>
+        <item value="4">77.0HZ</item>
+        <item value="5">79.7HZ</item>
+        <item value="6">82.5HZ</item>
+        <item value="7">85.4HZ</item>
+        <item value="8">88.5HZ</item>
+        <item value="9">91.5HZ</item>
+        <item value="10">94.8HZ</item>
+        <item value="11">97.4HZ</item>
+        <item value="12">100.0HZ</item>
+        <item value="13">103.5HZ</item>
+        <item value="14">107.2HZ</item>
+        <item value="15">110.9HZ</item>
+        <item value="16">114.8HZ</item>
+        <item value="17">118.8HZ</item>
+        <item value="18">123.0HZ</item>
+        <item value="19">127.3HZ</item>
+        <item value="20">131.8HZ</item>
+        <item value="21">136.5HZ</item>
+        <item value="22">141.3HZ</item>
+        <item value="23">146.2HZ</item>
+        <item value="24">151.4HZ</item>
+        <item value="25">156.7HZ</item>
+        <item value="26">162.2HZ</item>
+        <item value="27">167.9HZ</item>
+        <item value="28">173.8HZ</item>
+        <item value="29">179.9HZ</item>
+        <item value="30">186.2HZ</item>
+        <item value="31">192.8HZ</item>
+        <item value="32">203.5HZ</item>
+        <item value="33">210.7HZ</item>
+        <item value="34">218.1HZ</item>
+        <item value="35">225.7HZ</item>
+        <item value="36">233.6HZ</item>
+        <item value="37">241.8HZ</item>
+        <item value="38">250.3HZ</item>
+    </string-array>
+    <string-array name="sq">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+    <string-array name="step">
+        <item>6.25 KHz</item>
+        <item>12.5 KHz</item>
+        <item>25.0 KHz</item>
+    </string-array>
 
 </resources>

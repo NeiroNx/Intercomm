@@ -1,14 +1,22 @@
 package com.nxn.intercomm;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.text.Format;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -19,8 +27,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.KeyListener;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,11 +39,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.text.TextWatcher;
+import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,OnClickListener {
     /**
@@ -54,55 +68,52 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     SharedPreferences mSettings;
     public static final String APP_PREFERENCES = "IntercomSettings";
+    public static final String APP_PREFERENCES_NICK = "nick";
     public static final String APP_PREFERENCES_TX_FREQ = "tx_freq";
     public static final String APP_PREFERENCES_RX_FREQ = "rx_freq";
     public static final String APP_PREFERENCES_TX_CTCSS = "tx_ctcss";
     public static final String APP_PREFERENCES_RX_CTCSS = "rx_ctcss";
     public static final String APP_PREFERENCES_SQ = "sq";
+    public static final String APP_PREFERENCES_STEP = "step";
     public static final String APP_PREFERENCES_POWER = "power";
+    public static final String APP_PREFERENCES_VOLUME = "volume";
     public static final String APP_PREFERENCES_MIN_FREQ = "min_freq";
-    public static final String APP_PREFERENCES_MAX_FREQ = "tx_freq";
-    public static final String FORMAT = "###.#####";
+    public static final String APP_PREFERENCES_MAX_FREQ = "max_freq";
+    public static final String FORMAT = "###.####";
 
-
+    public static final Double[] steps = {0.00625,0.01250,0.025}; //Frequency step array
+    public String Nick = "MyNick";
     public Double curFreq = 446.00625;
+    public Integer curCt = 0;
+    public Double Step = steps[1];
     public Double minFreq = 400.0;
     public Double maxFreq = 480.0;
-    public Boolean power;
-    ImageButton next;
-    ImageButton prew;
-    EditText freq;
-
-    ToggleButton mEnable;
+    public Integer Sq = 1;
+    public Integer Volume = 5;
+    public Boolean Power;
+    public SharedPreferences.Editor editor;
     public ManualFrequency mManual;
     public Channel mChannels;
     public Chat mChat;
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mSettings.edit()
-                .putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString())
-                .putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString())
-                .putString(APP_PREFERENCES_POWER,power.toString());
-        //SharedPreferences.Editor editor = mSettings.edit();
-        //editor.putInt(APP_PREFERENCES_COUNTER, counter);
-        //editor.apply();
-    }
-    @Override
-    protected void onResume(){
-        super.onResume();
-
-    }
-    @Override
-    protected void onStop(){
-        super.onStop();
-
-    }
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /**
+         * Settings get
+         */
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        editor = mSettings.edit();
+        Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
+        minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
+        maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
+        curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curFreq.toString()));
+        curCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curCt.toString()));
+        Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
+        Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
+        Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
+        Log.i("OnCREATE","CurFREQ ="+curFreq.toString());
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -120,18 +131,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mPagerAdapter = new SampleAdapter(this, getSupportFragmentManager());
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
+        /**
+         * Manual Frequency set settings
+         */
         mManual = new ManualFrequency();
         mManual.setMaxFreq(maxFreq);
         mManual.setMinFreq(minFreq);
         mManual.setCurFreq(curFreq);
+        mManual.setStep(Step);
+        mManual.setSq(Sq);
+        mManual.setCt(curCt);
+        mManual.setVolume(Volume);
+
         mChannels = new Channel();
         mChat = new Chat();
+        mChat.setNick(Nick);
         mViewPager.setAdapter(mPagerAdapter);
         //mManual.getView().addOnAttachStateChangeListener(this);
         //mPagerAdapter.getItem(0).getView().findViewById(R.id.freq_next).toString();//.setOnClickListener(this);
 
-        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        //minFreq = 0.0;
 
         //mManual.getArguments().putDouble(APP_PREFERENCES_MIN_FREQ,minFreq);
 
@@ -144,20 +162,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 actionBar.setSelectedNavigationItem(position);
             }
         });
-
-        actionBar.addTab(
-                actionBar.newTab()
-                        .setText(getString(R.string.title_section1).toUpperCase())
-                        .setTabListener(this));
-        actionBar.addTab(
-                actionBar.newTab()
-                        .setText(getString(R.string.title_section2).toUpperCase())
-                        .setTabListener(this));
-        actionBar.addTab(
-                actionBar.newTab()
-                        .setText(getString(R.string.title_section3).toUpperCase())
-                        .setTabListener(this));
-
+        /**
+         * Adding Tabs
+         */
+        for(int i =0;i < mPagerAdapter.getCount();i++)
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText(mPagerAdapter.getPageTitle(i).toUpperCase())
+                            .setTabListener(this));
 
         Timer autoUpdate = new Timer();
         autoUpdate.schedule(new TimerTask() {
@@ -165,36 +177,33 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             public void run() {
                 //runOnUiThread(new Runnable() {
                 //    public void run() {
-
-                        //Toast.makeText(null, R.string.power_disabled, Toast.LENGTH_SHORT).show();
-                        Log.i("Test","CurFreq = "+mManual.curFreq);
-                        //try{
-
+                        if(!curFreq.equals(mManual.getCurFreq())){
                             curFreq = mManual.getCurFreq();
-                        //    EditText e = (EditText)mViewPager.getFocusedChild().findViewById(R.id.freq);
-                        //    if(e != null) e.setText(setFreq("",0.0));
+                            editor.putString(APP_PREFERENCES_TX_FREQ,curFreq.toString());
+                            editor.commit();
+                        }
+                        if(!Sq.equals(mManual.getSq())){
+                            Sq = mManual.getSq();
+                            editor.putString(APP_PREFERENCES_SQ, Sq.toString());
+                            editor.commit();
+                        }
+                        if(!curCt.equals(mManual.getCt())){
+                            curCt = mManual.getCt();
+                            editor.putString(APP_PREFERENCES_TX_CTCSS, curCt.toString());
+                            editor.commit();
+                        }
+                        if(!Volume.equals(mManual.getVolume())){
+                            Volume = mManual.getVolume();
+                            editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
+                            editor.commit();
+                        }
 
-                        //    }catch(Exception e){
-                        //    Log.i("Error",e.getLocalizedMessage());}
                 //    }
                 //});
             }
-        }, 0, 10000);
+        }, 0, 5000);
     }
-    public String setFreq(String str, Double delta){
-        NumberFormat Format = NumberFormat.getInstance(Locale.ENGLISH);
-        ((DecimalFormat)Format).applyPattern(FORMAT);
-        Format.setMinimumFractionDigits(5);
-        Format.setMinimumIntegerDigits(3);
-        Double num = curFreq;
-        if(str != null)
-            num = Double.parseDouble(str);
-        num += delta;
-        if(num < minFreq) num = minFreq;
-        if(num > maxFreq) num = maxFreq;
-        curFreq = num;
-        return Format.format(num);
-    }
+
     @Override
     public void onClick(View view){
 
@@ -207,6 +216,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        //if(Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,"false")))
+        //menu.findItem(R.id.power).setIcon(android.R.drawable.ic_lock_idle_charging);
         return true;
     }
 
@@ -217,21 +228,27 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()){
             case android.R.id.home:
+                mViewPager.setCurrentItem(0);
+                return true;
             case R.id.action_settings:
-                setContentView(R.layout.settings);
+                DialogFragment newFragment = new SettingsDialog();
+                newFragment.show(getSupportFragmentManager(),"settings");
                 return true;
             case R.id.action_quit:
                 finish();
                 return true;
             case R.id.power:
+                /**
+                 * TODO: Power Control
+                 */
                 if(item.isChecked()){
-                    item.setIcon(android.R.drawable.checkbox_off_background);
+                    item.setIcon(android.R.drawable.ic_lock_power_off);
                     Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
-                    item.setChecked(false);
+                    Power=false;
                 }else{
-                    item.setIcon(android.R.drawable.checkbox_on_background);
+                    item.setIcon(android.R.drawable.ic_lock_idle_charging);
                     Toast.makeText(this, R.string.power_enabled, Toast.LENGTH_SHORT).show();
-                    item.setChecked(true);
+                    Power=true;
                 }
                 return true;
         }
@@ -284,21 +301,29 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public String getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.title_section1);
+                    return getString(R.string.title_freq);
                 case 1:
-                    return getString(R.string.title_section2);
+                    return getString(R.string.title_chan);
                 case 2:
-                    return getString(R.string.title_section3);
+                    return getString(R.string.title_chat);
             }
             return null;
         }
     }
 
-    public static class ManualFrequency extends Fragment implements OnClickListener {
+    public static class ManualFrequency extends Fragment implements
+            OnClickListener,
+            TextWatcher,
+            AdapterView.OnItemSelectedListener,
+            SeekBar.OnSeekBarChangeListener
+    {
         private Double curFreq;
         private Double minFreq = 400.0;
         private Double maxFreq = 480.0;
-        private Double step = 0.00025;
+        private Double Step = 0.00625;
+        private Integer Sq = 1;
+        private Integer Ct = 0;
+        private Integer Volume = 5;
         public ManualFrequency(){
 
         }
@@ -320,48 +345,177 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         private void setCurFreq(Double f){
             curFreq = f;
         }
-        String setFreq(String str, Double delta){
+        private void setStep(Double s){
+            Step = s;
+        }
+        private Integer getCt(){
+            return Ct;
+        }
+        private void setCt(Integer i){
+            Ct = i;
+        }
+        private Integer getSq(){
+            return Sq;
+        }
+        private void setSq(Integer i){
+            Sq = i;
+        }
+        private Integer getVolume(){
+            return Volume;
+        }
+        private void setVolume(Integer i){
+            Volume = i;
+        }
+        String setFreq(Double freq, Double delta){
             NumberFormat Format = NumberFormat.getInstance(Locale.ENGLISH);
             ((DecimalFormat)Format).applyPattern(FORMAT);
-            Format.setMinimumFractionDigits(5);
+            Format.setMinimumFractionDigits(4);
             Format.setMinimumIntegerDigits(3);
             Double num = curFreq;
-            if(str != null)
-                num = Double.parseDouble(str);
+            if(freq != 0.0)
+                num = freq;
             num += delta;
             if(num < minFreq) num = minFreq;
             if(num > maxFreq) num = maxFreq;
             curFreq = num;
             return Format.format(num);
         }
+        Integer getFreq(){
+            Double f = Double.parseDouble(Float.toString(curFreq.floatValue() * 10000F));
+            return f.intValue();
+        }
+
         @Override
         public void onClick(View view){
+            EditText e = (EditText)getView().findViewById(R.id.freq);
             switch (view.getId()){
                 case R.id.freq_next:
-                    EditText e = (EditText)getView().findViewById(R.id.freq);
-                    e.setText(setFreq(e.getText().toString(),step));
+                    e.setText(setFreq(0.0,Step));
                     break;
                 case R.id.freq_prew:
-                    EditText s = (EditText)getView().findViewById(R.id.freq);
-                    s.setText(setFreq(s.getText().toString(),-step));
+                    e.setText(setFreq(0.0, -Step));
+                    break;
+                case R.id.sound_src:
+                    /**
+                     * TODO: Create sound source select
+                     */
                     break;
             }
         }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            Volume = progress;
+            /**
+             * TODO: Set volume of Sound
+             */
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            switch (parent.getId()){
+                case R.id.ctcss:
+                    Ct = position;
+                    /**
+                     * TODO: Set tone code
+                     */
+                    break;
+                case R.id.sq:
+                    Sq = position+1;
+                    /**
+                     * TODO: Set SQ parameter
+                     */
+                    break;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+
         @Override
         public void onCreate(Bundle savedInstance){
             super.onCreate(savedInstance);
         }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.manual_freq, container, false);
+            assert rootView != null;
             rootView.findViewById(R.id.freq_next).setOnClickListener(this);
             rootView.findViewById(R.id.freq_prew).setOnClickListener(this);
-            EditText e = (EditText)rootView.findViewById(R.id.freq);
-            e.setText(setFreq(null,0.0));
-            //minFreq = getArguments().getDouble(APP_PREFERENCES_MIN_FREQ);
-            //maxFreq = getArguments().getDouble(APP_PREFERENCES_MAX_FREQ);
+            rootView.findViewById(R.id.sound_src).setOnClickListener(this);
+            EditText freq = (EditText)rootView.findViewById(R.id.freq);
+            freq.addTextChangedListener(this);
+            Spinner sq = (Spinner)rootView.findViewById(R.id.sq);
+            Spinner ct = (Spinner)rootView.findViewById(R.id.ctcss);
+            SeekBar vol = (SeekBar)rootView.findViewById(R.id.volume);
+            vol.setOnSeekBarChangeListener(this);
+            sq.setOnItemSelectedListener(this);
+            ct.setOnItemSelectedListener(this);
+            /**
+             * TODO: Check weather of views before set him
+             */
+            //if(savedInstanceState.isEmpty())
+            try{
+                freq.setText(setFreq(0.0,0.0));
+                sq.setSelection(Sq - 1);
+                ct.setSelection(Ct);
+                vol.setProgress(Volume);
+            }catch (Exception e){
+                    Log.i("onCreateView","Failed to set state");
+            }
+
             return rootView;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            //Log.i("BeforeTextChanged","s = "+s.toString()+" count="+count+" after="+after);
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            //Log.i("TextChanged","s = "+s.toString()+" count="+count+" before="+before);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            Double freq;
+            if(s.length()>0){
+                freq = Double.parseDouble(s.toString());
+                if(freq == 0.0){
+                    s.replace(1,s.length(),setFreq(0.0,0.0));
+                }
+                if(freq > maxFreq && s.length() >= 3){
+                    Toast.makeText(getView().getContext(), getString(R.string.set_max)+" "+maxFreq.toString(), Toast.LENGTH_SHORT).show();
+                    if(s.length()>2)s.delete(s.length()-1,s.length());
+                    return;
+                }
+                if(freq < minFreq && s.length() >=3){
+                    Toast.makeText(getView().getContext(), getString(R.string.set_min)+" "+minFreq.toString(), Toast.LENGTH_SHORT).show();
+                    if(s.length()>2)s.delete(s.length()-1,s.length());
+                    return;
+                }
+                //Log.i("Editor",s.toString());
+                if(s.length() == 3)s.append(".");
+                if(s.length()>= 6)curFreq = freq;
+                /**
+                 * TODO: Set FREQUENCY immedeatly here
+                 */
+            }
         }
     }
     public static class Channel extends Fragment implements OnClickListener  {
@@ -381,12 +535,35 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                  Bundle savedInstanceState) {
             View rootView;
             rootView = inflater.inflate(R.layout.channels, container, false);
+            /**
+             * TODO: Channel List and manipulation
+             */
             return rootView;
         }
     }
-    public static class Chat extends Fragment implements OnClickListener  {
+    public static class Chat extends Fragment implements
+            OnClickListener,
+            View.OnKeyListener
+    {
+        private String Nick;
+        private String History;
         public Chat(){
 
+        }
+        private String getNick(){
+            return Nick;
+        }
+        private void setNick(String nick){
+            Nick = nick;
+        }
+        private String getHistory(){
+            return History;
+        }
+        private void setHistory(String history){
+            History = history;
+        }
+        private Spanned getHtml(){
+            return Html.fromHtml(History);
         }
         @Override
         public void onClick(View view){
@@ -399,9 +576,87 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            History = "<h1>"+getString(R.string.title_chat)+"</h1>\n";
             View rootView;
             rootView = inflater.inflate(R.layout.chat, container, false);
+            assert rootView != null;
+            TextView nick = (TextView)rootView.findViewById(R.id.nick);
+            TextView chat = (TextView)rootView.findViewById(R.id.chat);
+            EditText msg = (EditText)rootView.findViewById(R.id.message);
+            chat.setText(getHtml());
+            msg.setOnKeyListener(this);
+            chat.scrollTo(0,100000);
+            nick.setText(Nick+" >");
+            /**
+             * TODO: Chat
+             */
             return rootView;
+        }
+
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            switch (keyCode){
+                case KeyEvent.KEYCODE_ENTER :
+                    EditText e = (EditText)getView().findViewById(R.id.message);
+                    String msg = e.getText().toString();
+                    if(!msg.equals("")){
+                        TextView w = (TextView)getView().findViewById(R.id.chat);
+                        History += "<div>"+Nick+"&nbsp;&gt;"+msg+"</div>";
+                        w.setText(getHtml());
+                        w.scrollBy(0,1000);
+                        e.setText("");
+                    }
+                    return true;
+                    //break;
+            }
+            return false;
+        }
+    }
+    public class SettingsDialog extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanseState){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View Settings = inflater.inflate(R.layout.settings, null);
+            assert Settings != null;
+            final EditText nic = (EditText)Settings.findViewById(R.id.set_nick);
+            nic.setText(Nick);
+            final EditText min = (EditText)Settings.findViewById(R.id.set_min);
+            min.setText(minFreq.toString());
+            final EditText max = (EditText)Settings.findViewById(R.id.set_max);
+            max.setText(maxFreq.toString());
+            final Spinner st = (Spinner)Settings.findViewById(R.id.set_step);
+            for(int i=0;i<steps.length;i++)if(Step.equals(steps[i]))st.setSelection(i);
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(Settings)
+                    // Add action buttons
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            minFreq = Double.parseDouble(min.getText().toString());
+                            maxFreq = Double.parseDouble(max.getText().toString());
+                            Step = steps[st.getSelectedItemPosition()];
+                            Nick = nic.getText().toString();
+                            mManual.setMinFreq(minFreq);
+                            mManual.setMaxFreq(maxFreq);
+                            mManual.setStep(Step);
+                            mChat.setNick(Nick);
+                            editor.putString(APP_PREFERENCES_NICK,Nick);
+                            editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
+                            editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
+                            editor.putString(APP_PREFERENCES_STEP,Step.toString());
+                            editor.commit();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            SettingsDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+
         }
     }
 

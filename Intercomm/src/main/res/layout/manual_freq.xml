@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:clickable="false"
+    android:background="@android:color/background_dark">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/freq_prew"
+            android:src="@android:drawable/ic_media_rew"
+            android:layout_gravity="right|top"
+            android:focusable="true"
+            android:contentDescription="@string/freq_prew"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:ems="10"
+            android:id="@+id/freq"
+            android:enabled="true"
+            android:editable="false"
+            android:layout_marginTop="5dp"
+            android:textSize="38dp"
+            android:layout_weight="1"
+            android:text="000.0000"
+            android:gravity="center_vertical|center_horizontal"
+            android:inputType="numberDecimal"
+            android:background="@android:color/transparent"
+            android:autoText="false"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:hint="@string/freq"
+            android:textColor="@android:color/primary_text_dark"
+            android:textStyle="bold"
+            android:typeface="monospace"
+            android:clickable="true"
+            android:focusable="true"
+            android:maxLength="8"
+            android:cursorVisible="true"
+            android:textCursorDrawable="@drawable/cursor"
+            android:textIsSelectable="true" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/freq_next"
+            android:src="@android:drawable/ic_media_ff"
+            android:layout_gravity="left|top"
+            android:focusable="true"
+            android:contentDescription="@string/freq_next"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="CSS: "
+            android:id="@+id/ctcss_label"
+            android:singleLine="true"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_margin="5dp" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ctcss"
+            android:entries="@array/ctcss"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:longClickable="false"
+            android:spinnerMode="dropdown"
+            android:layout_weight="4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="SQ: "
+            android:id="@+id/sq_label"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:layout_margin="5dp" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sq"
+            android:layout_weight="6"
+            android:focusableInTouchMode="false"
+            android:spinnerMode="dropdown"
+            android:entries="@array/sq" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sound_src"
+            android:focusableInTouchMode="false"
+            android:src="@android:drawable/ic_lock_silent_mode_off" />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/volume"
+            android:layout_margin="10dp"
+            android:layout_weight="5"
+            android:layout_gravity="center_vertical"
+            android:max="5"
+            android:longClickable="false"
+            android:progress="4"
+            android:paddingEnd="10dp"
+            android:paddingStart="10dp" />
+    </LinearLayout>
+
+</LinearLayout>
