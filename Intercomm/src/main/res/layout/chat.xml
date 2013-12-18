@@ -5,26 +5,25 @@
     android:layout_height="match_parent"
     android:background="@android:color/background_dark">
 
-    <TextView
+    <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:id="@+id/chat"
+        android:id="@+id/scrollView"
         android:layout_weight="1"
-        android:scrollbars="vertical"
-        android:autoLink="phone|email|map|web"
-        android:isScrollContainer="true"
-        android:linksClickable="true"
-        android:overScrollMode="ifContentScrolls"
-        android:textIsSelectable="true"
-        android:background="@android:color/background_dark"
-        android:textColor="@android:color/primary_text_dark"
-        style="@style/Theme.AppCompat"
-        android:enabled="true"
-        android:focusable="true"
-        android:padding="10dp"
-        android:clickable="true"
-        android:editable="true"
-        android:focusableInTouchMode="true" />
+        android:fillViewport="true"
+        android:padding="5dp"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/chat"
+            android:autoLink="phone|email|map|web"
+            android:bufferType="spannable"
+            android:enabled="true"
+            android:linksClickable="true"
+            android:textColor="@android:color/primary_text_dark_nodisable" />
+    </ScrollView>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -54,7 +53,12 @@
             android:selectAllOnFocus="true"
             android:hint="@string/message"
             android:singleLine="true"
-            android:inputType="text" />
+            android:inputType="textNoSuggestions"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:enabled="true"
+            android:longClickable="true" />
     </LinearLayout>
 
 </LinearLayout>

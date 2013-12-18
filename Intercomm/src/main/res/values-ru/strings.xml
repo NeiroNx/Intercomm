@@ -21,6 +21,8 @@
     <string name="set_min">Мин МГц</string>
     <string name="set_max">Макс МГц</string>
     <string name="step_label">Шаг</string>
+    <string name="clear_history">Очистить историю</string>
+    <string name="share_gps">Ссылка GPS</string>
     <string-array name="ctcss">
         <item value="0">Выкл</item>
         <item value="1">67.0Гц</item>

@@ -2,20 +2,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.nxn.intercomm.MainActivity">
-    
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="1"
-        app:showAsAction="never" />
-    <item android:id="@+id/action_quit"
-        android:title="@string/action_quit"
-        android:orderInCategory="2"
-        android:icon="@android:drawable/ic_delete"
-        app:showAsAction="always"/>
+
     <item android:id="@+id/power"
         android:title="@string/power"
         android:checkable="true"
         android:icon="@android:drawable/ic_lock_power_off"
         app:showAsAction="always"
-        android:orderInCategory="0"/>
+        android:orderInCategory="2"/>
+    <item android:id="@+id/action_quit"
+        android:title="@string/action_quit"
+        android:orderInCategory="20"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        app:showAsAction="always"/>
+    <item android:id="@+id/three_dots_item"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/action_settings"
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/share_gps"
+                android:title="@string/share_gps"
+                android:showAsAction="ifRoom"
+                android:actionViewClass="mChat"
+                android:orderInCategory="0"
+                android:icon="@android:drawable/ic_menu_share" />
+            <item android:id="@+id/clear_history_action"
+                android:title="@string/clear_history"
+                app:showAsAction="ifRoom"
+                android:actionViewClass="mChat"
+                android:icon="@android:drawable/ic_menu_delete"/>
+            <item android:id="@+id/action_settings"
+                android:title="@string/action_settings"
+                android:orderInCategory="10"
+                android:icon="@android:drawable/ic_menu_preferences"
+                app:showAsAction="never" />
+        </menu>
+    </item>
 </menu>
