@@ -19,12 +19,11 @@
             android:id="@+id/searchText"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:textColor="@android:color/primary_text_dark"
+            android:textColor="@android:color/primary_text_dark_nodisable"
             android:singleLine="true"
             android:textSize="30dp"
             android:layout_margin="5dp"
             android:enabled="true"
-            android:focusable="true"
             android:maxLength="10"
             android:inputType="textNoSuggestions"
             android:cursorVisible="true"
@@ -35,15 +34,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/search"
-            android:src="@android:drawable/ic_menu_search"
-            android:focusable="true" />
+            android:src="@android:drawable/ic_menu_search" />
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/add"
-            android:src="@android:drawable/ic_menu_add"
-            android:focusable="true" />
+            android:src="@android:drawable/ic_menu_add" />
     </LinearLayout>
 
     <ScrollView

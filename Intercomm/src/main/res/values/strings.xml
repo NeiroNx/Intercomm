@@ -23,6 +23,17 @@
     <string name="step_label">Step</string>
     <string name="clear_history">Clear History</string>
     <string name="share_gps">Share GPS</string>
+    <string name="not_send"> (Not Sended)</string>
+    <string name="sound" />
+    <string name="ctcss_label">CTCSS: </string>
+    <string name="sq_label">SQ: </string>
+    <string name="freq_def">000.0000</string>
+    <string name="name">Medium Text</string>
+    <string name="rxfreq_label">Recive MHz</string>
+    <string name="txfreq_label">Transmit MHz</string>
+    <string name="txctcss_label">TXCTCSS</string>
+    <string name="rxctcss_label">RXCTCSS</string>
+    <string name="sqx_label">SQ</string>
     <string-array name="ctcss">
         <item value="0">0HZ</item>
         <item value="1">67.0HZ</item>

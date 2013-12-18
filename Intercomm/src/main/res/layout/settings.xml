@@ -102,7 +102,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/set_step"
                 android:layout_weight="5"
-                android:focusableInTouchMode="false"
                 android:entries="@array/step"
                 android:spinnerMode="dialog" />
         </TableRow>

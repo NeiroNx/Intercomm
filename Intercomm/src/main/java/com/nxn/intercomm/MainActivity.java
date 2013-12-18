@@ -78,10 +78,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String FORMAT = "###.####";
 
     public static final Double[] steps = {0.00625,0.01250,0.025}; //Frequency step array
+    public Integer Ver = -1;
     public String Nick = "MyNick";
     public String History = "";
     public Double curFreq = 446.00625;
+    public Double curTxFreq = 0.0;  //Set 0.0 to use curFreq
     public Integer curCt = 0;
+    public Integer curTxCt = 0;
     public Double Step = steps[1];
     public Double minFreq = 400.0;
     public Double maxFreq = 480.0;
@@ -95,7 +98,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Intercom mIntercom = new Intercom();
     private Boolean InitOK = false;
 
-    Integer getFreq(){
+    Integer txFreq(){
+        Double tx = (curTxFreq.equals(0.0))?curFreq:curTxFreq;
+        Double f = Double.parseDouble(Float.toString(tx.floatValue() * 10000F));
+        return f.intValue();
+    }
+    Integer rxFreq(){
         Double f = Double.parseDouble(Float.toString(curFreq.floatValue() * 10000F));
         return f.intValue();
     }
@@ -113,11 +121,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
         minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
         maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
-        curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curFreq.toString()));
-        curCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curCt.toString()));
+        curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curFreq.toString()));
+        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curTxFreq.toString()));
+        curCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curCt.toString()));
+        curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
+        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,Power.toString()));
+
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -174,54 +186,62 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         Timer autoUpdate = new Timer();
         autoUpdate.schedule(new TimerTask() {
+            /**
+             * Apply Settings and INIT
+             */
             @Override
             public void run() {
                 if(!curFreq.equals(mManual.getCurFreq())){
                     curFreq = mManual.getCurFreq();
                     editor.putString(APP_PREFERENCES_TX_FREQ,curFreq.toString());
                     editor.commit();
-                    try{
-                        mIntercom.setRadioFrequency(getFreq());
-                        mIntercom.setTXFrequency(getFreq());
-                        mIntercom.setRXFrequency(getFreq());
-                        mIntercom.resumeIntercomSetting();
-                    }catch (Exception e){
-                        Log.w("Intercom","setRadioFrequency(getFreq())");
-                    }
+                    if(Power)
+                        try{
+                            //mIntercom.setRadioFrequency(getFreq());
+                            mIntercom.setTXFrequency(txFreq());
+                            mIntercom.setRXFrequency(rxFreq());
+                            mIntercom.resumeIntercomSetting();
+                        }catch (NoSuchMethodError e){
+                            Log.w("Intercom","setRadioFrequency(getFreq())");
+                        }
                 }
                 if(!Sq.equals(mManual.getSq())){
                     Sq = mManual.getSq();
                     editor.putString(APP_PREFERENCES_SQ, Sq.toString());
                     editor.commit();
-                    try{
-                        mIntercom.setSq(Sq);
-                        mIntercom.resumeIntercomSetting();
-                    }catch (Exception e){
-                        Log.w("Intercom","setSq(Sq)");
-                    }
+                    if(Power)
+                        try{
+                            mIntercom.setSq(Sq);
+                            mIntercom.resumeIntercomSetting();
+                        }catch (NoSuchMethodError e){
+                            Log.w("Intercom","setSq(Sq)");
+                        }
                 }
                 if(!curCt.equals(mManual.getCt())){
                     curCt = mManual.getCt();
-                    editor.putString(APP_PREFERENCES_TX_CTCSS, curCt.toString());
+                    curTxCt = mManual.getCt();
+                    editor.putString(APP_PREFERENCES_RX_CTCSS, curCt.toString());
                     editor.commit();
-                    try{
-                        mIntercom.setCtcss(curCt);
-                        mIntercom.setTxCtcss(curCt);
-                        mIntercom.resumeIntercomSetting();
-                    }catch (Exception e){
-                        Log.w("Intercom","setCtcss(curCt)");
-                    }
+                    if(Power)
+                        try{
+                            mIntercom.setCtcss(curCt);
+                            mIntercom.setTxCtcss(curTxCt);
+                            mIntercom.resumeIntercomSetting();
+                        }catch (NoSuchMethodError e){
+                            Log.w("Intercom","setCtcss(curCt)");
+                        }
                 }
                 if(!Volume.equals(mManual.getVolume())){
                     Volume = mManual.getVolume();
                     editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
                     editor.commit();
-                    try{
-                        mIntercom.setVolume(Volume);
-                        mIntercom.resumeIntercomSetting();
-                    }catch (Exception e){
-                        Log.w("Intercom","setVolume(Volume)");
-                    }
+                    if(Power)
+                        try{
+                            mIntercom.setVolume(Volume);
+                            mIntercom.resumeIntercomSetting();
+                        }catch (NoSuchMethodError e){
+                            Log.w("Intercom","setVolume(Volume)");
+                        }
                 }
                 if(!History.equals(mChat.getHistory())){
                     History = mChat.getHistory();
@@ -230,6 +250,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 mChat.setNick(Nick);
                 mChat.setHistory(History);
+                mChat.setPower(Power);
                 mManual.setVolume(Volume);
                 mManual.setMaxFreq(maxFreq);
                 mManual.setMinFreq(minFreq);
@@ -237,47 +258,60 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 mManual.setCt(curCt);
                 mManual.setStep(Step);
                 mManual.setCurFreq(curFreq);
-                if(!InitOK){
+                if(Power && !InitOK){
+                    curCt = mManual.getCt();
+                    curFreq = mManual.getCurFreq();
+                    Sq = mManual.getSq();
+                    Volume = mManual.getVolume();
                     try{
                         mIntercom.openCharDev();
-                        if(Power)mIntercom.intercomPowerOn();
-                    }catch (Exception e){
-                        Log.w("Intercom","intercomPowerOn()");
+                        mIntercom.intercomPowerOn();
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","intercomPowerOn() and init");
                     }
                     try{
-                        mIntercom.setRadioFrequency(getFreq());
-                        mIntercom.setTXFrequency(getFreq());
-                        mIntercom.setRXFrequency(getFreq());
-                    }catch (Exception e){
+                        Thread.sleep(200L);
+                        Ver = mIntercom.getIntercomVersion();
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","getIntercomVersion()");
+                    } catch (InterruptedException e) {
+                        //e.printStackTrace();
+                    }
+                    try{
+                        mIntercom.setTXFrequency(txFreq());
+                        mIntercom.setRXFrequency(rxFreq());
+                        //mIntercom.setRadioFrequency(getFreq());
+                    }catch (NoSuchMethodError e){
                         Log.w("Intercom","setRadioFrequency(getFreq())");
                     }
                     try{
-                        mIntercom.setCtcss(curCt);
-                        mIntercom.setTxCtcss(curCt);
-                    }catch (Exception e){
-                        Log.w("Intercom","setCtcss(curCt)");
-                    }
-                    try{
                         mIntercom.setSq(Sq);
-                    }catch (Exception e){
+                    }catch (NoSuchMethodError e){
                         Log.w("Intercom","setSq(Sq)");
                     }
                     try{
-                        mIntercom.intercomSpeakerMode();
-                    }catch (Exception e){
-                        Log.w("Intercom","intercomSpeakerMode()");
+                        mIntercom.setCtcss(curCt);
+                        mIntercom.setTxCtcss(curTxCt);
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","setCtcss(curCt)");
                     }
                     try{
                         mIntercom.setVolume(Volume);
-                    }catch (Exception e){
+                    }catch (NoSuchMethodError e){
                         Log.w("Intercom","setVolume(Volume)");
                     }
                     try{
+                        mIntercom.intercomSpeakerMode();
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","intercomSpeakerMode()");
+                    }
+                    try{
                         mIntercom.resumeIntercomSetting();
-                    }catch (Exception e){
+                    }catch (NoSuchMethodError e){
                         Log.w("Intercom","resumeIntercomSetting()");
                     }
                     InitOK = true;
+
                 }
             }
         }, 0, 1000);
@@ -295,8 +329,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        //if(Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,"false")))
-        //menu.findItem(R.id.power).setIcon(android.R.drawable.ic_lock_idle_charging);
+            try{
+                MenuItem item = menu.findItem(R.id.power);
+                if(Power)item.setIcon(android.R.drawable.ic_lock_idle_charging);
+                item.setChecked(Power);
+            }catch (Error e){
+                Log.w("Power","can not set icon");
+            }
         return true;
     }
 
@@ -322,25 +361,50 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case R.id.power:
                 if(item.isChecked()){
-                    item.setIcon(android.R.drawable.ic_lock_power_off);
-                    Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
-                    item.setChecked(false);
                     try{
                         mIntercom.intercomPowerOff();
-                    }catch (Exception e){
-                        Log.w("Intercom","intercomPowerOff()");
+                        Thread.sleep(200L);
+                        mIntercom.closeCharDev();
+                        Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
+                        item.setIcon(android.R.drawable.ic_lock_power_off);
+                        item.setChecked(false);
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","intercomPowerOff() failed");
+                    } catch (InterruptedException e) {
+                        //
                     }
                 }else{
-                    item.setIcon(android.R.drawable.ic_lock_idle_charging);
-                    Toast.makeText(this, R.string.power_enabled, Toast.LENGTH_SHORT).show();
-                    item.setChecked(true);
                     try{
+                        mIntercom.openCharDev();
                         mIntercom.intercomPowerOn();
-                    }catch (Exception e){
-                        Log.w("Intercom","intercomPowerOn()");
+                        Thread.sleep(200L); //Boot-up wait
+                        try{
+                            Ver = mIntercom.getIntercomVersion();
+                        }catch (NoSuchMethodError e){
+                            Log.w("Intercom","getIntercomVersion()");
+                        }
+                        mIntercom.setTXFrequency(txFreq());
+                        mIntercom.setRXFrequency(rxFreq());
+                        //mIntercom.setRadioFrequency(getFreq());
+                        mIntercom.setSq(Sq);
+                        mIntercom.setCtcss(curCt);
+                        mIntercom.setTxCtcss(curCt);
+                        mIntercom.setVolume(Volume);
+                        mIntercom.intercomSpeakerMode();
+                        mIntercom.resumeIntercomSetting();
+                        Toast.makeText(this, R.string.power_enabled, Toast.LENGTH_SHORT).show();
+                        item.setIcon(android.R.drawable.ic_lock_idle_charging);
+                        item.setChecked(true);
+                        InitOK = true;
+                    }catch (Error e){
+                        Log.w("Intercom","PowerOn init failed");
+                    } catch (InterruptedException e) {
+                        //
                     }
                 }
                 Power=item.isChecked();
+                editor.putString(APP_PREFERENCES_POWER,Power.toString());
+                editor.commit();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -497,9 +561,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             Volume = progress;
-            /**
-             * TODO: Set volume of Sound
-             */
         }
 
         @Override
@@ -517,15 +578,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             switch (parent.getId()){
                 case R.id.ctcss:
                     Ct = position;
-                    /**
-                     * TODO: Set tone code
-                     */
                     break;
                 case R.id.sq:
                     Sq = position+1;
-                    /**
-                     * TODO: Set SQ parameter
-                     */
                     break;
             }
         }
@@ -565,7 +620,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 sq.setSelection(Sq - 1);
                 ct.setSelection(Ct);
                 vol.setProgress(Volume);
-            }catch (Exception e){
+            }catch (Error e){
                     Log.i("onCreateView","Failed to set state");
             }
 
@@ -602,19 +657,27 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 //Log.i("Editor",s.toString());
                 if(s.length() == 3)s.append(".");
-                if(s.length()>= 6)curFreq = freq;
-                /**
-                 * TODO: Set FREQUENCY immedeatly here
-                 */
+                if(s.length()>= 4)curFreq = freq;
             }
         }
     }
     public static class Channel extends Fragment implements OnClickListener  {
+        private Double curRxFreq = 400.0;
+        private Double curTxFreq = 400.0;
+        private Integer curTxCt = 0;
+        private Integer curRxCt = 0;
+        private Integer Sq = 8;
         public Channel(){
 
         }
         @Override
         public void onClick(View view){
+            switch (view.getId()){
+                case R.id.add:
+                    DialogFragment newFragment = new ChannelDialog();
+                    newFragment.show(super.getFragmentManager(),"channel");
+                    break;
+            }
 
         }
         @Override
@@ -626,10 +689,42 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                  Bundle savedInstanceState) {
             View rootView;
             rootView = inflater.inflate(R.layout.channels, container, false);
+            assert rootView != null;
+            rootView.findViewById(R.id.add).setOnClickListener(this);
+            rootView.findViewById(R.id.search).setOnClickListener(this);
             /**
              * TODO: Channel List and manipulation
              */
             return rootView;
+        }
+        public class ChannelDialog extends DialogFragment{
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanseState){
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                // Get the layout inflater
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                final View Settings = inflater.inflate(R.layout.channel, null);
+                assert Settings != null;
+                //final EditText nick = (EditText)Settings.findViewById(R.id.set_nick);
+
+                // Inflate and set the layout for the dialog
+                // Pass null as the parent view because its going in the dialog layout
+                builder.setView(Settings)
+                        // Add action buttons
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                //
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                ChannelDialog.this.getDialog().cancel();
+                            }
+                        });
+                return builder.create();
+
+            }
         }
     }
     public static class Chat extends Fragment implements
@@ -638,8 +733,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         private String Nick = "";
         private String History = "";
+        private Boolean Power;
+        private Intercom cIntrecom = new Intercom();
         public Chat(){
 
+        }
+        private void setPower(Boolean power){
+            Power = power;
         }
         private String getNick(){
             return Nick;
@@ -678,9 +778,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             nick.setText(Nick+" >");
             chat.setText(getHtml());
             scroll.fullScroll(View.FOCUS_DOWN);
-            /**
-             * TODO: Chat
-             */
             return rootView;
         }
 
@@ -695,7 +792,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     if(!msg.equals("")){
                         TextView chat = (TextView)getView().findViewById(R.id.chat);
                         ScrollView scroll = (ScrollView)getView().findViewById(R.id.scrollView);
-                        History += "<div>"+Nick+"&nbsp;&gt;"+msg+"</div>";
+                        msg = "<div>"+Nick+"&nbsp;&gt;"+msg+"</div>";
+                        try{
+                            if(Power)cIntrecom.sendMessage(msg);
+                        }catch (NoSuchMethodError e){
+                            Log.w("Message","can not be send");
+                            msg += "<i>"+getString(R.string.not_send)+"</i>";
+                        }
+                        History += msg;
                         chat.setText(getHtml());
                         scroll.fullScroll(View.FOCUS_DOWN);
                         message.setText("");

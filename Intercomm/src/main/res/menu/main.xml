@@ -3,6 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.nxn.intercomm.MainActivity">
 
+    <item android:id="@+id/share_gps"
+        android:title="@string/share_gps"
+        android:showAsAction="never"
+        android:actionViewClass="mChat"
+        android:orderInCategory="0"
+        android:icon="@android:drawable/ic_menu_share" />
+    <item android:id="@+id/clear_history_action"
+        android:title="@string/clear_history"
+        app:showAsAction="never"
+        android:actionViewClass="mChat"
+        android:icon="@android:drawable/ic_menu_delete"/>
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="10"
+        android:icon="@android:drawable/ic_menu_preferences"
+        app:showAsAction="never" />
     <item android:id="@+id/power"
         android:title="@string/power"
         android:checkable="true"
