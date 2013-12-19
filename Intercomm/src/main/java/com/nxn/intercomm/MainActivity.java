@@ -61,7 +61,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * Settings declaration
      */
-    SharedPreferences mSettings;
+    private SharedPreferences mSettings;
+    private SharedPreferences.Editor editor;
     public static final String APP_PREFERENCES = "IntercomSettings";
     public static final String APP_PREFERENCES_NICK = "nick";
     public static final String APP_PREFERENCES_TX_FREQ = "tx_freq";
@@ -91,7 +92,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer Sq = 1;
     public Integer Volume = 5;
     public Boolean Power = false;
-    public SharedPreferences.Editor editor;
     public ManualFrequency mManual;
     public Channel mChannels;
     public Chat mChat;
@@ -119,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor = mSettings.edit();
         Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
         History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
+        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,Power.toString()));
         minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
         maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
         curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curFreq.toString()));
@@ -128,7 +129,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
-        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,Power.toString()));
+
 
 
         // Set up the action bar.
@@ -146,7 +147,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         /**
          * Manual Frequency set settings
          */
-        mManual = new ManualFrequency();
+        mManual = new ManualFrequency(mSettings);
         mManual.setMaxFreq(maxFreq);
         mManual.setMinFreq(minFreq);
         mManual.setCurFreq(curFreq);
@@ -155,8 +156,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mManual.setCt(curCt);
         mManual.setVolume(Volume);
 
-        mChannels = new Channel();
-        mChat = new Chat();
+        mChannels = new Channel(mSettings);
+        mChat = new Chat(mSettings);
         mChat.setNick(Nick);
         mChat.setHistory(History);
         mViewPager.setAdapter(mPagerAdapter);
@@ -472,15 +473,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AdapterView.OnItemSelectedListener,
             SeekBar.OnSeekBarChangeListener
     {
-        private Double curFreq = 446.0062;
-        private Double minFreq = 400.0;
-        private Double maxFreq = 480.0;
-        private Double Step = 0.00625;
-        private Integer Sq = 1;
-        private Integer Ct = 0;
-        private Integer Volume = 5;
-        public ManualFrequency(){
-
+        private Double curFreq;
+        private Double minFreq;
+        private Double maxFreq;
+        private Double Step;
+        private Integer Sq;
+        private Integer Ct;
+        private Integer Volume;
+        public ManualFrequency(SharedPreferences mSettings){
+            minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, "400.0"));
+            maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,"480.0"));
+            curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,"446.0062"));
+            Ct = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, "0"));
+            Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, "0.0125"));
+            Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,"5"));
+            Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,"5"));
         }
         private Double getMinFreq(){
             return minFreq;
@@ -667,7 +674,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         private Integer curTxCt = 0;
         private Integer curRxCt = 0;
         private Integer Sq = 8;
-        public Channel(){
+        public Channel(SharedPreferences mSettings){
 
         }
         @Override
@@ -731,12 +738,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             OnClickListener,
             View.OnKeyListener
     {
-        private String Nick = "";
-        private String History = "";
+        private String Nick;
+        private String History;
         private Boolean Power;
         private Intercom cIntrecom = new Intercom();
-        public Chat(){
-
+        public Chat(SharedPreferences mSettings){
+            Nick = mSettings.getString(APP_PREFERENCES_NICK, "MyNick");
+            History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
+            Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,"false"));
         }
         private void setPower(Boolean power){
             Power = power;
@@ -790,6 +799,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     EditText message = (EditText)getView().findViewById(R.id.message);
                     String msg = message.getText().toString();
                     if(!msg.equals("")){
+                        /**
+                         * TODO: Set Nick with "/name MyNick"
+                         */
                         TextView chat = (TextView)getView().findViewById(R.id.chat);
                         ScrollView scroll = (ScrollView)getView().findViewById(R.id.scrollView);
                         msg = "<div>"+Nick+"&nbsp;&gt;"+msg+"</div>";

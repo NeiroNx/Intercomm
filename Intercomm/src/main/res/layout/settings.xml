@@ -21,7 +21,7 @@
                 android:id="@+id/nick_lable"
                 android:singleLine="true"
                 android:layout_column="0"
-                android:layout_weight="1" />
+                android:layout_weight=".1" />
 
             <EditText
                 android:layout_width="fill_parent"
@@ -29,7 +29,7 @@
                 android:id="@+id/set_nick"
                 android:enabled="true"
                 android:inputType="text"
-                android:layout_weight="5"
+                android:layout_weight="1000"
                 android:layout_column="1"
                 android:maxLength="25"
                 android:singleLine="true" />
@@ -46,13 +46,13 @@
                 android:text="@string/set_min"
                 android:id="@+id/min_lable"
                 android:layout_column="0"
-                android:layout_weight="1" />
+                android:layout_weight=".1" />
 
             <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/set_min"
-                android:layout_weight="5"
+                android:layout_weight="1000"
                 android:layout_column="1"
                 android:inputType="numberDecimal"
                 android:maxLength="8"
@@ -71,13 +71,13 @@
                 android:id="@+id/max_lable"
                 android:singleLine="true"
                 android:layout_column="0"
-                android:layout_weight="1" />
+                android:layout_weight=".1" />
 
             <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/set_max"
-                android:layout_weight="5"
+                android:layout_weight="1000"
                 android:layout_column="1"
                 android:inputType="numberDecimal"
                 android:maxLength="8"
@@ -95,13 +95,13 @@
                 android:text="@string/step_label"
                 android:id="@+id/textView"
                 android:layout_column="0"
-                android:layout_weight="1" />
+                android:layout_weight=".1" />
 
             <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/set_step"
-                android:layout_weight="5"
+                android:layout_weight="1000"
                 android:entries="@array/step"
                 android:spinnerMode="dialog" />
         </TableRow>
