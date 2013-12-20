@@ -7,7 +7,7 @@
         <option name="externalProjectPath" value="C:\Users\NeiroN\AndroidStudioProjects\Intercomm" />
       </GradleProjectSettings>
     </option>
-    <option name="serviceDirectoryPath" value="$USER_HOME$/.gradle/" />
+    <option name="serviceDirectoryPath" value="$USER_HOME$/.gradle" />
   </component>
 </project>
 

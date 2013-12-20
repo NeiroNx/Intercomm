@@ -29,7 +29,7 @@
             android:id="@+id/freq"
             android:enabled="true"
             android:layout_marginTop="5dp"
-            android:textSize="38dp"
+            android:textSize="34dp"
             android:layout_weight="1"
             android:text="@string/freq_def"
             android:gravity="center_vertical|center_horizontal"
@@ -41,7 +41,7 @@
             android:textColor="@android:color/primary_text_dark_nodisable"
             android:textStyle="bold"
             android:typeface="monospace"
-            android:maxLength="8"
+            android:maxLength="9"
             android:cursorVisible="true"
             android:textCursorDrawable="@drawable/cursor"
             android:layout_gravity="center" />
@@ -63,44 +63,94 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/ctcss_label"
-            android:id="@+id/ctcss_label"
-            android:singleLine="true"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:layout_margin="5dp" />
+            android:layout_height="wrap_content">
 
-        <Spinner
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/ctcss"
-            android:entries="@array/ctcss"
-            android:focusableInTouchMode="false"
-            android:spinnerMode="dropdown"
-            android:layout_weight="4" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="10">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/sq_label"
-            android:id="@+id/sq_label"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:singleLine="true"
-            android:layout_margin="5dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/rxctcss_label"
+                    android:id="@+id/rxctcss_label"
+                    android:singleLine="true"
+                    android:textStyle="bold"
+                    android:layout_margin="5dp"
+                    android:gravity="center_vertical|right" />
 
-        <Spinner
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/sq"
-            android:layout_weight="6"
-            android:spinnerMode="dropdown"
-            android:entries="@array/sq" />
+                <Spinner
+                    android:layout_width="120dp"
+                    android:layout_height="45dp"
+                    android:id="@+id/rxctcss"
+                    android:entries="@array/ctcss"
+                    android:focusableInTouchMode="false"
+                    android:spinnerMode="dropdown"
+                    android:minHeight="40dp"
+                    android:layout_gravity="center_vertical|left" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="10">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/txctcss_label"
+                    android:id="@+id/txctcss_label"
+                    android:textStyle="bold"
+                    android:layout_margin="5dp"
+                    android:gravity="center_vertical|right" />
+
+                <Spinner
+                    android:layout_width="120dp"
+                    android:layout_height="45dp"
+                    android:id="@+id/txctcss"
+                    android:minHeight="40dp"
+                    android:focusable="false"
+                    android:entries="@array/ctcss"
+                    android:spinnerMode="dropdown"
+                    android:layout_gravity="center_vertical|left" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/sq_label"
+                android:id="@+id/sq_label"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:layout_margin="5dp"
+                android:gravity="center_vertical|right"
+                android:layout_weight="27.16" />
+
+            <Spinner
+                android:layout_width="90dp"
+                android:layout_height="45dp"
+                android:id="@+id/sq"
+                android:spinnerMode="dropdown"
+                android:entries="@array/sq"
+                android:minHeight="40dp"
+                android:layout_gravity="center_vertical|left" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout

@@ -27,26 +27,28 @@
     <string name="sound" />
     <string name="ctcss_label">CTCSS: </string>
     <string name="sq_label">SQ: </string>
-    <string name="freq_def">000.0000</string>
-    <string name="name">Medium Text</string>
+    <string name="freq_def">000.00000</string>
+    <string name="name">Channel name</string>
     <string name="rxfreq_label">Recive MHz</string>
     <string name="txfreq_label">Transmit MHz</string>
-    <string name="txctcss_label">TXCTCSS</string>
-    <string name="rxctcss_label">RXCTCSS</string>
+    <string name="txctcss_label">TX Tone</string>
+    <string name="rxctcss_label">RX Tone</string>
     <string name="sqx_label">SQ</string>
+    <string name="power_enabling">Please wait while Activating!!!</string>
+    <string name="non_runbo">Not Runbo X5 phone, trying other.</string>
     <string-array name="ctcss">
-        <item value="0">0HZ</item>
-        <item value="1">67.0HZ</item>
-        <item value="2">71.9HZ</item>
-        <item value="3">74.4HZ</item>
-        <item value="4">77.0HZ</item>
-        <item value="5">79.7HZ</item>
-        <item value="6">82.5HZ</item>
-        <item value="7">85.4HZ</item>
-        <item value="8">88.5HZ</item>
-        <item value="9">91.5HZ</item>
-        <item value="10">94.8HZ</item>
-        <item value="11">97.4HZ</item>
+        <item value="0">Off</item>
+        <item value="1">67.0 HZ</item>
+        <item value="2">71.9 HZ</item>
+        <item value="3">74.4 HZ</item>
+        <item value="4">77.0 HZ</item>
+        <item value="5">79.7 HZ</item>
+        <item value="6">82.5 HZ</item>
+        <item value="7">85.4 HZ</item>
+        <item value="8">88.5 HZ</item>
+        <item value="9">91.5 HZ</item>
+        <item value="10">94.8 HZ</item>
+        <item value="11">97.4 HZ</item>
         <item value="12">100.0HZ</item>
         <item value="13">103.5HZ</item>
         <item value="14">107.2HZ</item>
@@ -86,9 +88,14 @@
         <item>8</item>
     </string-array>
     <string-array name="step">
+        <item>5.00 KHz</item>
         <item>6.25 KHz</item>
+        <item>10.0 KHz</item>
         <item>12.5 KHz</item>
         <item>25.0 KHz</item>
+        <item>30.0 KHz</item>
+        <item>50.0 KHz</item>
+        <item>100  KHz</item>
     </string-array>
 
 </resources>

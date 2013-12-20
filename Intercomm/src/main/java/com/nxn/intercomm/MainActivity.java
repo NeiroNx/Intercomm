@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -25,22 +26,26 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.text.TextWatcher;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Intercom;
+
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,OnClickListener {
@@ -61,8 +66,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * Settings declaration
      */
-    private SharedPreferences mSettings;
-    private SharedPreferences.Editor editor;
+    public SharedPreferences mSettings;
+    public SharedPreferences.Editor editor;
     public static final String APP_PREFERENCES = "IntercomSettings";
     public static final String APP_PREFERENCES_NICK = "nick";
     public static final String APP_PREFERENCES_TX_FREQ = "tx_freq";
@@ -73,39 +78,112 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_STEP = "step";
     public static final String APP_PREFERENCES_POWER = "power";
     public static final String APP_PREFERENCES_VOLUME = "volume";
+    public static final String APP_PREFERENCES_SPEAKER = "speaker";
     public static final String APP_PREFERENCES_MIN_FREQ = "min_freq";
     public static final String APP_PREFERENCES_MAX_FREQ = "max_freq";
     public static final String APP_PREFERENCES_HISTORY = "history";
-    public static final String FORMAT = "###.####";
+    public static final String FORMAT = "###.#####";
 
-    public static final Double[] steps = {0.00625,0.01250,0.025}; //Frequency step array
+    public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.025,0.03,0.05,0.1}; //Frequency step array
     public Integer Ver = -1;
     public String Nick = "MyNick";
     public String History = "";
-    public Double curFreq = 446.00625;
-    public Double curTxFreq = 0.0;  //Set 0.0 to use curFreq
-    public Integer curCt = 0;
+    public Double curRxFreq = 446.00625;
+    public Double curTxFreq = 446.00625;
+    public Integer curRxCt = 0;
     public Integer curTxCt = 0;
     public Double Step = steps[1];
     public Double minFreq = 400.0;
     public Double maxFreq = 480.0;
     public Integer Sq = 1;
     public Integer Volume = 5;
+    public Boolean isSpeaker = true;
     public Boolean Power = false;
     public ManualFrequency mManual;
     public Channel mChannels;
     public Chat mChat;
-    private Intercom mIntercom = new Intercom();
-    private Boolean InitOK = false;
+    public Intercom mIntercom = new Intercom();
+    public NumberFormat Format;
 
-    Integer txFreq(){
-        Double tx = (curTxFreq.equals(0.0))?curFreq:curTxFreq;
-        Double f = Double.parseDouble(Float.toString(tx.floatValue() * 10000F));
-        return f.intValue();
+    //Old values to track changes
+    private Double Old_curRxFreq;
+    private Double Old_curTxFreq;
+    private Integer Old_curRxCt;
+    private Integer Old_curTxCt;
+    private Integer Old_Sq;
+    private Integer Old_Volume;
+
+    public static Double pow(Double base, int up){
+        Double result = base;
+        for(int i=1;i<up;i++)result*=base;
+        return result;
     }
-    Integer rxFreq(){
-        Double f = Double.parseDouble(Float.toString(curFreq.floatValue() * 10000F));
-        return f.intValue();
+
+    public void setTxFreq(){
+        if(curTxFreq > maxFreq || curTxFreq < minFreq)return;
+        Double f = curTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+        Log.w("setTxFreq",Integer.toString(f.intValue()));
+        mIntercom.setTXFrequency(f.intValue());
+    }
+    public void setRxFreq(){
+        if(curRxFreq > maxFreq || curRxFreq < minFreq)return;
+        Double f = curRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+        Log.w("setRxFreq",Integer.toString(f.intValue()));
+        mIntercom.setRXFrequency(f.intValue());
+    }
+    public String setFreq(Double freq , Double delta){
+        Double num = curRxFreq;
+        if(freq != 0.0)
+            num = freq;
+        num += delta;
+        if(num < minFreq) num = minFreq;
+        if(num > maxFreq) num = maxFreq;
+        curRxFreq = num;
+        curTxFreq = num;
+        return Format.format(num);
+    }
+
+    @Override
+    public void onPostResume(){
+        Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
+        History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
+        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,Power.toString()));
+        minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
+        maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
+        curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString()));
+        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
+        curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
+        curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
+        Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
+        Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
+        isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
+        Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
+        super.onPostResume();
+    }
+    @Override
+    public void onStop(){
+        editor.putString(APP_PREFERENCES_NICK,Nick);
+        editor.putString(APP_PREFERENCES_HISTORY,History);
+        editor.putString(APP_PREFERENCES_POWER,Power.toString());
+        editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
+        editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
+        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
+        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
+        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
+        editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
+        editor.putString(APP_PREFERENCES_STEP,Step.toString());
+        editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
+        editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
+        editor.putString(APP_PREFERENCES_SQ,Sq.toString());
+        editor.commit();
+        super.onStop();
+    }
+    @Override
+    public void onPostCreate(Bundle savedInstanceState){
+        mManual.main = this;
+        mChat.main = this;
+        mChannels.main = this;
+        super.onPostCreate(savedInstanceState);
     }
 
     @Override
@@ -122,15 +200,36 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,Power.toString()));
         minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
         maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
-        curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curFreq.toString()));
-        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curTxFreq.toString()));
-        curCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curCt.toString()));
-        curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curTxCt.toString()));
+        curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString()));
+        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
+        curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
+        curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
+        isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
 
+        //Set old Values to send it with timer to module
+        Old_curRxFreq = curRxFreq;
+        Old_curTxFreq = curTxFreq;
+        Old_curRxCt = curRxCt;
+        Old_curTxCt = curTxCt;
+        Old_Sq = Sq;
+        Old_Volume = Volume;
 
+        try {
+            mIntercom.openCharDev();
+        }catch (NoSuchMethodError e){
+            Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
+            mIntercom = new uartIntercom();
+        }
+
+
+        //Create format
+        Format = NumberFormat.getInstance(Locale.ENGLISH);
+        ((DecimalFormat)Format).applyPattern(FORMAT);
+        Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
+        Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -144,22 +243,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mPagerAdapter = new SampleAdapter(this, getSupportFragmentManager());
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        /**
-         * Manual Frequency set settings
-         */
-        mManual = new ManualFrequency(mSettings);
-        mManual.setMaxFreq(maxFreq);
-        mManual.setMinFreq(minFreq);
-        mManual.setCurFreq(curFreq);
-        mManual.setStep(Step);
-        mManual.setSq(Sq);
-        mManual.setCt(curCt);
-        mManual.setVolume(Volume);
 
-        mChannels = new Channel(mSettings);
-        mChat = new Chat(mSettings);
-        mChat.setNick(Nick);
-        mChat.setHistory(History);
+        mManual = ManualFrequency.newInstance(this);
+        mChannels = Channel.newInstance(this);
+        mChat = Chat.newInstance(this);
+
         mViewPager.setAdapter(mPagerAdapter);
 
         // When swiping between different sections, select the corresponding
@@ -169,11 +257,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
-                switch (position){
-                    case 2:
-                        //
-                        break;
-                }
             }
         });
         /**
@@ -185,6 +268,27 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mPagerAdapter.getPageTitle(i).toUpperCase())
                             .setTabListener(this));
 
+        if(Power){
+            Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
+            mIntercom.intercomPowerOn();
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Ver = mIntercom.getIntercomVersion();
+            setRxFreq();
+            setTxFreq();
+            mIntercom.setCtcss(curRxCt);
+            mIntercom.setTxCtcss(curTxCt);
+            mIntercom.setSq(Sq);
+            mIntercom.resumeIntercomSetting();
+            mIntercom.setVolume(Volume);
+            if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
+            mIntercom.resumeIntercomSetting();
+            Toast.makeText(this, R.string.power_enabled + "Ver: "+Ver.toString(), Toast.LENGTH_SHORT).show();
+
+        }
         Timer autoUpdate = new Timer();
         autoUpdate.schedule(new TimerTask() {
             /**
@@ -192,135 +296,48 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
              */
             @Override
             public void run() {
-                if(!curFreq.equals(mManual.getCurFreq())){
-                    curFreq = mManual.getCurFreq();
-                    editor.putString(APP_PREFERENCES_TX_FREQ,curFreq.toString());
-                    editor.commit();
-                    if(Power)
-                        try{
-                            //mIntercom.setRadioFrequency(getFreq());
-                            mIntercom.setTXFrequency(txFreq());
-                            mIntercom.setRXFrequency(rxFreq());
-                            mIntercom.resumeIntercomSetting();
-                        }catch (NoSuchMethodError e){
-                            Log.w("Intercom","setRadioFrequency(getFreq())");
-                        }
-                }
-                if(!Sq.equals(mManual.getSq())){
-                    Sq = mManual.getSq();
-                    editor.putString(APP_PREFERENCES_SQ, Sq.toString());
-                    editor.commit();
-                    if(Power)
-                        try{
-                            mIntercom.setSq(Sq);
-                            mIntercom.resumeIntercomSetting();
-                        }catch (NoSuchMethodError e){
-                            Log.w("Intercom","setSq(Sq)");
-                        }
-                }
-                if(!curCt.equals(mManual.getCt())){
-                    curCt = mManual.getCt();
-                    curTxCt = mManual.getCt();
-                    editor.putString(APP_PREFERENCES_RX_CTCSS, curCt.toString());
-                    editor.commit();
-                    if(Power)
-                        try{
-                            mIntercom.setCtcss(curCt);
-                            mIntercom.setTxCtcss(curTxCt);
-                            mIntercom.resumeIntercomSetting();
-                        }catch (NoSuchMethodError e){
-                            Log.w("Intercom","setCtcss(curCt)");
-                        }
-                }
-                if(!Volume.equals(mManual.getVolume())){
-                    Volume = mManual.getVolume();
-                    editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
-                    editor.commit();
-                    if(Power)
-                        try{
-                            mIntercom.setVolume(Volume);
-                            mIntercom.resumeIntercomSetting();
-                        }catch (NoSuchMethodError e){
-                            Log.w("Intercom","setVolume(Volume)");
-                        }
-                }
-                if(!History.equals(mChat.getHistory())){
-                    History = mChat.getHistory();
-                    editor.putString(APP_PREFERENCES_HISTORY,History);
-                    editor.commit();
-                }
-                mChat.setNick(Nick);
-                mChat.setHistory(History);
-                mChat.setPower(Power);
-                mManual.setVolume(Volume);
-                mManual.setMaxFreq(maxFreq);
-                mManual.setMinFreq(minFreq);
-                mManual.setSq(Sq);
-                mManual.setCt(curCt);
-                mManual.setStep(Step);
-                mManual.setCurFreq(curFreq);
-                if(Power && !InitOK){
-                    curCt = mManual.getCt();
-                    curFreq = mManual.getCurFreq();
-                    Sq = mManual.getSq();
-                    Volume = mManual.getVolume();
-                    try{
-                        mIntercom.openCharDev();
-                        mIntercom.intercomPowerOn();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","intercomPowerOn() and init");
+                if(Power){
+                    Boolean up = false;
+                    if(!curRxFreq.equals(Old_curRxFreq)){
+                        setRxFreq();
+                        Old_curRxFreq = curRxFreq;
+                        up = true;
                     }
-                    try{
-                        Thread.sleep(200L);
-                        Ver = mIntercom.getIntercomVersion();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","getIntercomVersion()");
-                    } catch (InterruptedException e) {
-                        //e.printStackTrace();
+                    if(!curTxFreq.equals(Old_curTxFreq)){
+                        setTxFreq();
+                        Old_curTxFreq = curTxFreq;
+                        up = true;
                     }
-                    try{
-                        mIntercom.setTXFrequency(txFreq());
-                        mIntercom.setRXFrequency(rxFreq());
-                        //mIntercom.setRadioFrequency(getFreq());
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","setRadioFrequency(getFreq())");
+                    if(!curRxCt.equals(Old_curRxCt)){
+                        mIntercom.setCtcss(curRxCt);
+                        Old_curRxCt = curRxCt;
+                        up = true;
                     }
-                    try{
-                        mIntercom.setSq(Sq);
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","setSq(Sq)");
-                    }
-                    try{
-                        mIntercom.setCtcss(curCt);
+                    if(!curTxCt.equals(Old_curTxCt)){
                         mIntercom.setTxCtcss(curTxCt);
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","setCtcss(curCt)");
+                        Old_curTxCt = curTxCt;
+                        up = true;
                     }
-                    try{
+                    if(!Sq.equals(Old_Sq)){
+                        mIntercom.setSq(Sq);
+                        Old_Sq = Sq;
+                        up = true;
+                    }
+                    if(!Volume.equals(Old_Volume)){
                         mIntercom.setVolume(Volume);
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","setVolume(Volume)");
+                        Old_Volume = Volume;
+                        up = true;
                     }
-                    try{
-                        mIntercom.intercomSpeakerMode();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","intercomSpeakerMode()");
+                    if(up){
+                        mIntercom.resumeIntercomSetting();//Commit setting
                     }
-                    try{
-                        mIntercom.resumeIntercomSetting();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","resumeIntercomSetting()");
-                    }
-                    InitOK = true;
-
                 }
             }
-        }, 0, 1000);
+        }, 0, 3000);
     }
 
     @Override
     public void onClick(View view){
-
 
     }
 
@@ -348,7 +365,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         switch (item.getItemId()){
             case R.id.clear_history_action:
                 History = "<h1>"+getString(R.string.title_chat)+"</h1>";
-                mChat.setHistory(History);
                 return true;
             case android.R.id.home:
                 mViewPager.setCurrentItem(0);
@@ -358,50 +374,46 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 newFragment.show(getSupportFragmentManager(),"settings");
                 return true;
             case R.id.action_quit:
+                mIntercom.closeCharDev();
                 finish();
                 return true;
             case R.id.power:
                 if(item.isChecked()){
-                    try{
-                        mIntercom.intercomPowerOff();
+                    mIntercom.intercomPowerOff();
+                    try {
                         Thread.sleep(200L);
-                        mIntercom.closeCharDev();
-                        Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
-                        item.setIcon(android.R.drawable.ic_lock_power_off);
-                        item.setChecked(false);
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","intercomPowerOff() failed");
                     } catch (InterruptedException e) {
                         //
                     }
+                    mIntercom.closeCharDev();
+                    Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
+                    item.setIcon(android.R.drawable.ic_lock_power_off);
+                    item.setChecked(false);
                 }else{
-                    try{
-                        mIntercom.openCharDev();
-                        mIntercom.intercomPowerOn();
-                        Thread.sleep(200L); //Boot-up wait
-                        try{
-                            Ver = mIntercom.getIntercomVersion();
-                        }catch (NoSuchMethodError e){
-                            Log.w("Intercom","getIntercomVersion()");
-                        }
-                        mIntercom.setTXFrequency(txFreq());
-                        mIntercom.setRXFrequency(rxFreq());
-                        //mIntercom.setRadioFrequency(getFreq());
-                        mIntercom.setSq(Sq);
-                        mIntercom.setCtcss(curCt);
-                        mIntercom.setTxCtcss(curCt);
-                        mIntercom.setVolume(Volume);
-                        mIntercom.intercomSpeakerMode();
-                        mIntercom.resumeIntercomSetting();
-                        Toast.makeText(this, R.string.power_enabled, Toast.LENGTH_SHORT).show();
-                        item.setIcon(android.R.drawable.ic_lock_idle_charging);
-                        item.setChecked(true);
-                        InitOK = true;
-                    }catch (Error e){
-                        Log.w("Intercom","PowerOn init failed");
+                    mIntercom.openCharDev();
+                    mIntercom.intercomPowerOn();
+                    try {
+                        Thread.sleep(400L); //Boot-up wait
                     } catch (InterruptedException e) {
-                        //
+                        e.printStackTrace();
                     }
+                    try{
+                        Ver = mIntercom.getIntercomVersion();
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","getIntercomVersion()");
+                    }
+                    setTxFreq();
+                    setRxFreq();
+                    //mIntercom.setRadioFrequency(getFreq());
+                    mIntercom.setSq(Sq);
+                    mIntercom.setCtcss(curRxCt);
+                    mIntercom.setTxCtcss(curTxCt);
+                    mIntercom.setVolume(Volume);
+                    if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
+                    mIntercom.resumeIntercomSetting();
+                    Toast.makeText(this, R.string.power_enabled, Toast.LENGTH_SHORT).show();
+                    item.setIcon(android.R.drawable.ic_lock_idle_charging);
+                    item.setChecked(true);
                 }
                 Power=item.isChecked();
                 editor.putString(APP_PREFERENCES_POWER,Power.toString());
@@ -430,15 +442,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public class SampleAdapter extends FragmentStatePagerAdapter {
-        Context ctxt = null;
-        public SampleAdapter(Context ctxt, FragmentManager mgr) {
+        MainActivity main = null;
+        public SampleAdapter(MainActivity main, FragmentManager mgr) {
             super(mgr);
-            this.ctxt = ctxt;
+            this.main = main;
         }
         @Override
         public int getCount() {
             return 3;
         }
+
 
         @Override
         public Fragment getItem(int position) {
@@ -469,105 +482,56 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public static class ManualFrequency extends Fragment implements
             OnClickListener,
+            View.OnLongClickListener,
             TextWatcher,
             AdapterView.OnItemSelectedListener,
             SeekBar.OnSeekBarChangeListener
     {
-        private Double curFreq;
-        private Double minFreq;
-        private Double maxFreq;
-        private Double Step;
-        private Integer Sq;
-        private Integer Ct;
-        private Integer Volume;
-        public ManualFrequency(SharedPreferences mSettings){
-            minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, "400.0"));
-            maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,"480.0"));
-            curFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,"446.0062"));
-            Ct = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, "0"));
-            Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, "0.0125"));
-            Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,"5"));
-            Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,"5"));
-        }
-        private Double getMinFreq(){
-            return minFreq;
-        }
-        private Double getMaxFreq(){
-            return maxFreq;
-        }
-        private Double getCurFreq(){
-            return curFreq;
-        }
-        private void setMinFreq(Double f){
-            minFreq = f;
-        }
-        private void setMaxFreq(Double f){
-            maxFreq = f;
-        }
-        private void setCurFreq(Double f){
-            curFreq = f;
-        }
-        private void setStep(Double s){
-            Step = s;
-        }
-        private Integer getCt(){
-            return Ct;
-        }
-        private void setCt(Integer i){
-            Ct = i;
-        }
-        private Integer getSq(){
-            return Sq;
-        }
-        private void setSq(Integer i){
-            Sq = i;
-        }
-        private Integer getVolume(){
-            return Volume;
-        }
-        private void setVolume(Integer i){
-            Volume = i;
-        }
-        String setFreq(Double freq, Double delta){
-            NumberFormat Format = NumberFormat.getInstance(Locale.ENGLISH);
-            ((DecimalFormat)Format).applyPattern(FORMAT);
-            Format.setMinimumFractionDigits(4);
-            Format.setMinimumIntegerDigits(3);
-            Double num = curFreq;
-            if(freq != 0.0)
-                num = freq;
-            num += delta;
-            if(num < minFreq) num = minFreq;
-            if(num > maxFreq) num = maxFreq;
-            curFreq = num;
-            return Format.format(num);
-        }
-        Integer getFreq(){
-            Double f = Double.parseDouble(Float.toString(curFreq.floatValue() * 10000F));
-            return f.intValue();
-        }
+        private MainActivity main;
+        public ManualFrequency(){
 
+        }
+        public static ManualFrequency newInstance(MainActivity main){
+            ManualFrequency fragment = new ManualFrequency();
+            fragment.main = main;
+            return fragment;
+        }
         @Override
         public void onClick(View view){
             EditText e = (EditText)getView().findViewById(R.id.freq);
+            ImageButton snd = (ImageButton)getView().findViewById(R.id.sound_src);
             switch (view.getId()){
                 case R.id.freq_next:
-                    e.setText(setFreq(0.0,Step));
+                    e.setText(main.setFreq(0.0,main.Step));
                     break;
                 case R.id.freq_prew:
-                    e.setText(setFreq(0.0, -Step));
+                    e.setText(main.setFreq(0.0, -main.Step));
                     break;
                 case R.id.sound_src:
-                    /**
-                     * TODO: Create sound source select
-                     */
+                    if(main.isSpeaker){
+                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode);
+                        main.isSpeaker = false;
+                        if(main.Power)main.mIntercom.intercomHeadsetMode();
+                    }else{
+                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);//stat_sys_headset
+                        main.isSpeaker = true;
+                        if(main.Power)main.mIntercom.intercomSpeakerMode();
+                    }
                     break;
             }
         }
+        @Override
+        public boolean onLongClick(View view) {
+            /**
+             * TODO Autoincrease Freq (scan mode) 3000 delay
+             */
+            return false;
+        }
+
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            Volume = progress;
+            main.Volume = progress - 1;
         }
 
         @Override
@@ -583,11 +547,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             switch (parent.getId()){
-                case R.id.ctcss:
-                    Ct = position;
+                case R.id.rxctcss:
+                    main.curRxCt = position;
+                    break;
+                case R.id.txctcss:
+                    main.curTxCt = position;
                     break;
                 case R.id.sq:
-                    Sq = position+1;
+                    main.Sq = position+1;
                     break;
             }
         }
@@ -605,30 +572,42 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            main = (MainActivity)super.getActivity();
             View rootView = inflater.inflate(R.layout.manual_freq, container, false);
             assert rootView != null;
             rootView.findViewById(R.id.freq_next).setOnClickListener(this);
             rootView.findViewById(R.id.freq_prew).setOnClickListener(this);
-            rootView.findViewById(R.id.sound_src).setOnClickListener(this);
+            rootView.findViewById(R.id.freq_next).setOnLongClickListener(this);
+            rootView.findViewById(R.id.freq_prew).setOnLongClickListener(this);
+            ImageButton snd = (ImageButton)rootView.findViewById(R.id.sound_src);
+            snd.setOnClickListener(this);
             EditText freq = (EditText)rootView.findViewById(R.id.freq);
             freq.addTextChangedListener(this);
             Spinner sq = (Spinner)rootView.findViewById(R.id.sq);
-            Spinner ct = (Spinner)rootView.findViewById(R.id.ctcss);
+            Spinner rxct = (Spinner)rootView.findViewById(R.id.rxctcss);
+            Spinner txct = (Spinner)rootView.findViewById(R.id.txctcss);
             SeekBar vol = (SeekBar)rootView.findViewById(R.id.volume);
             vol.setOnSeekBarChangeListener(this);
             sq.setOnItemSelectedListener(this);
-            ct.setOnItemSelectedListener(this);
+            rxct.setOnItemSelectedListener(this);
+            txct.setOnItemSelectedListener(this);
             /**
              * TODO: Check weather of views before set him
              */
             //if(savedInstanceState.isEmpty())
             try{
-                freq.setText(setFreq(0.0,0.0));
-                sq.setSelection(Sq - 1);
-                ct.setSelection(Ct);
-                vol.setProgress(Volume);
-            }catch (Error e){
-                    Log.i("onCreateView","Failed to set state");
+                freq.setText(main.setFreq(0.0,0.0));
+                sq.setSelection(main.Sq - 1);
+                rxct.setSelection(main.curRxCt);
+                txct.setSelection(main.curTxCt);
+                vol.setProgress(main.Volume + 1);
+                if(main.isSpeaker){
+                    snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+                }else{
+                    snd.setImageResource(android.R.drawable.ic_lock_silent_mode);//stat_sys_headset
+                }
+            }catch (NullPointerException e){
+                //
             }
 
             return rootView;
@@ -636,46 +615,53 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            //Log.i("BeforeTextChanged","s = "+s.toString()+" count="+count+" after="+after);
+
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            //Log.i("TextChanged","s = "+s.toString()+" count="+count+" before="+before);
+
         }
 
         @Override
-        public void afterTextChanged(Editable s) {
+        public void afterTextChanged(Editable string) {
             Double freq;
-            if(s.length()>0){
-                freq = Double.parseDouble(s.toString());
-                if(freq == 0.0){
-                    s.replace(1,s.length(),setFreq(0.0,0.0));
+            if(string.length()>0){
+
+                    freq = Double.parseDouble(string.toString());
+
+
+                //If valid number
+                if(freq != 0.0){
+                    //If bigger than maximum
+                    if(freq > main.maxFreq && string.length() >= 3){
+                        Toast.makeText(getView().getContext(), getString(R.string.set_max)+" "+main.maxFreq.toString(), Toast.LENGTH_SHORT).show();
+                        if(string.length()>2)string.delete(2,string.length());
+                        return;
+                    }
+                    //If lower than minimum
+                    if(freq < main.minFreq && string.length() >=3){
+                        Toast.makeText(getView().getContext(), getString(R.string.set_min)+" "+main.minFreq.toString(), Toast.LENGTH_SHORT).show();
+                        if(string.length()>2)string.delete(2,string.length());
+                        return;
+                    }
+                    //Add point after 3 valid sym entered
+                    if(string.length() == 3)string.append(".");
+                    if(string.length()>= 4)main.curRxFreq = freq;
+                    main.curTxFreq = main.curRxFreq;
                 }
-                if(freq > maxFreq && s.length() >= 3){
-                    Toast.makeText(getView().getContext(), getString(R.string.set_max)+" "+maxFreq.toString(), Toast.LENGTH_SHORT).show();
-                    if(s.length()>2)s.delete(s.length()-1,s.length());
-                    return;
-                }
-                if(freq < minFreq && s.length() >=3){
-                    Toast.makeText(getView().getContext(), getString(R.string.set_min)+" "+minFreq.toString(), Toast.LENGTH_SHORT).show();
-                    if(s.length()>2)s.delete(s.length()-1,s.length());
-                    return;
-                }
-                //Log.i("Editor",s.toString());
-                if(s.length() == 3)s.append(".");
-                if(s.length()>= 4)curFreq = freq;
             }
         }
     }
     public static class Channel extends Fragment implements OnClickListener  {
-        private Double curRxFreq = 400.0;
-        private Double curTxFreq = 400.0;
-        private Integer curTxCt = 0;
-        private Integer curRxCt = 0;
-        private Integer Sq = 8;
-        public Channel(SharedPreferences mSettings){
+        private MainActivity main;
+        public Channel(){
 
+        }
+        public static Channel newInstance(MainActivity main){
+            Channel fragment = new Channel();
+            fragment.main = main;
+            return fragment;
         }
         @Override
         public void onClick(View view){
@@ -697,6 +683,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             View rootView;
             rootView = inflater.inflate(R.layout.channels, container, false);
             assert rootView != null;
+            main = (MainActivity)super.getActivity();
             rootView.findViewById(R.id.add).setOnClickListener(this);
             rootView.findViewById(R.id.search).setOnClickListener(this);
             /**
@@ -712,8 +699,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 final View Settings = inflater.inflate(R.layout.channel, null);
                 assert Settings != null;
-                //final EditText nick = (EditText)Settings.findViewById(R.id.set_nick);
-
+                final EditText rx = (EditText)Settings.findViewById(R.id.rxfreq);
+                rx.setText(main.curRxFreq.toString());
+                final EditText tx = (EditText)Settings.findViewById(R.id.txfreq);
+                tx.setText(main.curTxFreq.toString());
+                final EditText rxct = (EditText)Settings.findViewById(R.id.rxctcss);
+                rxct.setText(main.curRxCt.toString());
+                final EditText txct = (EditText)Settings.findViewById(R.id.txctcss);
+                txct.setText(main.curTxCt.toString());
                 // Inflate and set the layout for the dialog
                 // Pass null as the parent view because its going in the dialog layout
                 builder.setView(Settings)
@@ -721,7 +714,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                //
+                                //add ch to list
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -738,32 +731,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             OnClickListener,
             View.OnKeyListener
     {
-        private String Nick;
-        private String History;
-        private Boolean Power;
-        private Intercom cIntrecom = new Intercom();
-        public Chat(SharedPreferences mSettings){
-            Nick = mSettings.getString(APP_PREFERENCES_NICK, "MyNick");
-            History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
-            Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,"false"));
+        private MainActivity main;
+        public Chat(){
+
         }
-        private void setPower(Boolean power){
-            Power = power;
-        }
-        private String getNick(){
-            return Nick;
-        }
-        private void setNick(String nick){
-            Nick = nick;
-        }
-        private String getHistory(){
-            return History;
-        }
-        private void setHistory(String history){
-            History = history;
+        public static Chat newInstance(MainActivity main){
+            Chat fragment = new Chat();
+            fragment.main = main;
+            return fragment;
         }
         private Spanned getHtml(){
-            return Html.fromHtml(History+"<br/>");
+            return Html.fromHtml(main.History+"<br/>");
         }
         @Override
         public void onClick(View view){
@@ -783,8 +761,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TextView chat = (TextView)rootView.findViewById(R.id.chat);
             EditText msg = (EditText)rootView.findViewById(R.id.message);
             ScrollView scroll = (ScrollView)rootView.findViewById(R.id.scrollView);
+            main = (MainActivity)super.getActivity();
             msg.setOnKeyListener(this);
-            nick.setText(Nick+" >");
+            nick.setText(main.Nick+" >");
             chat.setText(getHtml());
             scroll.fullScroll(View.FOCUS_DOWN);
             return rootView;
@@ -793,7 +772,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             TextView nick = (TextView)getView().findViewById(R.id.nick);
-            nick.setText(Nick+" >");
+            nick.setText(main.Nick+" >");
             switch (keyCode){
                 case KeyEvent.KEYCODE_ENTER :
                     EditText message = (EditText)getView().findViewById(R.id.message);
@@ -804,14 +783,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                          */
                         TextView chat = (TextView)getView().findViewById(R.id.chat);
                         ScrollView scroll = (ScrollView)getView().findViewById(R.id.scrollView);
-                        msg = "<div>"+Nick+"&nbsp;&gt;"+msg+"</div>";
+                        msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
                         try{
-                            if(Power)cIntrecom.sendMessage(msg);
+                            if(main.Power)main.mIntercom.sendMessage(msg);
                         }catch (NoSuchMethodError e){
                             Log.w("Message","can not be send");
                             msg += "<i>"+getString(R.string.not_send)+"</i>";
                         }
-                        History += msg;
+                        main.History += msg;
                         chat.setText(getHtml());
                         scroll.fullScroll(View.FOCUS_DOWN);
                         message.setText("");
@@ -850,10 +829,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             maxFreq = Double.parseDouble(max.getText().toString());
                             Step = steps[st.getSelectedItemPosition()];
                             Nick = nick.getText().toString();
-                            mManual.setMinFreq(minFreq);
-                            mManual.setMaxFreq(maxFreq);
-                            mManual.setStep(Step);
-                            mChat.setNick(Nick);
                             editor.putString(APP_PREFERENCES_NICK,Nick);
                             editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
                             editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());

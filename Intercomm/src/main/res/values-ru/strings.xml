@@ -28,8 +28,11 @@
     <string name="name">Имя канала</string>
     <string name="rxfreq_label">Прием МГц</string>
     <string name="txfreq_label">Передача МГц</string>
-    <string name="txctcss_label">TXCTCSS</string>
+    <string name="txctcss_label">TX Тон</string>
+    <string name="rxctcss_label">RX Тон</string>
     <string name="sqx_label">SQ</string>
+    <string name="power_enabling">Подождите, Активация модуля!!!</string>
+    <string name="non_runbo">Не Runbo, пытаемся найти.</string>
     <string-array name="ctcss">
         <item value="0">Выкл</item>
         <item value="1">67.0Гц</item>
@@ -72,9 +75,14 @@
         <item value="38">250.3Гц</item>
     </string-array>
     <string-array name="step">
+        <item>5.00 КГц</item>
         <item>6.25 КГц</item>
+        <item>10.0 КГц</item>
         <item>12.5 КГц</item>
         <item>25.0 КГц</item>
+        <item>30.0 КГц</item>
+        <item>50.0 КГц</item>
+        <item>100  КГц</item>
     </string-array>
 
 </resources>
