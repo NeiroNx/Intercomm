@@ -84,7 +84,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_HISTORY = "history";
     public static final String FORMAT = "###.#####";
 
-    public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.025,0.03,0.05,0.1}; //Frequency step array
+    public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public Integer Ver = -1;
     public String Nick = "MyNick";
     public String History = "";
