@@ -12,6 +12,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.ActionBarActivity;
@@ -82,7 +83,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_MIN_FREQ = "min_freq";
     public static final String APP_PREFERENCES_MAX_FREQ = "max_freq";
     public static final String APP_PREFERENCES_HISTORY = "history";
-    public static final String FORMAT = "###.#####";
+    public static final String FORMAT = "###.####";
 
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public Integer Ver = -1;
@@ -189,6 +190,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
         /**
          * Settings get
