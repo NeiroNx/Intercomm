@@ -13,6 +13,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.ActionBarActivity;
@@ -43,6 +45,7 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Intercom;
@@ -105,6 +108,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Chat mChat;
     public Intercom mIntercom = new Intercom();
     public NumberFormat Format;
+    public Long ScanDelay = 3000L;
 
     //Old values to track changes
     private Double Old_curRxFreq;
@@ -371,9 +375,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case android.R.id.home:
                 mViewPager.setCurrentItem(0);
                 return true;
+            case R.id.about:
+                DialogFragment about = new AboutDialog();
+                about.show(getSupportFragmentManager(),"about");
+                return true;
             case R.id.action_settings:
-                DialogFragment newFragment = new SettingsDialog();
-                newFragment.show(getSupportFragmentManager(),"settings");
+                DialogFragment settings = new SettingsDialog();
+                settings.show(getSupportFragmentManager(),"settings");
                 return true;
             case R.id.action_quit:
                 mIntercom.closeCharDev();
@@ -490,6 +498,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             SeekBar.OnSeekBarChangeListener
     {
         private MainActivity main;
+        private Boolean Scan;
         public ManualFrequency(){
 
         }
@@ -503,6 +512,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             EditText e = (EditText)getView().findViewById(R.id.freq);
             ImageButton snd = (ImageButton)getView().findViewById(R.id.sound_src);
             switch (view.getId()){
+                case R.id.freq:
+                    Scan = false;
+                    break;
                 case R.id.freq_next:
                     e.setText(main.setFreq(0.0,main.Step));
                     break;
@@ -527,8 +539,51 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             /**
              * TODO Autoincrease Freq (scan mode) 3000 delay
              */
+            switch (view.getId()){
+                case R.id.freq_next:
+                    Message msg1 = new Message();
+                    msg1.arg1 = 1;
+                    Scan = true;
+                    mHandler.sendMessageDelayed(msg1,main.ScanDelay);
+                    break;
+                case R.id.freq_prew:
+                    Message msg2 = new Message();
+                    msg2.arg1 = 2;
+                    Scan = true;
+                    mHandler.sendMessageDelayed(msg2,main.ScanDelay);
+                    break;
+            }
             return false;
         }
+        private Handler mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message message) {
+                if(Scan){
+                    EditText freq = (EditText)getView().findViewById(R.id.freq);
+                    switch (message.arg1){
+                        case 1:
+                            if(main.curRxFreq+main.Step > main.maxFreq) main.curRxFreq = main.minFreq-main.Step;
+                            freq.setText(main.setFreq(main.curRxFreq,main.Step));
+                            Message msg1 = new Message();
+                            msg1.arg1 = 1;
+                            mHandler.sendMessageDelayed(msg1,main.ScanDelay);
+                            break;
+                        case 2:
+                            if(main.curRxFreq-main.Step < main.minFreq) main.curRxFreq = main.maxFreq+main.Step;
+                            freq.setText(main.setFreq(main.curRxFreq,-main.Step));
+                            Message msg2 = new Message();
+                            msg2.arg1 = 2;
+                            mHandler.sendMessageDelayed(msg2,main.ScanDelay);
+                            break;
+                    }
+                    if(main.Power){
+                        main.Old_curRxFreq = main.Old_curTxFreq = main.curTxFreq = main.curRxFreq;
+                        main.setRxFreq();
+                        main.setTxFreq();
+                    }
+                }
+            }
+        };
 
 
         @Override
@@ -584,6 +639,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             ImageButton snd = (ImageButton)rootView.findViewById(R.id.sound_src);
             snd.setOnClickListener(this);
             EditText freq = (EditText)rootView.findViewById(R.id.freq);
+            freq.setOnClickListener(this);
             freq.addTextChangedListener(this);
             Spinner sq = (Spinner)rootView.findViewById(R.id.sq);
             Spinner rxct = (Spinner)rootView.findViewById(R.id.rxctcss);
@@ -847,5 +903,32 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
     }
+    public class AboutDialog extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanseState){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View About = inflater.inflate(R.layout.about, null);
+            TextView text = (TextView)About.findViewById(R.id.about_txt);
+            text.setText(Html.fromHtml(getString(R.string.about_text)));
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(About)
+                    // Add action buttons
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            //
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            AboutDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
 
+        }
+    }
 }

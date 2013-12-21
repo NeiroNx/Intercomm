@@ -36,6 +36,11 @@
     <string name="sqx_label">SQ</string>
     <string name="power_enabling">Please wait while Activating!!!</string>
     <string name="non_runbo">Not Runbo X5 phone, trying other.</string>
+    <string name="about_text"><![CDATA[Developed by NeiroN<br/> link to source code LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Accept donations on PayPal]]></string>
+    <string name="about">About</string>
+    <string name="scan">Scan</string>
+    <string name="imp_csv">Import from CSV</string>
+    <string name="exp_csv">Export to CSV</string>
     <string-array name="ctcss">
         <item value="0">Off</item>
         <item value="1">67.0 HZ</item>

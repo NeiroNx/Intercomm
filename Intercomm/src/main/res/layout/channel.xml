@@ -153,6 +153,30 @@
                 android:layout_column="1"
                 android:layout_weight="1000" />
         </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/scan"
+                android:id="@+id/scan_label"
+                android:singleLine="false"
+                android:layout_weight="1"
+                android:layout_column="0" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/scan"
+                android:singleLine="true"
+                android:layout_weight="1000"
+                android:layout_column="1"
+                android:checked="true" />
+        </TableRow>
     </TableLayout>
 
 </LinearLayout>

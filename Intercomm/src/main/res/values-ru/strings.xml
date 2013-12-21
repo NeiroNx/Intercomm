@@ -33,6 +33,11 @@
     <string name="sqx_label">SQ</string>
     <string name="power_enabling">Подождите, Активация модуля!!!</string>
     <string name="non_runbo">Не Runbo, пытаемся найти.</string>
+    <string name="about_text"><![CDATA[Разработал программу NeiroN<br/> ссылка на исходный код <br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Приму пожертвования на счет PayPal]]></string>
+    <string name="about"> О программе</string>
+    <string name="scan">Сканировать</string>
+    <string name="imp_csv">Импротировать из CSV</string>
+    <string name="exp_csv">Экспортировать в CSV</string>
     <string-array name="ctcss">
         <item value="0">Выкл</item>
         <item value="1">67.0Гц</item>
