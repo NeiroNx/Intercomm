@@ -499,6 +499,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         private MainActivity main;
         private Boolean Scan;
+        private Boolean isLongTouch;
         public ManualFrequency(){
 
         }
@@ -511,7 +512,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public void onClick(View view){
             EditText e = (EditText)getView().findViewById(R.id.freq);
             ImageButton snd = (ImageButton)getView().findViewById(R.id.sound_src);
-            switch (view.getId()){
+            if(!isLongTouch)switch (view.getId()){
                 case R.id.freq:
                     Scan = false;
                     break;
@@ -532,13 +533,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         if(main.Power)main.mIntercom.intercomSpeakerMode();
                     }
                     break;
-            }
+            } else isLongTouch = false;
         }
         @Override
         public boolean onLongClick(View view) {
-            /**
-             * TODO Autoincrease Freq (scan mode) 3000 delay
-             */
+            isLongTouch = true;
             switch (view.getId()){
                 case R.id.freq_next:
                     Message msg1 = new Message();
