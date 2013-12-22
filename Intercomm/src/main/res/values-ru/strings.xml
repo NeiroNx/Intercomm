@@ -43,7 +43,7 @@
     <string name="ch_apply">Применить</string>
     <string name="ch_search_help">Поиск канала</string>
     <string name="ch_prew_help">Предыдущий канал</string>
-    <string name="ch_next_help">Следующий канад</string>
+    <string name="ch_next_help">Следующий канал</string>
     <string name="ch_src_help">Спикерфон</string>
     <string name="no_data">Н/Д</string>
     <string name="clear_channels">Сброс каналов</string>
@@ -99,6 +99,18 @@
         <item>30.0 КГц</item>
         <item>50.0 КГц</item>
         <item>100  КГц</item>
+    </string-array>
+    <string-array name="scan_delay">
+        <item>0.1 сек</item>
+        <item>0.2 сек</item>
+        <item>0.5 сек</item>
+        <item>1.0 сек</item>
+        <item>2.0 сек</item>
+        <item>3.0 сек</item>
+        <item>5.0 сек</item>
+        <item>10  сек</item>
+        <item>1 мин</item>
+        <item>5 мин</item>
     </string-array>
 
 </resources>

@@ -7,7 +7,8 @@
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minWidth="320dp">
+        android:minWidth="320dp"
+        android:layout_margin="5dp">
 
         <TableRow
             android:layout_width="fill_parent"
@@ -104,6 +105,28 @@
                 android:layout_weight="1000"
                 android:entries="@array/step"
                 android:spinnerMode="dialog" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/scan"
+                android:id="@+id/set_scan_label"
+                android:layout_column="0"
+                android:layout_weight=".1" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/set_delay"
+                android:layout_column="1"
+                android:layout_weight="1000"
+                android:entries="@array/scan_delay" />
         </TableRow>
     </TableLayout>
 </LinearLayout>

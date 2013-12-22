@@ -113,5 +113,17 @@
         <item>50.0 KHz</item>
         <item>100  KHz</item>
     </string-array>
+    <string-array name="scan_delay">
+        <item>0.1 sec</item>
+        <item>0.2 sec</item>
+        <item>0.5 sec</item>
+        <item>1.0 sec</item>
+        <item>2.0 sec</item>
+        <item>3.0 sec</item>
+        <item>5.0 sec</item>
+        <item>10  sec</item>
+        <item>1 min</item>
+        <item>5 min</item>
+    </string-array>
 
 </resources>
