@@ -129,6 +129,9 @@ public class uartIntercom extends Intercom{
     private final static String MSG = "MSG";
     SerialPortFinder serialPortFinder = new SerialPortFinder();
     SerialPort uart;
+    public static native void IntercomStart();
+    public static native void IntercomStop();
+
     public uartIntercom(){
         String[] ports = serialPortFinder.getAllDevices();
         String[] ports_path = serialPortFinder.getAllDevicesPath();
@@ -153,7 +156,7 @@ public class uartIntercom extends Intercom{
     public void closeCharDev()
     {
         //;
-        uart.close();
+        //uart.close();
     }
     @Override
     public int getIntercomVersion()
@@ -174,11 +177,13 @@ public class uartIntercom extends Intercom{
     public void intercomPowerOff()
     {
         //JNI_intercomPowerOff();
+        IntercomStop();
     }
     @Override
     public void intercomPowerOn()
     {
         //JNI_intercomPowerOn();
+        IntercomStart();
     }
     @Override
     public void intercomSpeakerMode()

@@ -19,6 +19,11 @@
         android:orderInCategory="2"
         android:icon="@android:drawable/ic_input_delete"
         app:showAsAction="never" />
+    <item android:id="@+id/clear_channels"
+        android:title="@string/clear_channels"
+        android:orderInCategory="2"
+        android:icon="@android:drawable/ic_delete"
+        app:showAsAction="never"/>
     <item android:id="@+id/clear_history_action"
         android:title="@string/clear_history"
         app:showAsAction="never"

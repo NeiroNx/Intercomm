@@ -30,7 +30,7 @@
     <string name="txfreq_label">Передача МГц</string>
     <string name="txctcss_label">TX Тон</string>
     <string name="rxctcss_label">RX Тон</string>
-    <string name="sqx_label">SQ</string>
+    <string name="sq_label">Шумодав</string>
     <string name="power_enabling">Подождите, Активация модуля!!!</string>
     <string name="non_runbo">Не Runbo, пытаемся найти.</string>
     <string name="about_text"><![CDATA[Разработал программу NeiroN<br/> ссылка на исходный код <br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Приму пожертвования на счет PayPal]]></string>
@@ -38,6 +38,13 @@
     <string name="scan">Сканировать</string>
     <string name="imp_csv">Импротировать из CSV</string>
     <string name="exp_csv">Экспортировать в CSV</string>
+    <string name="ch_add_help">Add channel</string>
+    <string name="ch_search_help">Search channel</string>
+    <string name="ch_prew_help">Prewius channel</string>
+    <string name="ch_next_help">Next channel</string>
+    <string name="ch_src_help">Sound source</string>
+    <string name="no_data">Н/Д</string>
+    <string name="clear_channels">Сброс каналов</string>
     <string-array name="ctcss">
         <item value="0">Выкл</item>
         <item value="1">67.0Гц</item>

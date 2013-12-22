@@ -9,12 +9,10 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true">
+        android:layout_height="wrap_content">
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:id="@+id/searchText"
             android:layout_weight="1"
@@ -31,16 +29,19 @@
             android:hint="@string/search" />
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/search"
-            android:src="@android:drawable/ic_menu_search" />
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/ch_search"
+            android:src="@android:drawable/ic_menu_search"
+            android:longClickable="false"
+            android:contentDescription="@string/ch_search_help" />
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/add"
-            android:src="@android:drawable/ic_menu_add" />
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/ch_add"
+            android:src="@android:drawable/ic_menu_add"
+            android:contentDescription="@string/ch_add_help" />
     </LinearLayout>
 
     <ScrollView
@@ -48,8 +49,59 @@
         android:layout_height="fill_parent"
         android:id="@+id/scrollView" >
 
-        <TableLayout
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"></TableLayout>
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="110dp">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/ch_prew"
+                    android:src="@android:drawable/ic_media_previous"
+                    android:contentDescription="@string/ch_prew_help" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/ch_info"
+                    android:layout_weight="1"
+                    android:singleLine="false" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/ch_next"
+                    android:src="@android:drawable/ic_media_next"
+                    android:contentDescription="@string/ch_next_help" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ch_src"
+                    android:src="@android:drawable/ic_lock_silent_mode_off"
+                    android:contentDescription="@string/ch_src_help" />
+
+                <SeekBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ch_vol"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp" />
+            </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 </LinearLayout>
