@@ -477,6 +477,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case android.R.id.home:
                 mViewPager.setCurrentItem(0);
                 return true;
+            case R.id.ch_add:
+                Log.w("ADD","Channel");
+                DialogFragment editor = new ChannelAddDialog();
+                editor.show(getSupportFragmentManager(),"channel_edit");
+                return true;
             case R.id.about:
                 DialogFragment about = new AboutDialog();
                 about.show(getSupportFragmentManager(),"about");
@@ -528,8 +533,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     item.setChecked(true);
                 }
                 Power=item.isChecked();
-                editor.putString(APP_PREFERENCES_POWER,Power.toString());
-                editor.commit();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -824,7 +827,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         private MainActivity main;
         private String ch_name = "";
-        private Boolean isAdd = false;
         public Channel(){
 
         }
@@ -836,10 +838,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public void onClick(View view){
             switch (view.getId()){
-                case R.id.ch_add:
-                    isAdd = true;
-                    DialogFragment added = new ChannelDialog();
-                    added.show(super.getFragmentManager(),"channel_add");
+                case R.id.ch_search:
+                    EditText search = (EditText)getView().findViewById(R.id.searchText);
+                    Log.w("Search",search.getText().toString());
+                    int f = findCh(search.getText().toString());
+                    if(f != -1){
+                        main.curChannel=f;
+                        ch_name = main.setCh();
+                        getInfo(true);
+                    }
                     break;
                 case R.id.ch_next:
                     if(main.curChannel<main.ChannelList.length-1)main.curChannel++;
@@ -852,9 +859,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     getInfo(true);
                     break;
                 case R.id.ch_info:
-                    isAdd = false;
-                    DialogFragment editor = new ChannelDialog();
+                    DialogFragment editor = new ChannelEditDialog();
                     editor.show(super.getFragmentManager(),"channel_edit");
+                    break;
+                case R.id.ch_src:
+                    ImageButton snd = (ImageButton)getView().findViewById(R.id.ch_src);
+                    if(main.isSpeaker){
+                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode);
+                        main.mIntercom.intercomHeadsetMode();
+                        main.isSpeaker=false;
+                    }else{
+                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+                        main.mIntercom.intercomSpeakerMode();
+                        main.isSpeaker=true;//stat_sys_headset
+                    }
                     break;
 
             }
@@ -872,14 +890,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             assert rootView != null;
             main = (MainActivity)super.getActivity();
             ch_name = main.setCh();
-            rootView.findViewById(R.id.ch_add).setOnClickListener(this);
             rootView.findViewById(R.id.ch_search).setOnClickListener(this);
             rootView.findViewById(R.id.ch_next).setOnClickListener(this);
             rootView.findViewById(R.id.ch_prew).setOnClickListener(this);
             rootView.findViewById(R.id.ch_vol).setOnClickListener(this);
             TextView ch_info = (TextView)rootView.findViewById(R.id.ch_info);
+            ImageButton snd = (ImageButton)rootView.findViewById(R.id.ch_src);
+            snd.setOnClickListener(this);
+            SeekBar vol = (SeekBar)rootView.findViewById(R.id.ch_vol);
+
+            vol.setOnSeekBarChangeListener(this);
+            vol.setProgress(main.Volume);
             ch_info.setText(Html.fromHtml(getInfo(false)));
             ch_info.setOnClickListener(this);
+            if(main.isSpeaker){
+                snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+            }else{
+                snd.setImageResource(android.R.drawable.ic_lock_silent_mode);//stat_sys_headset
+            }
             /**
              * TODO: Channel List and manipulation
              */
@@ -892,8 +920,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            main.Volume = progress - 1;
         }
 
         @Override
@@ -932,8 +960,38 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             return str;
         }
+        public int findCh(String str){
+            int result=-1;
+            for(int i=main.curChannel+1;i<main.ChannelList.length;i++){//find in upper part list
+                if(main.ChannelList[i].toUpperCase().contains(str.toUpperCase())){
+                    result = i;
+                    break;
+                }else{
+                    for(String f:str.split(" ")){//substring find
+                        if(main.ChannelList[i].toUpperCase().contains(f.toUpperCase())){
+                            result=i;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(result == -1)for(int i=0;i<main.curChannel-1;i++){//resume from lower part if NO result
+                if(main.ChannelList[i].toUpperCase().contains(str.toUpperCase())){
+                    result = i;
+                    break;
+                }else{
+                    for(String f:str.split(" ")){//Substring find
+                        if(main.ChannelList[i].toUpperCase().contains(f.toUpperCase())){
+                            result=i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
 
-        public class ChannelDialog extends DialogFragment{
+        public class ChannelEditDialog extends DialogFragment{
             @Override
             public Dialog onCreateDialog(Bundle savedInstanseState){
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -942,7 +1000,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 final View Settings = inflater.inflate(R.layout.channel, null);
                 assert Settings != null;
                 final EditText name = (EditText)Settings.findViewById(R.id.ch_name);
-                if(!isAdd)name.setText(ch_name);
+                name.setText(ch_name);
                 final EditText rx = (EditText)Settings.findViewById(R.id.ch_rxfreq);
                 rx.setText(main.curRxFreq.toString());
                 final EditText tx = (EditText)Settings.findViewById(R.id.ch_txfreq);
@@ -952,13 +1010,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 final Spinner txct = (Spinner)Settings.findViewById(R.id.ch_txctcss);
                 txct.setSelection(main.curTxCt);
                 final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
-                sq.setSelection(main.Sq);
+                sq.setSelection(main.Sq-1);
                 final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
                 // Inflate and set the layout for the dialog
                 // Pass null as the parent view because its going in the dialog layout
                 builder.setView(Settings)
                         // Add action buttons
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.ch_apply, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 //add ch to list
@@ -968,21 +1026,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         tx.getText().toString()+","+
                                         Integer.toString(rxct.getSelectedItemPosition())+","+
                                         Integer.toString(txct.getSelectedItemPosition())+","+
-                                        Integer.toString(sq.getSelectedItemPosition())+","+
+                                        Integer.toString(sq.getSelectedItemPosition()+1)+","+
                                         Boolean.toString(scan.isChecked());
-                                if(isAdd) {
-                                    main.ChannelList=(main.join(main.ChannelList,"|")+"|"+result).split("\\|");
-                                    main.curChannel=main.ChannelList.length-1;
-                                } else{
-                                    main.ChannelList[main.curChannel]=result;
-                                }
+                                main.ChannelList[main.curChannel]=result;
                                 ch_name = main.setCh();
                                 getInfo(true);
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                ChannelDialog.this.getDialog().cancel();
+                                ChannelEditDialog.this.getDialog().cancel();
                             }
                         });
                 return builder.create();
@@ -1130,6 +1183,56 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             AboutDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+
+        }
+    }
+    public class ChannelAddDialog extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanseState){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View Settings = inflater.inflate(R.layout.channel, null);
+            assert Settings != null;
+            final EditText name = (EditText)Settings.findViewById(R.id.ch_name);
+            name.setText(getString(R.string.title_chan)+" "+Integer.toString(ChannelList.length));
+            final EditText rx = (EditText)Settings.findViewById(R.id.ch_rxfreq);
+            rx.setText(curRxFreq.toString());
+            final EditText tx = (EditText)Settings.findViewById(R.id.ch_txfreq);
+            tx.setText(curTxFreq.toString());
+            final Spinner rxct = (Spinner)Settings.findViewById(R.id.ch_rxctcss);
+            rxct.setSelection(curRxCt);
+            final Spinner txct = (Spinner)Settings.findViewById(R.id.ch_txctcss);
+            txct.setSelection(curTxCt);
+            final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
+            sq.setSelection(Sq-1);
+            final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(Settings)
+                    // Add action buttons
+                    .setPositiveButton(R.string.ch_add, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            //add ch to list
+                            String result =
+                                    name.getText().toString().replace(",", ".").replace("|", "/") + "," +
+                                            rx.getText().toString() + "," +
+                                            tx.getText().toString() + "," +
+                                            Integer.toString(rxct.getSelectedItemPosition()) + "," +
+                                            Integer.toString(txct.getSelectedItemPosition()) + "," +
+                                            Integer.toString(sq.getSelectedItemPosition()+1) + "," +
+                                            Boolean.toString(scan.isChecked());
+                            ChannelList = (join(ChannelList, "|") + "|" + result).split("\\|");
+                            curChannel = ChannelList.length - 1;
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ChannelAddDialog.this.getDialog().cancel();
                         }
                     });
             return builder.create();

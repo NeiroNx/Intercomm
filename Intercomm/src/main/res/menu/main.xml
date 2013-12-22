@@ -55,20 +55,26 @@
         android:title="@string/action_settings"
         app:showAsAction="always">
         <menu>
+            <item android:id="@+id/ch_add"
+                android:title="@string/ch_add"
+                android:orderInCategory="0"
+                android:icon="@android:drawable/ic_menu_add"
+                app:showAsAction="ifRoom" />
             <item android:id="@+id/share_gps"
                 android:title="@string/share_gps"
                 android:showAsAction="ifRoom"
                 android:actionViewClass="mChat"
-                android:orderInCategory="0"
+                android:orderInCategory="1"
                 android:icon="@android:drawable/ic_menu_share" />
             <item android:id="@+id/clear_history_action"
                 android:title="@string/clear_history"
+                android:orderInCategory="2"
                 app:showAsAction="ifRoom"
                 android:actionViewClass="mChat"
                 android:icon="@android:drawable/ic_menu_delete"/>
             <item android:id="@+id/action_settings"
                 android:title="@string/action_settings"
-                android:orderInCategory="10"
+                android:orderInCategory="3"
                 android:icon="@android:drawable/ic_menu_preferences"
                 app:showAsAction="never" />
         </menu>

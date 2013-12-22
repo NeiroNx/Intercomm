@@ -36,12 +36,6 @@
             android:longClickable="false"
             android:contentDescription="@string/ch_search_help" />
 
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/ch_add"
-            android:src="@android:drawable/ic_menu_add"
-            android:contentDescription="@string/ch_add_help" />
     </LinearLayout>
 
     <ScrollView
@@ -100,7 +94,8 @@
                     android:id="@+id/ch_vol"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp" />
+                    android:layout_marginRight="15dp"
+                    android:max="6" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
