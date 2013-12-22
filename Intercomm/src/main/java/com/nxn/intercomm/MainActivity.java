@@ -96,7 +96,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_MIN_FREQ = "min_freq";
     public static final String APP_PREFERENCES_MAX_FREQ = "max_freq";
     public static final String APP_PREFERENCES_HISTORY = "history";
-    public static final String APP_PREFERENCES_DELAY= "delay";
+    public static final String APP_PREFERENCES_DELAY = "delay";
+    public static final String APP_PREFERENCES_SCAN_CT = "scan_ct";
     public static final String FORMAT = "###.####";
 
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
@@ -124,6 +125,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Intercom mIntercom = new Intercom();
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
+    public Boolean ScanRxCt = false;
     public Integer TabPos = 0;
 
     //Old values to track changes
@@ -249,7 +251,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME, Volume.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER, isSpeaker.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ, Sq.toString()));
-        ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY,ScanDelay.toString()));
+        ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY, ScanDelay.toString()));
+        ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
         super.onPostResume();
     }
     @Override
@@ -271,6 +274,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
         editor.putString(APP_PREFERENCES_SQ,Sq.toString());
         editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
+        editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
         editor.commit();
         super.onStop();
     }
@@ -309,7 +313,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
         ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY,ScanDelay.toString()));
-
+        ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString())); 
         //Set old Values to send it with timer to module
         Old_curRxFreq = curRxFreq;
         Old_curTxFreq = curTxFreq;
@@ -675,26 +679,45 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             public void handleMessage(Message message) {
                 if(Scan){
                     EditText freq = (EditText)getView().findViewById(R.id.freq);
+                    Spinner rx = (Spinner)getView().findViewById(R.id.rxctcss);
                     switch (message.arg1){
                         case 1:
-                            if(main.curRxFreq+main.Step > main.maxFreq) main.curRxFreq = main.minFreq-main.Step;
-                            freq.setText(main.setFreq(main.curRxFreq,main.Step));
+                            if(main.ScanRxCt&&main.curRxCt<tones.length-1){
+                                main.curRxCt++;
+                                rx.setSelection(main.curRxCt);
+                            } else {
+                                if(main.curRxFreq+main.Step > main.maxFreq) main.curRxFreq = main.minFreq-main.Step;
+                                if(main.curRxCt == tones.length-1)main.curRxCt=-1;
+                                freq.setText(main.setFreq(main.curRxFreq,main.Step));
+                            }
                             Message msg1 = new Message();
                             msg1.arg1 = 1;
                             mHandler.sendMessageDelayed(msg1,main.ScanDelay);
                             break;
                         case 2:
-                            if(main.curRxFreq-main.Step < main.minFreq) main.curRxFreq = main.maxFreq+main.Step;
-                            freq.setText(main.setFreq(main.curRxFreq,-main.Step));
+                            if(main.ScanRxCt&&main.curRxCt>0){
+                                main.curRxCt--;
+                                rx.setSelection(main.curRxCt);
+                            } else {
+                                if(main.curRxFreq-main.Step < main.minFreq) main.curRxFreq = main.maxFreq+main.Step;
+                                if(main.curRxCt == 0)main.curRxCt=tones.length;
+                                freq.setText(main.setFreq(main.curRxFreq,-main.Step));
+                            }
+
                             Message msg2 = new Message();
                             msg2.arg1 = 2;
                             mHandler.sendMessageDelayed(msg2,main.ScanDelay);
                             break;
                     }
                     if(main.Power){
-                        main.Old_curRxFreq = main.Old_curTxFreq = main.curTxFreq = main.curRxFreq;
-                        main.setRxFreq();
-                        main.setTxFreq();
+                        if(main.ScanRxCt&&main.curRxCt>-1&&main.curRxCt<tones.length){
+                            main.Old_curRxCt=main.curRxCt;
+                            main.mIntercom.setCtcss(main.curRxCt);
+                        }else{
+                            main.Old_curRxFreq = main.Old_curTxFreq = main.curTxFreq = main.curRxFreq;
+                            main.setRxFreq();
+                            main.setTxFreq();
+                        }
                     }
                 }
             }
@@ -1206,6 +1229,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             for(int i=0;i<steps.length;i++)if(Step.equals(steps[i]))st.setSelection(i);
             final Spinner delay = (Spinner)Settings.findViewById(R.id.set_delay);
             for(int i=0;i<delays.length;i++)if(ScanDelay.equals(delays[i]))delay.setSelection(i);
+            final CheckBox scan_ct = (CheckBox)Settings.findViewById(R.id.scan_ct);
+            scan_ct.setChecked(ScanRxCt);
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(Settings)
@@ -1218,11 +1243,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             Step = steps[st.getSelectedItemPosition()];
                             Nick = nick.getText().toString();
                             ScanDelay = delays[delay.getSelectedItemPosition()];
+                            ScanRxCt = scan_ct.isChecked();
                             editor.putString(APP_PREFERENCES_NICK,Nick);
                             editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
                             editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
                             editor.putString(APP_PREFERENCES_STEP,Step.toString());
                             editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
+                            editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
                             editor.commit();
                         }
                     })
