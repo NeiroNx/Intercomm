@@ -3,7 +3,7 @@
 
     <string name="app_name">Рация</string>
     <string name="title_freq">Частота</string>
-    <string name="title_chan">Каналы</string>
+    <string name="title_chan">Канал</string>
     <string name="title_chat">Чат</string>
     <string name="title_sets">Настройка</string>
     <string name="action_settings">Настройки</string>
@@ -47,6 +47,10 @@
     <string name="ch_src_help">Спикерфон</string>
     <string name="no_data">Н/Д</string>
     <string name="clear_channels">Сброс каналов</string>
+    <string name="scan_stopped">Сканирование прекращено</string>
+    <string name="ch_del">Удалить</string>
+    <string name="ver_label">Версия:</string>
+    <string name="no_func">Функционал недоступен</string>
     <string-array name="ctcss">
         <item value="0">Выкл</item>
         <item value="1">67.0Гц</item>

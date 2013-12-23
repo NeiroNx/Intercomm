@@ -60,6 +60,11 @@
                 android:orderInCategory="0"
                 android:icon="@android:drawable/ic_menu_add"
                 app:showAsAction="ifRoom" />
+            <item android:id="@+id/ch_del"
+                android:title="@string/ch_del"
+                android:orderInCategory="0"
+                android:icon="@android:drawable/ic_delete"
+                app:showAsAction="ifRoom" />
             <item android:id="@+id/share_gps"
                 android:title="@string/share_gps"
                 android:showAsAction="ifRoom"

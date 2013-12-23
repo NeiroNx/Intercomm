@@ -58,23 +58,22 @@
                     android:layout_height="fill_parent"
                     android:id="@+id/ch_prew"
                     android:src="@android:drawable/ic_media_previous"
-                    android:contentDescription="@string/ch_prew_help"
-                    android:layout_weight=".05" />
+                    android:contentDescription="@string/ch_prew_help" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
                     android:id="@+id/ch_info"
                     android:layout_weight="1"
-                    android:singleLine="false" />
+                    android:singleLine="false"
+                    android:longClickable="false" />
 
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/ch_next"
                     android:src="@android:drawable/ic_media_next"
-                    android:contentDescription="@string/ch_next_help"
-                    android:layout_weight=".05" />
+                    android:contentDescription="@string/ch_next_help" />
 
             </LinearLayout>
 
