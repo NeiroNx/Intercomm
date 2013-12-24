@@ -128,4 +128,3 @@ public class Intercom
         JNI_setVolume(paramInt);
     }
 }
-

@@ -1,18 +1,21 @@
 package com.nxn.intercomm;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
+import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -35,12 +38,10 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -52,7 +53,6 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Intercom;
@@ -130,6 +130,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean ScanFreq = false;
     public Boolean ScanRxCt = false;
     public Integer TabPos = 0;
+    public String FileName = "/sdcard/Channels.csv";
+    public String ActionX = "";
 
     //Old values to track changes
     private Double Old_curRxFreq;
@@ -156,11 +158,23 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         String str = "<h1>"+ChannelName+"</h1>"+
                 "<p>"+getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
                 getString(R.string.txfreq_label)+": "+Format.format(curTxFreq)+"<br/>"+
-                getString(R.string.rxctcss_label)+": "+curRxCt+"  "+
+                getString(R.string.rxctcss_label)+": "+curRxCt+"       "+
                 getString(R.string.txctcss_label)+": "+curTxCt+"</p>";
         if(set){
-            TextView info = (TextView)mViewPager.findViewById(R.id.ch_info);
-            if(info != null)info.setText(Html.fromHtml(str));
+            try{
+                TextView info = (TextView)mViewPager.findViewById(R.id.ch_info);
+                info.setText(Html.fromHtml(str));
+                EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
+                freq.setText(setFreq(0.0,0.0));
+                Spinner rxct = (Spinner)mViewPager.findViewById(R.id.rxctcss);
+                rxct.setSelection(curRxCt);
+                Spinner txct = (Spinner)mViewPager.findViewById(R.id.txctcss);
+                txct.setSelection(curTxCt);
+                Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
+                sq.setSelection(Sq);
+            }catch (Exception e){
+                //
+            }
         }
         return str;
     }
@@ -205,15 +219,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return out;
     }
 
-    public String[] convertStreamToString(InputStream is) throws Exception {
+    public String FromStream(InputStream is) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line;
         String get_array[] = {"","","","0","0","5","true"};
-        String tar_array[] = {};
-        while ((line = reader.readLine()) != null) {
+        String tar_array = "";
+        while ((line = reader.readLine())!= null) {
             String[] array = line.split(",");
-            if(array.length>10){
-                if(!array[1].equals(""))get_array[0]=array[1];else get_array[0]=Integer.toString(tar_array.length);
+            if(array.length>5 && !array[0].equals("Location")){
+                if(!array[1].equals(""))get_array[0]=array[1];else get_array[0]=getString(R.string.title_chan);
                 Double rx = Double.parseDouble(array[2]);
                 Double offset = Double.parseDouble(array[4]);
                 if(array[3].equals("") &&rx>minFreq && rx<maxFreq){
@@ -237,19 +251,30 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     get_array[3]=Integer.toString(findCt(tones,Double.parseDouble(array[6])));
                     get_array[4]="0";
                 }
-                if(!get_array[1].equals(""))tar_array[tar_array.length]=join(get_array,",");
+                if(!get_array[1].equals(""))if(tar_array.length() == 0)tar_array = join(get_array, ",");else tar_array += "|"+join(get_array, ",");
             }
         }
         reader.close();
         return tar_array;
     }
 
-    public String[] getChannelListFromCSV (String filePath) throws Exception {
-        File fl = new File(filePath);
-        FileInputStream fin = new FileInputStream(fl);
-        String[] ret = convertStreamToString(fin);
+    public String importChannelListFromCSV (String filePath) throws Exception {
+        FileInputStream fin = new FileInputStream(new File(filePath));
+        String ret = FromStream(fin);
         fin.close();
         return ret;
+    }
+
+    public void exportChannelListToCSV (String filePath) throws Exception {
+        FileWriter writer = new FileWriter(new File(filePath));
+        writer.write("Location,Name,Frequency,Duplex,Offset,Tone,rToneFreq,cToneFreq,DtcsCode,DtcsPolarity,Mode,TStep,Skip,Comment,URCALL,RPT1CALL,RPT2CALL\n");
+        int i = 1;
+        for(String line:ChannelList){
+            String[] get = line.split(",");
+            writer.write(i+","+get[0]+","+get[1]+",split,"+get[2]+((get[3].equals("0"))?",,":",TSQL,")+Double.toString(tones[Integer.parseInt(get[3])])+","+Double.toString(tones[Integer.parseInt(get[3])])+",023,NN,FM,5.00,,,,,,\n");
+            i++;
+        }
+        writer.close();
     }
 
     @Override
@@ -408,11 +433,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Ver = mIntercom.getIntercomVersion();
+
             setRxFreq();
             setTxFreq();
             mIntercom.setCtcss(curRxCt);
-            mIntercom.setTxCtcss(curTxCt);
+            try{
+                mIntercom.setTxCtcss(curTxCt);
+                Ver = mIntercom.getIntercomVersion();
+            }catch(NoSuchMethodError e){
+                Log.w("Hardware","is too old hardware lib version");
+            }
             mIntercom.setSq(Sq);
             mIntercom.resumeIntercomSetting();
             mIntercom.setVolume(Volume);
@@ -449,7 +479,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         up = true;
                     }
                     if(!curTxCt.equals(Old_curTxCt)){
-                        mIntercom.setTxCtcss(curTxCt);
+                        try{
+                            mIntercom.setTxCtcss(curTxCt);
+                        }catch(NoSuchMethodError e){
+                            Log.w("TXCTCSS","You version not allowed to set txctcss");
+                        }
                         editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
                         Old_curTxCt = curTxCt;
                         up = true;
@@ -520,6 +554,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case android.R.id.home:
                 mViewPager.setCurrentItem(0);
                 return true;
+            case R.id.imp_csv:
+                DialogFragment imp = new FileDialog();
+                imp.show(getSupportFragmentManager(),"file");
+                ActionX = "import";
+                return true;
+            case R.id.exp_csv:
+                DialogFragment exp = new FileDialog();
+                exp.show(getSupportFragmentManager(),"file");
+                ActionX = "export";
+                return true;
+            case R.id.delete_all_action:
+                ChannelList = new String[]{"new,"+curRxFreq.toString()+","+curRxFreq.toString()+",0,0,5,false"};
+                curChannel=0;
+                editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+                editor.commit();
+                setCh(true);
+                return true;
             case R.id.ch_del:
                 ChannelList=del(ChannelList,curChannel);
                 if(curChannel>ChannelList.length-1)curChannel=ChannelList.length-1;
@@ -530,8 +582,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case R.id.ch_add:
                 Log.w("ADD","Channel");
-                DialogFragment editor = new ChannelAddDialog();
-                editor.show(getSupportFragmentManager(),"channel_edit");
+                DialogFragment edit = new ChannelAddDialog();
+                edit.show(getSupportFragmentManager(),"channel_edit");
                 return true;
             case R.id.about:
                 DialogFragment about = new AboutDialog();
@@ -565,18 +617,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    try{
-                        Ver = mIntercom.getIntercomVersion();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","getIntercomVersion()");
-                        Toast.makeText(MainActivity.this, getString(R.string.no_func)+" getIntercomVersion()", Toast.LENGTH_LONG).show();
-                    }
                     setTxFreq();
                     setRxFreq();
                     //mIntercom.setRadioFrequency(getFreq());
                     mIntercom.setSq(Sq);
                     mIntercom.setCtcss(curRxCt);
-                    mIntercom.setTxCtcss(curTxCt);
+                    try{
+                        Ver = mIntercom.getIntercomVersion();
+                        mIntercom.setTxCtcss(curTxCt);
+                    }catch(NoSuchMethodError e){
+                        Log.w("Intercom","getIntercomVersion()");
+                    }
                     mIntercom.setVolume(Volume);
                     if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
                     mIntercom.resumeIntercomSetting();
@@ -585,8 +636,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     item.setChecked(true);
                 }
                 Power=item.isChecked();
-                MainActivity.this.editor.putString(APP_PREFERENCES_POWER,Power.toString());
-                MainActivity.this.editor.commit();
+                editor.putString(APP_PREFERENCES_POWER,Power.toString());
+                editor.commit();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1180,7 +1231,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     setRxFreq();
                     setTxFreq();
                     mIntercom.setCtcss(curRxCt);
-                    mIntercom.setTxCtcss(curTxCt);
+                    try{
+                        mIntercom.setTxCtcss(curTxCt);
+                    }catch(NoSuchMethodError e){
+
+                    }
                     mIntercom.setSq(Sq);
                     mIntercom.resumeIntercomSetting();
                     Toast.makeText(MainActivity.this, getString(R.string.title_chan) + "  "+curChannel.toString(), Toast.LENGTH_SHORT).show();
@@ -1259,7 +1314,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             if(main.Power)main.mIntercom.sendMessage(msg);
                         }catch (NoSuchMethodError e){
                             Log.w("Message","can not be send");
-                            Toast.makeText(super.getActivity(), getString(R.string.no_func), Toast.LENGTH_LONG).show();
+                            Toast.makeText(super.getActivity(), getString(R.string.no_func), Toast.LENGTH_SHORT).show();
                         }
                         main.History += msg;
                         chat.setText(getHtml());
@@ -1287,7 +1342,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ChatHandler.sendMessageDelayed(new Message(),5000L);
             }catch(NoSuchMethodError e){
                 Log.w("Message","can not found function");
-                Toast.makeText(MainActivity.this, getString(R.string.no_func), Toast.LENGTH_LONG).show();
             }
 
         }
@@ -1338,6 +1392,53 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             SettingsDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+
+        }
+    }
+    public class FileDialog extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanseState){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View About = inflater.inflate(R.layout.openfile, null);
+            final EditText file = (EditText)About.findViewById(R.id.file);
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(About)
+                    // Add action buttons
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            FileName = file.getText().toString();
+                            if (ActionX.equals("import")) {
+                                String imported = "";
+                                try {
+                                    imported = importChannelListFromCSV(FileName);
+                                } catch (Exception e) {
+                                    Log.e("Error", e.toString()+Arrays.toString(e.getStackTrace()));
+                                    Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                }
+                                Toast.makeText(MainActivity.this, String.format(getString(R.string.ch_imported), imported.split("\\|").length, FileName), Toast.LENGTH_LONG).show();
+
+                                ChannelList = (join(ChannelList, "|") + "|" + imported).split("\\|");
+                            } else if (ActionX.equals("export")) {
+                                try {
+                                    exportChannelListToCSV(FileName);
+                                } catch (Exception e) {
+                                    Log.e("Error", e.toString()+Arrays.toString(e.getStackTrace()));
+                                    Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            FileDialog.this.getDialog().cancel();
                         }
                     });
             return builder.create();

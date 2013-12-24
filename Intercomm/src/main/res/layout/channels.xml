@@ -29,8 +29,8 @@
             android:hint="@string/search" />
 
         <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/ch_search"
             android:src="@android:drawable/ic_menu_search"
             android:longClickable="false"

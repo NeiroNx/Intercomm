@@ -51,6 +51,9 @@
     <string name="ch_del">Удалить</string>
     <string name="ver_label">Версия:</string>
     <string name="no_func">Функционал недоступен</string>
+    <string name="file_label">Выбеорите файл:</string>
+    <string name="delete_all">Удалить все</string>
+    <string name="ch_imported" formatted="false">Импортированно %d канал(а)\n Из %s</string>
     <string-array name="ctcss">
         <item value="0">Выкл</item>
         <item value="1">67.0Гц</item>

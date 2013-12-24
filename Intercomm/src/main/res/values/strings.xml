@@ -54,6 +54,9 @@
     <string name="ch_del">Delete</string>
     <string name="ver_label">Version:</string>
     <string name="no_func">No function</string>
+    <string name="file_label">Select file</string>
+    <string name="delete_all">Delete all</string>
+    <string name="ch_imported" formatted="false">Imported %d channel(s)\n From %s</string>
     <string-array name="ctcss">
         <item value="0">Off</item>
         <item value="1">67.0 HZ</item>
