@@ -123,6 +123,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public ManualFrequency mManual;
     public Channel mChannels;
     public Chat mChat;
+    public Boolean isChat = true;
     public Intercom mIntercom = new Intercom();
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
@@ -242,7 +243,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     get_array[1]=array[2];
                     get_array[2]=array[4];
                 }
-                if(array[5].equals("Tone") || array[5].equals("Cross")){
+                if(array[5].equals("Tone")){
                     get_array[3]=get_array[4]=Integer.toString(findCt(tones,Double.parseDouble(array[6])));
                 }else if(array[5].equals("TSQL")){
                     get_array[3]="0";
@@ -250,6 +251,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }else if(array[5].equals("TSQL-R")){
                     get_array[3]=Integer.toString(findCt(tones,Double.parseDouble(array[6])));
                     get_array[4]="0";
+                }else if(array[5].equals("Cross")){
+                    get_array[3]=Integer.toString(findCt(tones,Double.parseDouble(array[6])));
+                    get_array[4]=Integer.toString(findCt(tones,Double.parseDouble(array[7])));
                 }
                 if(!get_array[1].equals(""))if(tar_array.length() == 0)tar_array = join(get_array, ",");else tar_array += "|"+join(get_array, ",");
             }
@@ -271,7 +275,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int i = 1;
         for(String line:ChannelList){
             String[] get = line.split(",");
-            writer.write(i+","+get[0]+","+get[1]+",split,"+get[2]+((get[3].equals("0"))?",,":",TSQL,")+Double.toString(tones[Integer.parseInt(get[3])])+","+Double.toString(tones[Integer.parseInt(get[3])])+",023,NN,FM,5.00,,,,,,\n");
+            writer.write(i+","+get[0]+","+get[1]+",split,"+get[2]+((get[3].equals("0"))?",,":",Cross,")+Double.toString(tones[Integer.parseInt(get[3])])+","+Double.toString(tones[Integer.parseInt(get[3])])+",023,NN,FM,5.00,,,,,,\n");
             i++;
         }
         writer.close();
@@ -329,11 +333,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mChannels.main = this;
         super.onPostCreate(savedInstanceState);
     }
-    @Override
+    /*@Override
     public boolean onKeyDown(int KeyCode,KeyEvent event){
         Toast.makeText(this, "KeyCode="+KeyCode+" Ev="+event.getCharacters(), Toast.LENGTH_SHORT).show();
         return false;
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -377,7 +381,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
             mIntercom = new uartIntercom();
         }
-
+        try{
+            int m = mIntercom.checkMessageBuffer();
+        }catch(NoSuchMethodError e){
+            isChat = false;
+        }
 
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
@@ -542,6 +550,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         switch (item.getItemId()){
             case R.id.clear_history_action:
                 History = "<h1>"+getString(R.string.title_chat)+"</h1>";
+                try{
+                    TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
+                    chat.setText(Html.fromHtml(History));
+                }catch (Exception e){
+                    //
+                }
                 return true;
             case R.id.clear_channels:
                 ChannelList = getString(R.string.channels_std).split("\\|");
@@ -669,7 +683,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         @Override
         public int getCount() {
-            return 3;
+            return (main.isChat)?3:2;
         }
 
 
@@ -1265,9 +1279,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             fragment.main = main;
             return fragment;
         }
-        private Spanned getHtml(){
-            return Html.fromHtml(main.History+"<br/>");
-        }
         @Override
         public void onClick(View view){
 
@@ -1289,7 +1300,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             ScrollView scroll = (ScrollView)rootView.findViewById(R.id.scrollView);
             msg.setOnKeyListener(this);
             nick.setText(main.Nick+" >");
-            chat.setText(getHtml());
+            chat.setText(Html.fromHtml(main.History));
             scroll.fullScroll(View.FOCUS_DOWN);
             main.ChatHandler.sendMessageDelayed(new Message(),1000L);
             return rootView;
@@ -1307,7 +1318,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         /**
                          * TODO: Set Nick with "/name MyNick"
                          */
-                        TextView chat = (TextView)getView().findViewById(R.id.chat);
+                        TextView chat = (TextView)getView().findViewById(R.id.chat);chat.setText(Html.fromHtml(main.History));
                         ScrollView scroll = (ScrollView)getView().findViewById(R.id.scrollView);
                         msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
                         try{
@@ -1317,7 +1328,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             Toast.makeText(super.getActivity(), getString(R.string.no_func), Toast.LENGTH_SHORT).show();
                         }
                         main.History += msg;
-                        chat.setText(getHtml());
+                        chat.setText(Html.fromHtml(main.History));
                         scroll.fullScroll(View.FOCUS_DOWN);
                         message.setText("");
                         message.requestFocus();

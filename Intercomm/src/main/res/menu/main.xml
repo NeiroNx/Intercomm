@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.nxn.intercomm.MainActivity">
 
-    <item android:id="@+id/share_gps"
-        android:title="@string/share_gps"
-        android:showAsAction="never"
-        android:actionViewClass="mChat"
-        android:orderInCategory="0"
-        android:icon="@android:drawable/ic_menu_share" />
     <item android:id="@+id/imp_csv"
         android:title="@string/imp_csv"
         android:orderInCategory="1"
