@@ -16,6 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat" >
         <activity
+            android:launchMode="singleInstance"
             android:name="com.nxn.intercomm.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>

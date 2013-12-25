@@ -16,16 +16,24 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -125,6 +133,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Chat mChat;
     public Boolean isChat = true;
     public Intercom mIntercom = new Intercom();
+    public NotificationManager mNotificationManager;
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
     public Boolean ScanChannel = false;
@@ -142,6 +151,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Integer Old_Sq;
     private Integer Old_Volume;
 
+    public void Notify(){
+        mNotificationManager.notify(R.id.pager, new NotificationCompat.Builder(MainActivity.this)
+                .setOngoing(true)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle(getTitle()+": "+((Power)?"ON":"OFF"))
+                .setContentText(String.format("%s >> RX: %s  TX: %s", ChannelName, Format.format(curRxFreq), Format.format(curTxFreq)))
+                .setContentIntent(PendingIntent.getBroadcast(MainActivity.this,0,new Intent("com.nxn.intercomm.RESTORE"),0))
+                .build());
+    }
+
     public static Double pow(Double base, int up){
         Double result = base;
         for(int i=1;i<up;i++)result*=base;
@@ -156,6 +175,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         curTxCt = Integer.parseInt(array[4]);
         Sq = Integer.parseInt(array[5]);
         ChannelName = array[0];
+        Notify();
         String str = "<h1>"+ChannelName+"</h1>"+
                 "<p>"+getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
                 getString(R.string.txfreq_label)+": "+Format.format(curTxFreq)+"<br/>"+
@@ -201,6 +221,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(num > maxFreq) num = maxFreq;
         curRxFreq = num;
         curTxFreq = num;
+        Notify();
         return Format.format(num);
     }
     public String join(String[] array, String delimiter){
@@ -386,7 +407,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }catch(NoSuchMethodError e){
             isChat = false;
         }
-
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
@@ -512,10 +533,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         mIntercom.resumeIntercomSetting();//Commit setting
                         editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                         editor.commit();
+                        Notify();
                     }
                 }
             }
         }, 0, 3000);
+        Notify();
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                startActivity(MainActivity.this.getIntent());
+                Toast.makeText(MainActivity.this, ":P", Toast.LENGTH_SHORT).show();
+            }
+        },new IntentFilter("com.nxn.intercomm.RESTORE"));
+
     }
 
     @Override
@@ -609,6 +640,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case R.id.action_quit:
                 mIntercom.closeCharDev();
+                mNotificationManager.cancel(R.id.pager);
                 finish();
                 return true;
             case R.id.power:
@@ -652,6 +684,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 Power=item.isChecked();
                 editor.putString(APP_PREFERENCES_POWER,Power.toString());
                 editor.commit();
+                Notify();
                 return true;
         }
         return super.onOptionsItemSelected(item);
