@@ -9,95 +9,43 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:id="@+id/searchText"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:textColor="@android:color/primary_text_dark_nodisable"
-            android:singleLine="true"
-            android:textSize="30dp"
-            android:layout_margin="5dp"
-            android:enabled="true"
-            android:maxLength="10"
-            android:inputType="textNoSuggestions"
-            android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/cursor"
-            android:hint="@string/search" />
+        android:layout_height="110dp">
 
         <ImageButton
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/ch_search"
-            android:src="@android:drawable/ic_menu_search"
-            android:longClickable="false"
-            android:contentDescription="@string/ch_search_help" />
+            android:layout_height="fill_parent"
+            android:id="@+id/ch_prew"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="@string/ch_prew_help"
+            android:clickable="true"
+            android:longClickable="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:id="@+id/ch_info"
+            android:layout_weight="1"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:enabled="true"
+            android:clickable="true" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/ch_next"
+            android:src="@android:drawable/ic_media_next"
+            android:contentDescription="@string/ch_next_help"
+            android:clickable="true"
+            android:longClickable="true" />
 
     </LinearLayout>
 
-    <ScrollView
+    <ListView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/scrollView" >
+        android:id="@+id/listView"
+        android:fastScrollAlwaysVisible="true"
+        android:fastScrollEnabled="true" />
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="110dp">
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:id="@+id/ch_prew"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:contentDescription="@string/ch_prew_help" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="fill_parent"
-                    android:id="@+id/ch_info"
-                    android:layout_weight="1"
-                    android:singleLine="false"
-                    android:longClickable="false" />
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:id="@+id/ch_next"
-                    android:src="@android:drawable/ic_media_next"
-                    android:contentDescription="@string/ch_next_help" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ch_src"
-                    android:src="@android:drawable/ic_lock_silent_mode_off"
-                    android:contentDescription="@string/ch_src_help" />
-
-                <SeekBar
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ch_vol"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
-                    android:max="6" />
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>

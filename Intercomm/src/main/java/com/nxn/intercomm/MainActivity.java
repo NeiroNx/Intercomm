@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.database.DataSetObserver;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
@@ -42,6 +43,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.internal.view.menu.MenuView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
@@ -55,9 +57,12 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.text.TextWatcher;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -140,8 +145,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean ScanFreq = false;
     public Boolean ScanRxCt = false;
     public Integer TabPos = 0;
+    public String Search = "";
     public String FileName = "/sdcard/Channels.csv";
-    public String ActionX = "";
+    public String ActionInput = "";
 
     //Old values to track changes
     private Double Old_curRxFreq;
@@ -183,6 +189,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 getString(R.string.txctcss_label)+": "+curTxCt+"</p>";
         if(set){
             try{
+                ListView list = (ListView)mViewPager.findViewById(R.id.listView);
+                list.setAdapter(ChannelsAdapter());
                 TextView info = (TextView)mViewPager.findViewById(R.id.ch_info);
                 info.setText(Html.fromHtml(str));
                 EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
@@ -192,12 +200,50 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 Spinner txct = (Spinner)mViewPager.findViewById(R.id.txctcss);
                 txct.setSelection(curTxCt);
                 Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
-                sq.setSelection(Sq);
+                sq.setSelection(Sq-1);
             }catch (Exception e){
                 //
             }
         }
         return str;
+    }
+
+    public int findCh(String str){
+        int result=-1;
+        for(int i=curChannel+1;i<ChannelList.length;i++){//find in upper part list
+            if(ChannelList[i].toUpperCase().contains(str.toUpperCase())){
+                result = i;
+                break;
+            }
+        }
+        if(result == -1)for(int i=0;i<curChannel-1;i++){//resume from lower part if NO result
+            if(ChannelList[i].toUpperCase().contains(str.toUpperCase())){
+                result = i;
+                break;
+            }
+        }
+        return result;
+    }
+    public ListAdapter ChannelsAdapter(){
+        return new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_2, ChannelList){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View row;
+                if(convertView == null){
+                    LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    row = (View)inflater.inflate(android.R.layout.simple_list_item_2, null);
+                }else{
+                    row = (View)convertView;
+                }
+                TextView text1 = (TextView)row.findViewById(android.R.id.text1);
+                TextView text2 = (TextView)row.findViewById(android.R.id.text2);
+                String[] ch = ChannelList[position].split(",");
+                text1.setText(ch[0]);
+                text2.setText("RX: "+ch[1]+" ["+ch[3]+"] TX: "+ch[2]+" ["+ch[4]+"]");
+                return row;
+            }
+        };
     }
 
     public void setTxFreq(){
@@ -230,9 +276,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return str;
     }
     public String[] del(String[] array, int id){
-        String str = array[0];
+        int rid = (id == 0)?1:0;
+        String str = array[rid];
         for (int i=1;i<id;i++) str += "|"+array[i];
-        for (int i=id+1;i<array.length;i++) str += "|"+array[i];
+        for (int i=id+rid+1;i<array.length;i++) str += "|"+array[i];
         return str.split("\\|");
     }
     public int findCt(Double[] array, Double tar){
@@ -589,6 +636,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 return true;
             case R.id.clear_channels:
+                mViewPager.setCurrentItem(1);
                 ChannelList = getString(R.string.channels_std).split("\\|");
                 curChannel = 0;
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
@@ -600,16 +648,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 mViewPager.setCurrentItem(0);
                 return true;
             case R.id.imp_csv:
-                DialogFragment imp = new FileDialog();
-                imp.show(getSupportFragmentManager(),"file");
-                ActionX = "import";
+                ActionInput = "import";
+                mViewPager.setCurrentItem(1);
+                DialogFragment imp = new InputDialog();
+                imp.show(getSupportFragmentManager(),ActionInput);
                 return true;
             case R.id.exp_csv:
-                DialogFragment exp = new FileDialog();
-                exp.show(getSupportFragmentManager(),"file");
-                ActionX = "export";
+                ActionInput = "export";
+                mViewPager.setCurrentItem(1);
+                DialogFragment exp = new InputDialog();
+                exp.show(getSupportFragmentManager(),ActionInput);
                 return true;
             case R.id.delete_all_action:
+                mViewPager.setCurrentItem(1);
                 ChannelList = new String[]{"new,"+curRxFreq.toString()+","+curRxFreq.toString()+",0,0,5,false"};
                 curChannel=0;
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
@@ -618,6 +669,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 setCh(true);
                 return true;
             case R.id.ch_del:
+                mViewPager.setCurrentItem(1);
                 ChannelList=del(ChannelList,curChannel);
                 if(curChannel>ChannelList.length-1)curChannel=ChannelList.length-1;
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
@@ -626,10 +678,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 setCh(true);
                 return true;
             case R.id.ch_add:
-                Log.w("ADD","Channel");
+                mViewPager.setCurrentItem(1);
                 DialogFragment edit = new ChannelAddDialog();
                 edit.show(getSupportFragmentManager(),"channel_edit");
                 return true;
+            case R.id.ch_search:
+                ActionInput = "search";
+                mViewPager.setCurrentItem(1);
+                DialogFragment srh = new InputDialog();
+                srh.show(getSupportFragmentManager(),ActionInput);
+                break;
             case R.id.about:
                 DialogFragment about = new AboutDialog();
                 about.show(getSupportFragmentManager(),"about");
@@ -641,6 +699,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case R.id.action_quit:
                 mIntercom.closeCharDev();
                 mNotificationManager.cancel(R.id.pager);
+                ScanFreq = false;
+                ScanChannel = false;
                 finish();
                 return true;
             case R.id.power:
@@ -1003,8 +1063,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static class Channel extends Fragment implements
             OnClickListener,
             View.OnLongClickListener,
-            TextWatcher,
-            SeekBar.OnSeekBarChangeListener
+            AdapterView.OnItemClickListener
     {
         private MainActivity main;
         private Boolean isLongTouch = false;
@@ -1021,14 +1080,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public void onClick(View view){
             if(!isLongTouch)
             switch (view.getId()){
-                case R.id.ch_search:
-                    EditText search = (EditText)getView().findViewById(R.id.searchText);
-                    int f = findCh(search.getText().toString());
-                    if(f != -1){
-                        main.curChannel=f;
-                        main.setCh(true);
-                    }
-                    break;
                 case R.id.ch_next:
                     if(main.curChannel<main.ChannelList.length-1)main.curChannel++;
                     if(main.ScanChannel)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
@@ -1048,19 +1099,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     if(main.ScanChannel)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
                     main.ScanChannel = false;
                     break;
-                case R.id.ch_src:
-                    ImageButton snd = (ImageButton)getView().findViewById(R.id.ch_src);
-                    if(main.isSpeaker){
-                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode);
-                        main.mIntercom.intercomHeadsetMode();
-                        main.isSpeaker=false;
-                    }else{
-                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
-                        main.mIntercom.intercomSpeakerMode();
-                        main.isSpeaker=true;//stat_sys_headset
-                    }
-                    break;
-
             }else isLongTouch=false;
 
         }
@@ -1075,26 +1113,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             rootView = inflater.inflate(R.layout.channels, container, false);
             assert rootView != null;
             main = (MainActivity)super.getActivity();
-            rootView.findViewById(R.id.ch_search).setOnClickListener(this);
             rootView.findViewById(R.id.ch_next).setOnClickListener(this);
             rootView.findViewById(R.id.ch_prew).setOnClickListener(this);
             rootView.findViewById(R.id.ch_next).setOnLongClickListener(this);
             rootView.findViewById(R.id.ch_prew).setOnLongClickListener(this);
-            rootView.findViewById(R.id.ch_vol).setOnClickListener(this);
             TextView ch_info = (TextView)rootView.findViewById(R.id.ch_info);
-            ImageButton snd = (ImageButton)rootView.findViewById(R.id.ch_src);
-            snd.setOnClickListener(this);
-            SeekBar vol = (SeekBar)rootView.findViewById(R.id.ch_vol);
-            //may be exception
-            vol.setOnSeekBarChangeListener(this);
-            vol.setProgress(main.Volume);
+            ListView list = (ListView)rootView.findViewById(R.id.listView);
+            list.setAdapter(main.ChannelsAdapter());
+            list.setOnItemClickListener(this);
             ch_info.setText(Html.fromHtml(main.setCh(false)));
             ch_info.setOnClickListener(this);
-            if(main.isSpeaker){
-                snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
-            }else{
-                snd.setImageResource(android.R.drawable.ic_lock_silent_mode);//stat_sys_headset
-            }
             return rootView;
         }
 
@@ -1123,64 +1151,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            main.Volume = progress;
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-
-        public int findCh(String str){
-            int result=-1;
-            for(int i=main.curChannel+1;i<main.ChannelList.length;i++){//find in upper part list
-                if(main.ChannelList[i].toUpperCase().contains(str.toUpperCase())){
-                    result = i;
-                    break;
-                }else{
-                    for(String f:str.split(" ")){//substring find
-                        if(main.ChannelList[i].toUpperCase().contains(f.toUpperCase())){
-                            result=i;
-                            break;
-                        }
-                    }
-                }
-            }
-            if(result == -1)for(int i=0;i<main.curChannel-1;i++){//resume from lower part if NO result
-                if(main.ChannelList[i].toUpperCase().contains(str.toUpperCase())){
-                    result = i;
-                    break;
-                }else{
-                    for(String f:str.split(" ")){//Substring find
-                        if(main.ChannelList[i].toUpperCase().contains(f.toUpperCase())){
-                            result=i;
-                            break;
-                        }
-                    }
-                }
-            }
-            return result;
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            main.curChannel = position;
+            main.setCh(true);
         }
 
         public class ChannelEditDialog extends DialogFragment{
@@ -1442,14 +1415,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
     }
-    public class FileDialog extends DialogFragment{
+    public class InputDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View About = inflater.inflate(R.layout.openfile, null);
-            final EditText file = (EditText)About.findViewById(R.id.file);
+            final View About = inflater.inflate(R.layout.input, null);
+            final EditText input = (EditText)About.findViewById(R.id.input);
+            if(ActionInput.equals("import")||ActionInput.equals("export")){
+                input.setText(FileName);
+                input.setHint(R.string.file_label);
+            }else if(ActionInput.equals("search")){
+                input.setText(Search);
+                input.setHint(R.string.search);
+            }
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(About)
@@ -1457,24 +1437,35 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            FileName = file.getText().toString();
-                            if (ActionX.equals("import")) {
+                            String str = input.getText().toString();
+                            if (ActionInput.equals("import")) {
                                 String imported = "";
+
                                 try {
-                                    imported = importChannelListFromCSV(FileName);
+                                    imported = importChannelListFromCSV(str);
+                                    FileName = str;
                                 } catch (Exception e) {
-                                    Log.e("Error", e.toString()+Arrays.toString(e.getStackTrace()));
+                                    Log.e("Error", e.toString() + Arrays.toString(e.getStackTrace()));
                                     Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                                 }
                                 Toast.makeText(MainActivity.this, String.format(getString(R.string.ch_imported), imported.split("\\|").length, FileName), Toast.LENGTH_LONG).show();
 
                                 ChannelList = (join(ChannelList, "|") + "|" + imported).split("\\|");
-                            } else if (ActionX.equals("export")) {
+                            } else if (ActionInput.equals("export")) {
+
                                 try {
-                                    exportChannelListToCSV(FileName);
+                                    exportChannelListToCSV(str);
+                                    FileName = str;
                                 } catch (Exception e) {
-                                    Log.e("Error", e.toString()+Arrays.toString(e.getStackTrace()));
+                                    Log.e("Error", e.toString() + Arrays.toString(e.getStackTrace()));
                                     Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            } else if (ActionInput.equals("search")) {
+                                Search = str;
+                                int f = findCh(str);
+                                if (f != -1) {
+                                    curChannel = f;
+                                    setCh(true);
                                 }
                             }
 
@@ -1482,7 +1473,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            FileDialog.this.getDialog().cancel();
+                            InputDialog.this.getDialog().cancel();
                         }
                     });
             return builder.create();
