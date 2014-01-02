@@ -127,8 +127,18 @@ public class uartIntercom extends Intercom{
     private final static String DMO = "+DMO";
     private final static String CONNECT = "CONNECT";
     private final static String MSG = "MSG";
+    private final static String VOLUME = "SETVOLUME=";
+    private final static String GRP = "SETGROUP=0,";
     SerialPortFinder serialPortFinder = new SerialPortFinder();
     SerialPort uart;
+    public String port = "/dev/ttyMT1";
+    public Integer baud = 9600;
+    private Integer Volume = 6;
+    private Integer SQ = 5;
+    private Integer RxFreq = 4460062;
+    private Integer TxFreq = 4460062;
+    private Integer RxCTCSS = 0;
+    private Integer TxCTCSS = 0;
     public static native void IntercomStart();
     public static native void IntercomStop();
 
@@ -138,25 +148,29 @@ public class uartIntercom extends Intercom{
         /**
          * TODO Find Intercom and get version
          */
-        SerialPort test = uart;
+
     }
     @Override
     public int checkMessageBuffer()
     {
-        String cmd = DMO+MSG;
-        byte[] buf={};
-        try {
-            uart.getInputStream().read(buf,0,cmd.length());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(uart != null){
+            String cmd = DMO+MSG;
+            byte[] buf={};
+            //try {
+            //    uart.getInputStream().read(buf,0,cmd.length());
+            //} catch (IOException e) {
+            //    e.printStackTrace();
+            //}
         }
         return 0;
     }
     @Override
     public void closeCharDev()
     {
-        //;
-        //uart.close();
+        if(uart != null){
+            uart.close();
+            uart = null;
+        }
     }
     @Override
     public int getIntercomVersion()
@@ -193,11 +207,20 @@ public class uartIntercom extends Intercom{
     @Override
     public void openCharDev()
     {
-        //JNI_openCharDev();
+        if(uart == null){
+            try {
+                uart = new SerialPort(new File(port),baud,0);
+                uart.getOutputStream().write((AT+DMO+CONNECT+"\r\n").getBytes("US-ASCII"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                uart = null;
+            }
+        }
     }
     @Override
     public void resumeIntercomSetting()
     {
+        sendFreq();
         //JNI_resumeIntercomSetting();
     }
     @Override
@@ -208,37 +231,73 @@ public class uartIntercom extends Intercom{
     @Override
     public void setCtcss(int paramInt)
     {
-        //
+        RxCTCSS = paramInt;
+        sendFreq();
     }
     @Override
     public void setRXFrequency(int paramInt)
     {
-        //
+        RxFreq = paramInt;
+        sendFreq();
     }
     @Override
     public void setRadioFrequency(int paramInt)
     {
-        //
+        RxFreq = paramInt;
+        sendFreq();
     }
     @Override
     public void setSq(int paramInt)
     {
-        //
+        SQ = paramInt;
+        sendFreq();
     }
     @Override
     public void setTXFrequency(int paramInt)
     {
-        //
+        TxFreq = paramInt;
+        sendFreq();
     }
     @Override
     public void setTxCtcss(int paramInt)
     {
-        //
+        TxCTCSS = paramInt;
+        sendFreq();
     }
     @Override
     public void setVolume(int paramInt)
     {
-        //
+        Volume = paramInt;
+        sendVol();
+    }
+
+    private void sendFreq(){
+        if(uart != null){
+            String str = AT+DMO+GRP+
+                    ((TxFreq<10000000)?Double.toString(TxFreq/10000):Double.toString(TxFreq/100000))+","+
+                    ((RxFreq<10000000)?Double.toString(RxFreq/10000):Double.toString(RxFreq/100000))+","+
+                    RxCTCSS+","+SQ+","+TxCTCSS+"\r\n";
+            try {
+                uart.getInputStream().reset();
+                uart.getOutputStream().write(str.getBytes("US-ASCII"));
+                //uart.getInputStream().
+                Thread.sleep(200L);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void sendVol(){
+        if(uart != null){
+            String str = AT+DMO+VOLUME+Volume+"\r\n";
+            try {
+                uart.getOutputStream().write(str.getBytes("US-ASCII"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static class SerialPort {
