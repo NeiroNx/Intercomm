@@ -142,6 +142,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
     public Boolean ScanChannel = false;
+    public Boolean ScanForward = true;
     public Boolean ScanFreq = false;
     public Boolean ScanRxCt = false;
     public Integer TabPos = 0;
@@ -174,7 +175,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
     public String setCh(Boolean set){
         String[] array = ChannelList[curChannel].split(",");
-        if(array.length<5)return getString(R.string.no_data);
+        if(array.length<5||ChannelList.length<1)return getString(R.string.no_data);
         curRxFreq = Double.parseDouble(array[1]);
         curTxFreq = Double.parseDouble(array[2]);
         curRxCt = Integer.parseInt(array[3]);
@@ -859,19 +860,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             isLongTouch = true;
             switch (view.getId()){
                 case R.id.freq_next:
-                    Message msg1 = new Message();
-                    msg1.arg1 = 1;
                     main.ScanFreq = true;
+                    main.ScanForward = true;
                     main.ScanChannel = false;
-                    main.FreqHandler.sendMessageDelayed(msg1,main.ScanDelay);
+                    main.ScanHandler.sendMessageDelayed(new Message(),main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.freq_next), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.freq_prew:
-                    Message msg2 = new Message();
-                    msg2.arg1 = 2;
                     main.ScanFreq = true;
+                    main.ScanForward = false;
                     main.ScanChannel = false;
-                    main.FreqHandler.sendMessageDelayed(msg2,main.ScanDelay);
+                    main.ScanHandler.sendMessageDelayed(new Message(),main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.freq_prew), Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -1001,65 +1000,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    /**
-     * TODO Scan Frequency with service
-     */
-    private Handler FreqHandler = new Handler() {
-        @Override
-        public void handleMessage(Message message) {
-            if(ScanFreq){
-                EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
-                Spinner rx = (Spinner)mViewPager.findViewById(R.id.rxctcss);
-                switch (message.arg1){
-                    case 1:
-                        if(ScanRxCt&&curRxCt<tones.length-1){
-                            curRxCt++;
-                            if(rx != null)rx.setSelection(curRxCt);
-                        } else {
-                            if(curRxFreq+Step > maxFreq) curRxFreq = minFreq-Step;
-                            if(curRxCt == tones.length-1)curRxCt=-1;
-                            if(freq != null)freq.setText(setFreq(curRxFreq,Step));
-                        }
-                        Message msg1 = new Message();
-                        msg1.arg1 = 1;
-                        FreqHandler.sendMessageDelayed(msg1,ScanDelay);
-                        break;
-                    case 2:
-                        if(ScanRxCt&&curRxCt>0){
-                            curRxCt--;
-                            if(rx != null)rx.setSelection(curRxCt);
-                        } else {
-                            if(curRxFreq-Step < minFreq) curRxFreq = maxFreq+Step;
-                            if(curRxCt == 0)curRxCt=tones.length;
-                            if(freq != null)freq.setText(setFreq(curRxFreq,-Step));
-                        }
-
-                        Message msg2 = new Message();
-                        msg2.arg1 = 2;
-                        FreqHandler.sendMessageDelayed(msg2,ScanDelay);
-                        break;
-                }
-                if(Power){
-                    if(ScanRxCt&&curRxCt>-1&&curRxCt<tones.length){
-                        Old_curRxCt=curRxCt;
-                        mIntercom.setCtcss(curRxCt);
-                        Toast.makeText(MainActivity.this, getString(R.string.rxctcss_label) + "  "+tones[curRxCt] + " Hz", Toast.LENGTH_SHORT).show();
-                        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-                        editor.commit();
-                    }else{
-                        Old_curRxFreq = Old_curTxFreq = curTxFreq = curRxFreq;
-                        setRxFreq();
-                        setTxFreq();
-                        Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
-                        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-                        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-                        editor.commit();
-                    }
-                }
-            }
-        }
-    };
-
     public static class Channel extends Fragment implements
             OnClickListener,
             View.OnLongClickListener,
@@ -1131,19 +1071,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             isLongTouch = true;
             switch (view.getId()){
                 case R.id.ch_next:
-                    Message msg1 = new Message();
-                    msg1.arg1 = 1;
                     main.ScanChannel = true;
+                    main.ScanForward = true;
                     main.ScanFreq = false;
-                    main.ChannelHandler.sendMessageDelayed(msg1,main.ScanDelay);
+                    main.ScanHandler.sendMessageDelayed(new Message(),main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.ch_next_help), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.ch_prew:
-                    Message msg2 = new Message();
-                    msg2.arg1 = 2;
                     main.ScanChannel = true;
+                    main.ScanForward = false;
                     main.ScanFreq = false;
-                    main.ChannelHandler.sendMessageDelayed(msg2,main.ScanDelay);
+                    main.ScanHandler.sendMessageDelayed(new Message(),main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.ch_prew_help), Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -1212,65 +1150,102 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     /**
-     * TODO Scaan Channels with service
+     * TODO Scan Frequency with service
      */
-    private Handler ChannelHandler = new Handler() {
+    private Handler ScanHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
-            if(ScanChannel){
-                switch (message.arg1){
-                    case 1:
-                        Message msg1 = new Message();
-                        msg1.arg1 = 1;
-                        if(curChannel<ChannelList.length-1)curChannel++;else curChannel=0;
-                        if(!Boolean.parseBoolean(ChannelList[curChannel].split(",")[6])){
-                            ChannelHandler.sendMessageDelayed(msg1,0);
-                            break;
-                        }
-                        setCh(true);
-                        ChannelHandler.sendMessageDelayed(msg1,ScanDelay);
-                        break;
-                    case 2:
-                        Message msg2 = new Message();
-                        msg2.arg1 = 2;
-                        if(curChannel>0)curChannel--;else curChannel=ChannelList.length-1;
-                        if(!Boolean.parseBoolean(ChannelList[curChannel].split(",")[6])){
-                            ChannelHandler.sendMessageDelayed(msg2,0);
-                            break;
-                        }
-                        setCh(true);
-                        ChannelHandler.sendMessageDelayed(msg2,ScanDelay);
-                        break;
+            Boolean set = true;
+            if(ScanFreq){
+                EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
+                Spinner rx = (Spinner)mViewPager.findViewById(R.id.rxctcss);
+                if(ScanForward){
+                    if(ScanRxCt&&curRxCt<tones.length-1){
+                        curRxCt++;
+                        if(rx != null)rx.setSelection(curRxCt);
+                    } else {
+                        if(curRxFreq+Step > maxFreq) curRxFreq = minFreq-Step;
+                        if(curRxCt == tones.length-1)curRxCt=-1;
+                        if(freq != null)freq.setText(setFreq(curRxFreq,Step));
+                    }
+                }else{
+                    if(ScanRxCt&&curRxCt>0){
+                        curRxCt--;
+                        if(rx != null)rx.setSelection(curRxCt);
+                    } else {
+                        if(curRxFreq-Step < minFreq) curRxFreq = maxFreq+Step;
+                        if(curRxCt == 0)curRxCt=tones.length;
+                        if(freq != null)freq.setText(setFreq(curRxFreq,-Step));
+                    }
                 }
                 if(Power){
-                    Old_curRxFreq = curRxFreq;
-                    Old_curTxFreq = curTxFreq;
-                    Old_curRxCt = curRxCt;
-                    Old_curTxCt = curTxCt;
-                    Old_Sq = Sq;
-                    setRxFreq();
-                    setTxFreq();
-                    mIntercom.setCtcss(curRxCt);
-                    try{
-                        mIntercom.setTxCtcss(curTxCt);
-                    }catch(NoSuchMethodError e){
-
+                    if(ScanRxCt&&curRxCt>-1&&curRxCt<tones.length){
+                        Old_curRxCt=curRxCt;
+                        mIntercom.setCtcss(curRxCt);
+                        Toast.makeText(MainActivity.this, getString(R.string.rxctcss_label) + "  "+tones[curRxCt] + " Hz", Toast.LENGTH_SHORT).show();
+                        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
+                        editor.commit();
+                    }else{
+                        Old_curRxFreq = Old_curTxFreq = curTxFreq = curRxFreq;
+                        setRxFreq();
+                        setTxFreq();
+                        Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
+                        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
+                        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
+                        editor.commit();
                     }
-                    mIntercom.setSq(Sq);
-                    mIntercom.resumeIntercomSetting();
-                    Toast.makeText(MainActivity.this, getString(R.string.title_chan) + "  "+curChannel.toString(), Toast.LENGTH_SHORT).show();
-                    editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                    editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-                    editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-                    editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-                    editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
-                    editor.putString(APP_PREFERENCES_SQ,Sq.toString());
-                    editor.commit();
+                }
+                ScanHandler.sendMessageDelayed(new Message(),ScanDelay);
+            }
+            if(ScanChannel){
+                if(ScanForward){
+                    if(curChannel<ChannelList.length-1)curChannel++;else curChannel=0;
+                    if(!Boolean.parseBoolean(ChannelList[curChannel].split(",")[6])){
+                        set = false;
+                        ScanHandler.sendMessageDelayed(new Message(),0);
+                    }else{
+                        setCh(true);
+                        ScanHandler.sendMessageDelayed(new Message(),ScanDelay);
+                    }
+                }else{
+                    if(curChannel>0)curChannel--;else curChannel=ChannelList.length-1;
+                    if(!Boolean.parseBoolean(ChannelList[curChannel].split(",")[6])){
+                        set = false;
+                        ScanHandler.sendMessageDelayed(new Message(),0);
+                    }else{
+                        setCh(true);
+                        ScanHandler.sendMessageDelayed(new Message(),ScanDelay);
+                    }
                 }
             }
+            if(set&&Power&&(ScanChannel||ScanFreq)){
+                Old_curRxFreq = curRxFreq;
+                Old_curTxFreq = curTxFreq;
+                Old_curRxCt = curRxCt;
+                Old_curTxCt = curTxCt;
+                Old_Sq = Sq;
+                setRxFreq();
+                setTxFreq();
+                mIntercom.setCtcss(curRxCt);
+                try{
+                    mIntercom.setTxCtcss(curTxCt);
+                }catch(NoSuchMethodError e){
+                    Log.e("Scanner","Can not set TxCTCSS - no such method");
+                }
+                mIntercom.setSq(Sq);
+                mIntercom.resumeIntercomSetting();
+                Toast.makeText(MainActivity.this, getString(R.string.title_chan) + "  "+curChannel.toString(), Toast.LENGTH_SHORT).show();
+                editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
+                editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
+                editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
+                editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
+                editor.putString(APP_PREFERENCES_SQ,Sq.toString());
+                editor.commit();
+            }
+
         }
     };
-
 
     public static class Chat extends Fragment implements
             OnClickListener,
@@ -1340,7 +1315,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         message.requestFocus();
                     }
                     return true;
-                    //break;
             }
             return false;
         }
@@ -1356,7 +1330,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         History += "<div>"+msg+"</div>";
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
                     }
-                ChatHandler.sendMessageDelayed(new Message(),5000L);
+                ChatHandler.sendMessageDelayed(new Message(),5000L);//5 sec update
             }catch(NoSuchMethodError e){
                 Log.w("Message","can not found function");
             }
