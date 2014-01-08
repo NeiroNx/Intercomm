@@ -170,8 +170,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mNotificationManager.notify(R.id.pager, new NotificationCompat.Builder(MainActivity.this)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle(getTitle() + ": " + ((Power) ? "ON" : "OFF"))
-                .setContentText(String.format("%s >> RX: %s[%s]  TX: %s[%s]", ChannelName, Format.format(curRxFreq),Integer.toString(curRxCt), Format.format(curTxFreq),Integer.toString(curTxCt)))
+                .setContentTitle(String.format("%s %s [%s]",getString(R.string.app_name), ChannelName,((Power) ? getString(R.string.on) : getString(R.string.off))))
+                .setContentText(String.format("RX: %s[%s]  TX: %s[%s]", Format.format(curRxFreq),Integer.toString(curRxCt), Format.format(curTxFreq),Integer.toString(curTxCt)))
                 .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, 0))
                 .build());
     }
@@ -190,12 +190,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         curTxCt = Integer.parseInt(array[4]);
         Sq = Integer.parseInt(array[5]);
         ChannelName = array[0];
+        setTitle(ChannelName);
         Notify();
-        String str = "<h1>"+ChannelName+"</h1>"+
-                "<p>"+getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
+        String str = //"<h1>"+ChannelName+"</h1>"+
+                getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
                 getString(R.string.txfreq_label)+": "+Format.format(curTxFreq)+"<br/>"+
                 getString(R.string.rxctcss_label)+": "+curRxCt+"       "+
-                getString(R.string.txctcss_label)+": "+curTxCt+"</p>";
+                getString(R.string.txctcss_label)+": "+curTxCt;
         if(set){
             try{
                 TextView info = (TextView)mViewPager.findViewById(R.id.ch_info);

@@ -58,6 +58,8 @@
     <string name="delete_all">Delete all</string>
     <string name="ch_imported" formatted="false">Imported %d channel(s)\n From %s</string>
     <string name="vibro_label">Vibration</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>
