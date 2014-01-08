@@ -171,7 +171,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle(getTitle() + ": " + ((Power) ? "ON" : "OFF"))
-                .setContentText(String.format("%s >> RX: %s  TX: %s", ChannelName, Format.format(curRxFreq), Format.format(curTxFreq)))
+                .setContentText(String.format("%s >> RX: %s[%s]  TX: %s[%s]", ChannelName, Format.format(curRxFreq),Integer.toString(curRxCt), Format.format(curTxFreq),Integer.toString(curTxCt)))
                 .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, 0))
                 .build());
     }
@@ -478,13 +478,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Old_curTxCt = curTxCt;
         Old_Sq = Sq;
         Old_Volume = Volume;
-
-        try {
+        try{
             mIntercom.openCharDev();
+        }catch (NoSuchMethodError e){
+            Log.w("Intercom","openCharDev()");
+        }
+        try {
+            mIntercom.resumeIntercomSetting();
         }catch (NoSuchMethodError e){
             Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
             mIntercom = new uartIntercom();
-            mIntercom.openCharDev();
+            //mIntercom.openCharDev();
         }
         try{
             int m = mIntercom.checkMessageBuffer();
@@ -741,7 +745,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 settings.show(getSupportFragmentManager(),"settings");
                 return true;
             case R.id.action_quit:
-                mIntercom.closeCharDev();
+                try{
+                    mIntercom.closeCharDev();
+                }catch (NoSuchMethodError e){
+                    Log.w("Intercom","closeCharDev()");
+                }
                 mNotificationManager.cancel(R.id.pager);
                 ScanFreq = false;
                 ScanChannel = false;
@@ -759,12 +767,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     } catch (InterruptedException e) {
                         //
                     }
-                    mIntercom.closeCharDev();
+                    try{
+                        mIntercom.closeCharDev();
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","closeCharDev()");
+                    }
                     Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
                     item.setIcon(android.R.drawable.ic_lock_power_off);
                     item.setChecked(false);
                 }else{
-                    mIntercom.openCharDev();
+                    try{
+                        mIntercom.openCharDev();
+                    }catch (NoSuchMethodError e){
+                        Log.w("Intercom","openCharDev()");
+                    }
                     mIntercom.intercomPowerOn();
                     try {
                         Thread.sleep(400L); //Boot-up wait
