@@ -153,15 +153,6 @@ public class uartIntercom extends Intercom{
     @Override
     public int checkMessageBuffer()
     {
-        if(uart != null){
-            String cmd = DMO+MSG;
-            byte[] buf={};
-            //try {
-            //    uart.getInputStream().read(buf,0,cmd.length());
-            //} catch (IOException e) {
-            //    e.printStackTrace();
-            //}
-        }
         return 0;
     }
     @Override

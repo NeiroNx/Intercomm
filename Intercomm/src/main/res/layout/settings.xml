@@ -51,6 +51,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/vibro_label"
+                    android:id="@+id/vibro_label"
+                    android:layout_column="0"
+                    android:layout_weight=".1" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/vibro"
+                    android:layout_column="1"
+                    android:layout_weight="1000" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/set_min"
                     android:id="@+id/min_lable"
                     android:layout_column="0"

@@ -54,6 +54,7 @@
     <string name="file_label">Выбеорите файл:</string>
     <string name="delete_all">Удалить все</string>
     <string name="ch_imported" formatted="false">Импортированно %d канал(а)\n Из %s</string>
+    <string name="vibro_label">Вибрация</string>
     <string-array name="ctcss">
         <item>Выкл</item>
         <item>1: 67.0Гц</item>
