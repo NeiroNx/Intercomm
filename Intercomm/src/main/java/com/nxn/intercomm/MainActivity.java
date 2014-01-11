@@ -209,7 +209,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 txct.setSelection(curTxCt);
                 Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
                 sq.setSelection(Sq-1);
-            }catch (Exception e){
+                ListView list = (ListView)mViewPager.findViewById(R.id.listView);
+                list.smoothScrollToPosition(curChannel);
+            }catch (NullPointerException e){
                 //
             }
         }
@@ -310,6 +312,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return str;
     }
     public String[] del(String[] array, int id){
+        if(array.length == 1){
+            return array;
+        }
         int rid = (id == 0)?1:0;
         String str = array[rid];
         for (int i=1;i<id;i++) str += "|"+array[i];
@@ -724,6 +729,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                 editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
                 editor.commit();
+                list.setAdapter(ChannelsAdapter());
                 setCh(true);
                 return true;
             case R.id.ch_add:
@@ -1253,6 +1259,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     }
                 }
                 if(Power){
+                    notify();
                     if(ScanRxCt&&curRxCt>-1&&curRxCt<tones.length){
                         Old_curRxCt=curRxCt;
                         mIntercom.setCtcss(curRxCt);
@@ -1357,7 +1364,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             nick.setText(main.Nick+" >");
             chat.setText(Html.fromHtml(main.History));
             scroll.fullScroll(View.FOCUS_DOWN);
-            main.ChatHandler.sendEmptyMessageDelayed(0,1000L);
+            main.ChatHandler.sendEmptyMessageDelayed(0, 1000L);
             return rootView;
         }
 
@@ -1405,7 +1412,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         History += "<div>"+msg+"</div>";
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
                     }
-                ChatHandler.sendEmptyMessageDelayed(0,5000L);//5 sec update
+                ChatHandler.sendEmptyMessageDelayed(0, 5000L);//5 sec update
             }catch(NoSuchMethodError e){
                 Log.w("Message","can not found function");
             }
