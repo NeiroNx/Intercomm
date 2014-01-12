@@ -101,6 +101,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_RX_FREQ = "rx_freq";
     public static final String APP_PREFERENCES_TX_CTCSS = "tx_ctcss";
     public static final String APP_PREFERENCES_RX_CTCSS = "rx_ctcss";
+    public static final String APP_PREFERENCES_TX_SOS = "tx_sos";
+    public static final String APP_PREFERENCES_RX_SOS = "rx_sos";
+    public static final String APP_PREFERENCES_TX_CTCSS_SOS = "tx_ctcss_sos";
+    public static final String APP_PREFERENCES_RX_CTCSS_SOS = "rx_ctcss_sos";
     public static final String APP_PREFERENCES_CHANNEL = "channel";
     public static final String APP_PREFERENCES_CHANNELS = "channels";
     public static final String APP_PREFERENCES_SQ = "sq";
@@ -129,6 +133,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Double curTxFreq = 446.00625;
     public Integer curRxCt = 0;
     public Integer curTxCt = 0;
+    public Double sosRxFreq = 446.00625;
+    public Double sosTxFreq = 446.00625;
+    public Integer sosRxCt = 0;
+    public Integer sosTxCt = 0;
     public Double Step = steps[1];
     public Double minFreq = 400.0;
     public Double maxFreq = 480.0;
@@ -136,6 +144,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer Volume = 5;
     public Boolean isSpeaker = true;
     public Boolean Power = false;
+    public Boolean setSOS = false;
+    public Boolean sosMode = false;
     public ManualFrequency mManual;
     public Channel mChannels;
     public Chat mChat;
@@ -209,6 +219,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 txct.setSelection(curTxCt);
                 Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
                 sq.setSelection(Sq-1);
+                ListView list = (ListView)mViewPager.findViewById(R.id.listView);
+                list.smoothScrollToPosition(curChannel);
             }catch (Exception e){
                 //
             }
@@ -384,6 +396,45 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
+    public boolean onKeyUp(int KeyCode,KeyEvent event){
+        switch (KeyCode){
+            case 300:
+                if(!sosMode){
+                    sosMode = true;
+                    mIntercom.intercomPowerOn();
+                    mIntercom.setCtcss(sosRxCt);
+                    mIntercom.setTxCtcss(sosTxCt);
+                    Double f = sosRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                    mIntercom.setRXFrequency(f.intValue());
+                    f = sosTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                    mIntercom.setTXFrequency(f.intValue());
+                    mIntercom.setSq(1);
+                    Toast.makeText(this, getString(R.string.freq)+" SOS", Toast.LENGTH_SHORT).show();
+                    setTitle("SOS");
+                    if(Vibro)mVibrator.vibrate(250L);
+                }else{
+                    sosMode = false;
+                    if(Power){
+                        mIntercom.setCtcss(curRxCt);
+                        mIntercom.setTxCtcss(curTxCt);
+                        mIntercom.setSq(Sq);
+                        setRxFreq();
+                        setTxFreq();
+                    }else{
+                        mIntercom.intercomPowerOff();
+                    }
+                    setTitle(ChannelName);
+                    Toast.makeText(this, getString(R.string.freq), Toast.LENGTH_SHORT).show();
+                    if(Vibro)mVibrator.vibrate(75L);
+                }
+                return true;
+            default:
+                return false;
+        }
+
+    }
+
+    @Override
     public void onPostResume(){
         TabPos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TAB,"0"));
         Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
@@ -397,6 +448,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
         curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
         curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
+        sosRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_SOS, sosRxFreq.toString()));
+        sosTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString()));
+        sosRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS_SOS, sosRxCt.toString()));
+        sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME, Volume.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER, isSpeaker.toString()));
@@ -420,6 +475,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
         editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
         editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
+        editor.putString(APP_PREFERENCES_RX_SOS,sosRxFreq.toString());
+        editor.putString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString());
+        editor.putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
+        editor.putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
         editor.putString(APP_PREFERENCES_STEP,Step.toString());
         editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
         editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
@@ -465,6 +524,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
         curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
         curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
+        sosRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_SOS, sosRxFreq.toString()));
+        sosTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString()));
+        sosRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS_SOS, sosRxCt.toString()));
+        sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
@@ -727,9 +790,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 setCh(true);
                 return true;
             case R.id.ch_add:
+                setSOS = false;
                 mViewPager.setCurrentItem(1);
                 DialogFragment edit = new ChannelAddDialog();
                 edit.show(getSupportFragmentManager(),"channel_edit");
+                return true;
+            case R.id.sos_set:
+                setSOS = true;
+                DialogFragment sos = new ChannelAddDialog();
+                sos.show(getSupportFragmentManager(),"sos_edit");
                 return true;
             case R.id.ch_search:
                 ActionInput = "search";
@@ -1399,12 +1468,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public void handleMessage(Message message) {
             try{
-                if(Power)
-                    if( mIntercom.checkMessageBuffer() > 0 ){//Get any text
-                        String msg = mIntercom.getMessage();
+                if(Power){
+                    String msg;
+                    if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
                         History += "<div>"+msg+"</div>";
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
                     }
+                }
                 ChatHandler.sendEmptyMessageDelayed(0,5000L);//5 sec update
             }catch(NoSuchMethodError e){
                 Log.w("Message","can not found function");
@@ -1570,40 +1640,62 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             final View Settings = inflater.inflate(R.layout.channel, null);
             assert Settings != null;
             final EditText name = (EditText)Settings.findViewById(R.id.ch_name);
-            name.setText(getString(R.string.title_chan)+" "+Integer.toString(ChannelList.length));
             final EditText rx = (EditText)Settings.findViewById(R.id.ch_rxfreq);
-            rx.setText(curRxFreq.toString());
             final EditText tx = (EditText)Settings.findViewById(R.id.ch_txfreq);
-            tx.setText(curTxFreq.toString());
             final Spinner rxct = (Spinner)Settings.findViewById(R.id.ch_rxctcss);
-            rxct.setSelection(curRxCt);
             final Spinner txct = (Spinner)Settings.findViewById(R.id.ch_txctcss);
-            txct.setSelection(curTxCt);
             final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
-            sq.setSelection(Sq-1);
             final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
+            if(!setSOS){
+                name.setText(getString(R.string.title_chan)+" "+Integer.toString(ChannelList.length));
+                rx.setText(curRxFreq.toString());
+                tx.setText(curTxFreq.toString());
+                rxct.setSelection(curRxCt);
+                txct.setSelection(curTxCt);
+                sq.setSelection(Sq-1);
+            }else{
+                name.setText("SOS");
+                name.setEnabled(false);
+                rx.setText(sosRxFreq.toString());
+                tx.setText(sosTxFreq.toString());
+                rxct.setSelection(sosRxCt);
+                txct.setSelection(sosTxCt);
+                sq.setEnabled(false);
+            }
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(Settings)
                     // Add action buttons
-                    .setPositiveButton(R.string.ch_add, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(((!setSOS)?R.string.ch_add:R.string.ch_apply), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            //add ch to list
-                            String result =
-                                    name.getText().toString().replace(",", ".").replace("|", "/") + "," +
-                                            rx.getText().toString() + "," +
-                                            tx.getText().toString() + "," +
-                                            Integer.toString(rxct.getSelectedItemPosition()) + "," +
-                                            Integer.toString(txct.getSelectedItemPosition()) + "," +
-                                            Integer.toString(sq.getSelectedItemPosition()+1) + "," +
-                                            Boolean.toString(scan.isChecked());
-                            ChannelList = (join(ChannelList, "|") + "|" + result).split("\\|");
-                            curChannel = ChannelList.length - 1;
-                            ListView list = (ListView)mViewPager.findViewById(R.id.listView);
-                            list.setAdapter(ChannelsAdapter());
-                            editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
-                            editor.commit();
+                            if(!setSOS){
+                                //add ch to list
+                                String result =
+                                        name.getText().toString().replace(",", ".").replace("|", "/") + "," +
+                                                rx.getText().toString() + "," +
+                                                tx.getText().toString() + "," +
+                                                Integer.toString(rxct.getSelectedItemPosition()) + "," +
+                                                Integer.toString(txct.getSelectedItemPosition()) + "," +
+                                                Integer.toString(sq.getSelectedItemPosition()+1) + "," +
+                                                Boolean.toString(scan.isChecked());
+                                ChannelList = (join(ChannelList, "|") + "|" + result).split("\\|");
+                                curChannel = ChannelList.length - 1;
+                                ListView list = (ListView)mViewPager.findViewById(R.id.listView);
+                                list.setAdapter(ChannelsAdapter());
+                                editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+                                editor.commit();
+                            }else{
+                                sosRxFreq = Double.parseDouble(rx.getText().toString());
+                                sosTxFreq = Double.parseDouble(tx.getText().toString());
+                                sosRxCt = rxct.getSelectedItemPosition();
+                                sosTxCt = txct.getSelectedItemPosition();
+                                editor.putString(APP_PREFERENCES_RX_SOS,sosRxFreq.toString());
+                                editor.putString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString());
+                                editor.putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
+                                editor.putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
+                                editor.commit();
+                            }
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

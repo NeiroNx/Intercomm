@@ -23,6 +23,11 @@
         app:showAsAction="never"
         android:orderInCategory="3"
         android:icon="@android:drawable/ic_menu_delete"/>
+    <item android:id="@+id/sos_set"
+        android:title="@string/sos_set"
+        app:showAsAction="never"
+        android:orderInCategory="3"
+        android:icon="@android:drawable/ic_menu_call"/>
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="10"
