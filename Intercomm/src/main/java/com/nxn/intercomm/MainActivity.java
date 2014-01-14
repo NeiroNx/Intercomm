@@ -1443,7 +1443,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         /**
                          * TODO: Set Nick with "/name MyNick"
                          */
-                        TextView chat = (TextView)getView().findViewById(R.id.chat);chat.setText(Html.fromHtml(main.History));
+                        TextView chat = (TextView)getView().findViewById(R.id.chat);
                         ScrollView scroll = (ScrollView)getView().findViewById(R.id.scrollView);
                         msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
                         try{
@@ -1472,7 +1472,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     String msg;
                     if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
                         History += "<div>"+msg+"</div>";
+                        TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
+                        if(chat != null)chat.setText(Html.fromHtml(History));
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
+                        final Intent notificationIntent = new Intent(MainActivity.this, MainActivity.class);
+                        notificationIntent.setAction(Intent.ACTION_MAIN);
+                        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
+                                .setSmallIcon(android.R.drawable.ic_dialog_email)
+                                .setContentTitle(String.format("%s %s",getString(R.string.message), ChannelName))
+                                .setContentText(msg)
+                                .setContentIntent(PendingIntent.getActivity(MainActivity.this, 0, notificationIntent, 0))
+                                .build());
                     }
                 }
                 ChatHandler.sendEmptyMessageDelayed(0,5000L);//5 sec update
@@ -1527,6 +1538,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
                             editor.putString(APP_PREFERENCES_VIBRO,Vibro.toString());
                             editor.commit();
+                            TextView nick = (TextView)mViewPager.findViewById(R.id.nick);
+                            if(nick != null)nick.setText(Nick+" >");
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
