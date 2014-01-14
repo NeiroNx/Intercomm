@@ -1377,7 +1377,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 mIntercom.setSq(Sq);
                 mIntercom.resumeIntercomSetting();
-                Toast.makeText(MainActivity.this, getString(R.string.title_chan) + "  "+curChannel.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, getString(R.string.title_chan) + "  "+ChannelName, Toast.LENGTH_SHORT).show();
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                 editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
                 editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
