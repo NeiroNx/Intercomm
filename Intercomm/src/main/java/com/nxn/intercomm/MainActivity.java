@@ -109,6 +109,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_CHANNELS = "channels";
     public static final String APP_PREFERENCES_SQ = "sq";
     public static final String APP_PREFERENCES_STEP = "step";
+    public static final String APP_PREFERENCES_OFFSET = "offset";
     public static final String APP_PREFERENCES_POWER = "power";
     public static final String APP_PREFERENCES_VOLUME = "volume";
     public static final String APP_PREFERENCES_SPEAKER = "speaker";
@@ -131,6 +132,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer curChannel = 0;
     public Double curRxFreq = 446.00625;
     public Double curTxFreq = 446.00625;
+    public Double Offset = 0.0;
     public Integer curRxCt = 0;
     public Integer curTxCt = 0;
     public Double sosRxFreq = 446.00625;
@@ -309,10 +311,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(freq != 0.0)
             num = freq;
         num += delta;
-        if(num < minFreq) num = minFreq;
-        if(num > maxFreq) num = maxFreq;
+        if(num < minFreq+Offset) num = minFreq;
+        if(num > maxFreq-Offset) num = maxFreq;
         curRxFreq = num;
-        curTxFreq = num;
+        curTxFreq = num+Offset;
         Notify();
         return Format.format(num);
     }
@@ -409,6 +411,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     f = sosTxFreq * pow(10.0,Format.getMinimumFractionDigits());
                     mIntercom.setTXFrequency(f.intValue());
                     mIntercom.setSq(1);
+                    mIntercom.resumeIntercomSetting();
                     Toast.makeText(this, getString(R.string.freq)+" SOS", Toast.LENGTH_SHORT).show();
                     setTitle("SOS");
                     if(Vibro)mVibrator.vibrate(250L);
@@ -420,6 +423,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         mIntercom.setSq(Sq);
                         setRxFreq();
                         setTxFreq();
+                        mIntercom.resumeIntercomSetting();
                     }else{
                         mIntercom.intercomPowerOff();
                     }
@@ -453,6 +457,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         sosRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS_SOS, sosRxCt.toString()));
         sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
+        Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME, Volume.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER, isSpeaker.toString()));
         Vibro = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibro.toString()));
@@ -480,6 +485,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
         editor.putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
         editor.putString(APP_PREFERENCES_STEP,Step.toString());
+        editor.putString(APP_PREFERENCES_OFFSET,Offset.toString());
         editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
         editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
         editor.putString(APP_PREFERENCES_VIBRO,Vibro.toString());
@@ -529,6 +535,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         sosRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS_SOS, sosRxCt.toString()));
         sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
+        Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Vibro = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO,Vibro.toString()));
@@ -1307,7 +1314,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         curRxCt++;
                         if(rx != null)rx.setSelection(curRxCt);
                     } else {
-                        if(curRxFreq+Step > maxFreq) curRxFreq = minFreq-Step;
+                        if(curRxFreq+Step > maxFreq-Offset) curRxFreq = minFreq-Step;
                         if(curRxCt == tones.length-1)curRxCt=-1;
                         if(freq != null)freq.setText(setFreq(curRxFreq,Step));
                     }
@@ -1316,7 +1323,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         curRxCt--;
                         if(rx != null)rx.setSelection(curRxCt);
                     } else {
-                        if(curRxFreq-Step < minFreq) curRxFreq = maxFreq+Step;
+                        if(curRxFreq-Step < minFreq+Offset) curRxFreq = maxFreq+Step;
                         if(curRxCt == 0)curRxCt=tones.length;
                         if(freq != null)freq.setText(setFreq(curRxFreq,-Step));
                     }
@@ -1329,7 +1336,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
                         editor.commit();
                     }else{
-                        Old_curRxFreq = Old_curTxFreq = curTxFreq = curRxFreq;
+                        Old_curRxFreq = curRxFreq;
+                        Old_curTxFreq = curTxFreq = curRxFreq + Offset;
                         setRxFreq();
                         setTxFreq();
                         Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
@@ -1508,6 +1516,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             min.setText(minFreq.toString());
             final EditText max = (EditText)Settings.findViewById(R.id.set_max);
             max.setText(maxFreq.toString());
+            final EditText offset = (EditText)Settings.findViewById(R.id.offset);
+            offset.setText(Offset.toString());
             final Spinner st = (Spinner)Settings.findViewById(R.id.set_step);
             for(int i=0;i<steps.length;i++)if(Step.equals(steps[i]))st.setSelection(i);
             final Spinner delay = (Spinner)Settings.findViewById(R.id.set_delay);
@@ -1526,6 +1536,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             minFreq = Double.parseDouble(min.getText().toString());
                             maxFreq = Double.parseDouble(max.getText().toString());
                             Step = steps[st.getSelectedItemPosition()];
+                            Offset = Double.parseDouble(offset.getText().toString());
                             Nick = nick.getText().toString();
                             ScanDelay = delays[delay.getSelectedItemPosition()];
                             ScanRxCt = scan_ct.isChecked();
@@ -1534,6 +1545,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
                             editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
                             editor.putString(APP_PREFERENCES_STEP,Step.toString());
+                            editor.putString(APP_PREFERENCES_OFFSET,Offset.toString());
                             editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
                             editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
                             editor.putString(APP_PREFERENCES_VIBRO,Vibro.toString());

@@ -58,6 +58,7 @@
     <string name="on">ВКЛ</string>
     <string name="off">ВЫКЛ</string>
     <string name="sos_set">Кнопка SOS</string>
+    <string name="offset_label">Сдвиг Передачи</string>
     <string-array name="ctcss">
         <item>Выкл</item>
         <item>1: 67.0Гц</item>

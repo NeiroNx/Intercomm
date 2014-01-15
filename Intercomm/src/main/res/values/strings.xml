@@ -61,6 +61,7 @@
     <string name="on">ON</string>
     <string name="off">OFF</string>
     <string name="sos_set">SOS Button set</string>
+    <string name="offset_label">TX Offset</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>
