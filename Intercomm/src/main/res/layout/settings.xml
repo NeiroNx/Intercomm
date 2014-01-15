@@ -132,7 +132,7 @@
                     android:id="@+id/offset"
                     android:layout_column="1"
                     android:layout_weight="1000"
-                    android:inputType="numberDecimal" />
+                    android:inputType="number" />
             </TableRow>
 
             <TableRow
