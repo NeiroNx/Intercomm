@@ -3,8 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:clickable="false"
-    android:background="@android:color/background_dark">
+    android:clickable="false">
 
     <LinearLayout
         android:orientation="horizontal"
@@ -34,16 +33,13 @@
             android:text="@string/freq_def"
             android:gravity="center_vertical|center_horizontal"
             android:inputType="numberDecimal"
-            android:background="@android:color/transparent"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:hint="@string/freq"
-            android:textColor="@android:color/primary_text_dark_nodisable"
             android:textStyle="bold"
             android:typeface="monospace"
             android:maxLength="8"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/cursor"
             android:layout_gravity="center" />
 
         <ImageButton

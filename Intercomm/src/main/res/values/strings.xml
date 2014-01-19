@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.4b</string>
+    <string name="version">0.4c</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Freq</string>
     <string name="title_chan">Channel</string>
@@ -62,6 +62,7 @@
     <string name="off">OFF</string>
     <string name="sos_set">SOS Button set</string>
     <string name="offset_label">TX Offset</string>
+    <string name="change_theme">Change Theme</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>
