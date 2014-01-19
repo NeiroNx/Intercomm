@@ -1670,8 +1670,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                     Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                                 }
                                 Toast.makeText(MainActivity.this, String.format(getString(R.string.ch_imported), imported.split("\\|").length, FileName), Toast.LENGTH_LONG).show();
-
-                                ChannelList = (join(ChannelList, "|") + "|" + imported).split("\\|");
+                                if(curChannel == -1)ChannelList = imported.split("\\|"); else ChannelList = (join(ChannelList, "|") + "|" + imported).split("\\|");
                             } else if (ActionInput.equals("export")) {
 
                                 try {
