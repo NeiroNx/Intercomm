@@ -186,29 +186,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Integer Old_Sq;
     private Integer Old_Volume;
 
-    @Override
-    public void onNewIntent(Intent intent){
-        if(!Power)return;
-        if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
-            mIntercom.intercomPowerOff();
-        } else if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
-            String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-            if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                mIntercom.intercomPowerOff();
-            } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
-                mIntercom.intercomPowerOff();
-            } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
-                mIntercom.intercomPowerOn();
-                mIntercom.resumeIntercomSetting();
-            }
-        }else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")){
-            mIntercom.intercomPowerOff();
-        }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
-            mIntercom.intercomPowerOn();
-            mIntercom.resumeIntercomSetting();
-        }
-    }
-
     public void Notify(){
         final Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction(Intent.ACTION_MAIN);
