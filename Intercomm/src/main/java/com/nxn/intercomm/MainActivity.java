@@ -45,6 +45,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.internal.view.menu.MenuView;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Layout;
@@ -91,6 +92,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     ViewPager mViewPager;
     ActionBar mActionBar;
+    IntentFilter mState;
+    BroadcastReceiver mStateReciver;
     /**
      * Settings declaration
      */
@@ -133,6 +136,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public String History = "";
     public String[] ChannelList = {};
     public String Groups = "";
+    public Integer curGroup = 0;
     public String ChannelName = "";
     public Integer curChannel = 0;
     public Double curRxFreq = 446.00625;
@@ -159,6 +163,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Chat mChat;
     public Vibrator mVibrator;
     public Boolean isChat = true;
+    public Boolean isBusy = false;
     public Intercom mIntercom = new Intercom();
     public NotificationManager mNotificationManager;
     public NumberFormat Format;
@@ -180,6 +185,29 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Integer Old_curTxCt;
     private Integer Old_Sq;
     private Integer Old_Volume;
+
+    @Override
+    public void onNewIntent(Intent intent){
+        if(!Power)return;
+        if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
+            mIntercom.intercomPowerOff();
+        } else if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
+            String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+            if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                mIntercom.intercomPowerOff();
+            } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
+                mIntercom.intercomPowerOff();
+            } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
+                mIntercom.intercomPowerOn();
+                mIntercom.resumeIntercomSetting();
+            }
+        }else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")){
+            mIntercom.intercomPowerOff();
+        }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
+            mIntercom.intercomPowerOn();
+            mIntercom.resumeIntercomSetting();
+        }
+    }
 
     public void Notify(){
         final Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -220,7 +248,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             getString(R.string.txctcss_label)+": "+curTxCt;
         }else{
             curChannel = -1;
-            setTitle(getString(R.string.app_name));
+            setTitle(R.string.app_name);
         }
         if(set){
             try{
@@ -228,6 +256,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 info.setText(Html.fromHtml(str));
                 ListView list = (ListView)mViewPager.findViewById(R.id.listView);
                 list.smoothScrollToPosition(curChannel);
+                EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
+                freq.setText(Format.format(curRxFreq));
+                Spinner rxct = (Spinner)mViewPager.findViewById(R.id.rxctcss);
+                rxct.setSelection(curRxCt);
+                Spinner txct = (Spinner)mViewPager.findViewById(R.id.txctcss);
+                txct.setSelection(curTxCt);
+                Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
+                sq.setSelection(Sq-1);
             }catch (Exception e){
                 //
             }
@@ -329,6 +365,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         curRxFreq = num;
         curTxFreq = num+Offset;
         Notify();
+        setTitle(R.string.app_name);
         return Format.format(num);
     }
     public String join(String[] array, String delimiter){
@@ -635,6 +672,45 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }catch (NullPointerException e){
             // Just check method existence
         }
+        /**
+         * State listener - off intercomm when calling or alarm
+         */
+        mState = new IntentFilter();
+        mState.addAction("android.intent.action.PHONE_STATE");
+        mState.addAction("android.intent.action.NEW_OUTGOING_CALL");
+        mState.addAction("com.android.deskclock.ALARM_ALERT");
+        mState.addAction("com.android.deskclock.ALARM_DONE");
+        mStateReciver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!Power)return;
+                if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
+                    mIntercom.intercomPowerOff();
+                    isBusy = true;
+                } else if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
+                    String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                    if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                        mIntercom.intercomPowerOff();
+                        isBusy = true;
+                    } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
+                        mIntercom.intercomPowerOff();
+                        isBusy = true;
+                    } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
+                        mIntercom.intercomPowerOn();
+                        mIntercom.resumeIntercomSetting();
+                        isBusy = false;
+                    }
+                }else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")){
+                    mIntercom.intercomPowerOff();
+                    isBusy = true;
+                }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
+                    mIntercom.intercomPowerOn();
+                    mIntercom.resumeIntercomSetting();
+                    isBusy = false;
+                }
+            }
+        };
+        registerReceiver(mStateReciver, mState);
         if(Power){
             Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
             mIntercom.intercomPowerOn();
@@ -900,6 +976,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ScanChannel = false;
                 ChatHandler.removeMessages(0);
                 ScanHandler.removeMessages(0);
+                unregisterReceiver(mStateReciver);
                 if(Vibro)mVibrator.vibrate(75L);
                 finish();
                 return true;
@@ -1156,7 +1233,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
              */
             //if(savedInstanceState.isEmpty())
             try{
-                freq.setText(main.setFreq(0.0,0.0));
+                freq.setText(main.Format.format(main.curRxFreq));
                 sq.setSelection(main.Sq - 1);
                 rxct.setSelection(main.curRxCt);
                 txct.setSelection(main.curTxCt);
@@ -1180,6 +1257,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            Double freq;
+            if(s.length()>=4&&before != count){
+                freq = Double.parseDouble(s.toString());
+                main.setFreq(freq ,0.0);
+            }
 
         }
 
@@ -1205,8 +1287,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     }
                     //Add point after 3 valid sym entered
                     if(string.length() == 3)string.append(".");
-                    if(string.length()>= 4)main.curRxFreq = freq;
-                    main.curTxFreq = main.curRxFreq+main.Offset;
                 }
             }
         }
@@ -1398,7 +1478,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         if(freq != null)freq.setText(setFreq(curRxFreq,-Step));
                     }
                 }
-                if(Power){
+                if(Power&&!isBusy){
                     if(ScanRxCt&&curRxCt>-1&&curRxCt<tones.length){
                         Old_curRxCt=curRxCt;
                         mIntercom.setCtcss(curRxCt);
@@ -1439,7 +1519,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     }
                 }
             }
-            if(set&&Power&&ScanChannel){
+            if(set&&Power&&ScanChannel&&!isBusy){
                 Old_curRxFreq = curRxFreq;
                 Old_curTxFreq = curTxFreq;
                 Old_curRxCt = curRxCt;
@@ -1545,7 +1625,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public void handleMessage(Message message) {
             try{
-                if(Power){
+                if(Power&&!isBusy){
                     String msg;
                     if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
                         History += "<div>"+msg+"</div>";
