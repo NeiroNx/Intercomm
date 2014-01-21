@@ -1,27 +1,22 @@
 package com.nxn.intercomm;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,7 +24,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.database.DataSetObserver;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
@@ -44,12 +38,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.support.v7.internal.view.menu.MenuView;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.Html;
-import android.text.Layout;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -68,7 +59,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,7 +83,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     ViewPager mViewPager;
     ActionBar mActionBar;
     IntentFilter mState;
-    BroadcastReceiver mStateReciver;
+    BroadcastReceiver mStateReceiver;
     /**
      * Settings declaration
      */
@@ -126,6 +116,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_VIBRO = "vibro";
     public static final String APP_PREFERENCES_THEME = "theme";
     public static final String APP_PREFERENCES_GROUPS = "groups";
+    public static final String APP_PREFERENCES_GROUP = "group";
     public static final String FORMAT = "###.####";
 
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
@@ -135,6 +126,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public String Nick = "MyNick";
     public String History = "";
     public String[] ChannelList = {};
+    public String[] curChannelList = {};
     public String Groups = "";
     public Integer curGroup = 0;
     public String ChannelName = "";
@@ -199,6 +191,28 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 .build());
     }
 
+    //Get list with groups
+    public ArrayAdapter getGroups(){
+        return new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item, Groups.split(","));
+    }
+
+    //Get channels list in group
+    public String[] getChannelList(int group){
+        if(group == 0)return ChannelList;
+        ArrayList<String> result = new ArrayList<String>();
+        for (String ch : ChannelList) if(Integer.parseInt(ch.split(",")[7]) == group)result.add(ch);
+        String[] mStringArray = new String[result.size()];
+        mStringArray = result.toArray(mStringArray);
+        return mStringArray;
+    }
+    //Find absolute position of channel by current data - possible for update channel params on edit in main list.
+    public int getPosList(int ch,int group){
+        if(group == 0)return ch;
+        int p = 0;
+        for(int i=0;i<ChannelList.length;i++)if(Integer.parseInt(ChannelList[i].split(",")[7]) == group)if(p==ch)return i;else p++;
+        return -1;
+    }
+
     public static Double pow(Double base, int up){
         Double result = base;
         for(int i=1;i<up;i++)result*=base;
@@ -206,8 +220,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
     public String setCh(Boolean set){
         String str = getString(R.string.no_data);
-        if(ChannelList.length>0&&curChannel > -1){
-            String[] array = ChannelList[curChannel].split(",");
+        if(curChannelList.length>0&&curChannel > -1){
+            if(curChannel > curChannelList.length-1)curChannel = 0;
+            String[] array = curChannelList[curChannel].split(",");
             if(array.length >= 5){
                 curRxFreq = Double.parseDouble(array[1]);
                 curTxFreq = Double.parseDouble(array[2]);
@@ -250,28 +265,28 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public int findCh(String str){
         int result=-1;
-        for(int i=curChannel+1;i<ChannelList.length;i++){//find in upper part list
-            if(ChannelList[i].toUpperCase().contains(str.toUpperCase())){
+        for(int i=curChannel+1;i<curChannelList.length;i++){//find in upper part list
+            if(curChannelList[i].toUpperCase().contains(str.toUpperCase())){
                 result = i;
                 break;
             }
         }
         if(result == -1)for(int i=0;i<curChannel-1;i++){//resume from lower part if NO result
-            if(ChannelList[i].toUpperCase().contains(str.toUpperCase())){
+            if(curChannelList[i].toUpperCase().contains(str.toUpperCase())){
                 result = i;
                 break;
             }
         }
         return result;
     }
-    public ListAdapter ChannelsAdapter(String[] channelList){
+    public ListAdapter ChannelsAdapter(){
 
-        if(channelList.length == 0 || channelList[0].equals("")){
+        if(curChannelList.length == 0 || curChannelList[0].equals("")){
             return new ArrayAdapter<String>(this,
                     android.R.layout.simple_list_item_1, new String[]{});
         }
         return new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_2, channelList){
+                android.R.layout.simple_list_item_2, curChannelList){
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row;
@@ -284,7 +299,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 TextView text1 = (TextView)row.findViewById(R.id.textView);
                 TextView text2 = (TextView)row.findViewById(R.id.textView2);
                 CheckBox checkBox = (CheckBox)row.findViewById(R.id.checkBox);
-                String[] ch = ChannelList[position].split(",");
+                String[] ch = curChannelList[position].split(",");
                 checkBox.setChecked(Boolean.parseBoolean(ch[6]));
                 checkBox.setContentDescription(Integer.toString(position));
                 checkBox.setOnClickListener(new OnClickListener() {
@@ -292,10 +307,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     public void onClick(View view) {
                         if(Vibro)mVibrator.vibrate(75L);
                         int pos = Integer.parseInt(view.getContentDescription().toString());
-                        String[] chh = ChannelList[pos].split(",");
+                        String[] chh = curChannelList[pos].split(",");
                         CheckBox nView = (CheckBox) view;
                         chh[6] = Boolean.toString(nView.isChecked());
-                        ChannelList[pos] = join(chh, ",");
+                        ChannelList[getPosList(pos,curGroup)] = join(chh, ",");
+                        curChannelList = getChannelList(curGroup);
                         editor.putString(APP_PREFERENCES_CHANNELS, join(ChannelList, "|"));
                         editor.commit();
                     }
@@ -310,6 +326,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         setCh(true);
                     }
                 });
+                // SOME do not work in themes - set text color manually
                 int color = (Theme.equals("Black")?getResources().getColor(android.R.color.white):getResources().getColor(android.R.color.black));
                 text1.setText(ch[0]);
                 text1.setTextColor(color);
@@ -368,7 +385,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public String FromStream(InputStream is) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line;
-        String get_array[] = {"","","","0","0","5","true"};
+        String get_array[] = {"","","","0","0","5","true","0"};
         String tar_array = "";
         while ((line = reader.readLine())!= null) {
             String[] array = line.split(",");
@@ -476,6 +493,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
         maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ, maxFreq.toString()));
         ChannelList = mSettings.getString(APP_PREFERENCES_CHANNELS, getString(R.string.channels_std)).split("\\|");
+        Groups = mSettings.getString(APP_PREFERENCES_GROUPS, getString(R.string.groups_list));
+        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP,curGroup.toString()));
+        curChannelList = getChannelList(curGroup);
         curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL, curChannel.toString()));
         curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ, curRxFreq.toString()));
         curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
@@ -505,6 +525,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
         editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
         editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+        editor.putString(APP_PREFERENCES_GROUPS,Groups);
+        editor.putString(APP_PREFERENCES_GROUP,curGroup.toString());
         editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
         editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
         editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
@@ -546,13 +568,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          */
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         editor = mSettings.edit();
-        TabPos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TAB,"0"));
+        TabPos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TAB, "0"));
         Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
         History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
-        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER,Power.toString()));
+        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER, Power.toString()));
         minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
         maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
         ChannelList = mSettings.getString(APP_PREFERENCES_CHANNELS, getString(R.string.channels_std)).split("\\|");
+        Groups = mSettings.getString(APP_PREFERENCES_GROUPS, getString(R.string.groups_list));
+        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP,curGroup.toString()));
+        curChannelList = getChannelList(curGroup);
         curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL,curChannel.toString()));
         curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString()));
         curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
@@ -657,7 +682,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mState.addAction("android.intent.action.NEW_OUTGOING_CALL");
         mState.addAction("com.android.deskclock.ALARM_ALERT");
         mState.addAction("com.android.deskclock.ALARM_DONE");
-        mStateReciver = new BroadcastReceiver() {
+        mStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if(!Power)return;
@@ -687,7 +712,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
             }
         };
-        registerReceiver(mStateReciver, mState);
+        registerReceiver(mStateReceiver, mState);
         if(Power){
             Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
             mIntercom.intercomPowerOn();
@@ -849,11 +874,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                                         int id) {
                                         mViewPager.setCurrentItem(1);
                                         ChannelList = getString(R.string.channels_std).split("\\|");
+                                        curChannelList = getChannelList(curGroup);
                                         curChannel = 0;
                                         editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                                         editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
                                         editor.commit();
-                                        list.setAdapter(ChannelsAdapter(ChannelList));
+                                        list.setAdapter(ChannelsAdapter());
                                         setCh(true);
                                     }
                                 })
@@ -891,11 +917,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                                         int id) {
                                         mViewPager.setCurrentItem(1);
                                         ChannelList = new String[]{};
+                                        curChannelList = new String[]{};
                                         curChannel=-1;
                                         editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                                        editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+                                        editor.putString(APP_PREFERENCES_CHANNELS,"");
                                         editor.commit();
-                                        list.setAdapter(ChannelsAdapter(ChannelList));
+                                        list.setAdapter(ChannelsAdapter());
                                         setCh(true);
                                     }
                                 })
@@ -909,12 +936,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case R.id.ch_del:
                 mViewPager.setCurrentItem(1);
-                ChannelList=del(ChannelList,curChannel);
-                if(curChannel>ChannelList.length-1)curChannel=ChannelList.length-1;
+                ChannelList=del(ChannelList,getPosList(curChannel,curGroup));
+                curChannelList = getChannelList(curGroup);
+                if(curChannel>curChannelList.length-1)curChannel=curChannelList.length-1;
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                 editor.putString(APP_PREFERENCES_CHANNELS, join(ChannelList, "|"));
                 editor.commit();
-                list.setAdapter(ChannelsAdapter(ChannelList));
+                list.setAdapter(ChannelsAdapter());
                 setCh(true);
                 return true;
             case R.id.ch_add:
@@ -953,7 +981,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ScanChannel = false;
                 ChatHandler.removeMessages(0);
                 ScanHandler.removeMessages(0);
-                unregisterReceiver(mStateReciver);
+                unregisterReceiver(mStateReceiver);
                 if(Vibro)mVibrator.vibrate(75L);
                 finish();
                 return true;
@@ -1272,7 +1300,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static class Channel extends Fragment implements
             OnClickListener,
             View.OnLongClickListener,
-            AdapterView.OnItemClickListener
+            AdapterView.OnItemSelectedListener
     {
         private MainActivity main;
         private Boolean isLongTouch = false;
@@ -1292,7 +1320,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(!isLongTouch)
             switch (view.getId()){
                 case R.id.ch_next:
-                    if(main.curChannel<main.ChannelList.length-1)main.curChannel++;
+                    if(main.curChannel<main.curChannelList.length-1)main.curChannel++;
                     if(main.ScanChannel)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
                     main.setCh(true);
                     main.ScanChannel = false;
@@ -1329,10 +1357,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             rootView.findViewById(R.id.ch_prew).setOnLongClickListener(this);
             TextView ch_info = (TextView)rootView.findViewById(R.id.ch_info);
             ListView list = (ListView)rootView.findViewById(R.id.listView);
-            list.setAdapter(main.ChannelsAdapter(main.ChannelList));
-            list.setOnItemClickListener(this);
+            list.setAdapter(main.ChannelsAdapter());
             ch_info.setText(Html.fromHtml(main.setCh(false)));
             ch_info.setOnClickListener(this);
+            Spinner group = (Spinner)rootView.findViewById(R.id.group_list);
+            group.setOnItemSelectedListener(this);
+            group.setAdapter(main.getGroups());
+            group.setSelection(main.curGroup);
             return rootView;
         }
 
@@ -1361,10 +1392,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if(main.Vibro)main.mVibrator.vibrate(75L);
-            main.curChannel = position;
-            main.setCh(true);
+        public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+            main.curGroup = pos;
+            main.curChannelList = main.getChannelList(pos);
+            main.curChannel = 0;
+            ListView list = (ListView)getView().findViewById(R.id.listView);
+            list.setAdapter(main.ChannelsAdapter());
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+
         }
 
         public class ChannelEditDialog extends DialogFragment{
@@ -1375,7 +1413,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 final View Settings = inflater.inflate(R.layout.channel, null);
                 assert Settings != null;
-                String[] ch = main.ChannelList[main.curChannel].split(",");
+                String[] ch = main.curChannelList[main.curChannel].split(",");
+                Log.e("Channel",main.curChannelList[main.curChannel]);
                 final EditText name = (EditText)Settings.findViewById(R.id.ch_name);
                 name.setText(ch[0]);
                 final EditText rx = (EditText)Settings.findViewById(R.id.ch_rxfreq);
@@ -1390,6 +1429,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 sq.setSelection(Integer.parseInt(ch[5])-1);
                 final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
                 scan.setChecked(Boolean.parseBoolean(ch[6]));
+                final Spinner group = (Spinner)Settings.findViewById(R.id.ch_group);
+                group.setAdapter(main.getGroups());
+                group.setSelection(Integer.parseInt(ch[7]));
                 // Inflate and set the layout for the dialog
                 // Pass null as the parent view because its going in the dialog layout
                 builder.setView(Settings)
@@ -1405,10 +1447,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         Integer.toString(rxct.getSelectedItemPosition())+","+
                                         Integer.toString(txct.getSelectedItemPosition())+","+
                                         Integer.toString(sq.getSelectedItemPosition()+1)+","+
-                                        Boolean.toString(scan.isChecked());
-                                main.ChannelList[main.curChannel]=result;
+                                        Boolean.toString(scan.isChecked())+ "," +
+                                        Integer.toString(group.getSelectedItemPosition());
+                                Log.e("OnEdit",Integer.toString(main.getPosList(main.curChannel,main.curGroup)));
+                                main.ChannelList[main.getPosList(main.curChannel,main.curGroup)]=result;
+                                main.curGroup = group.getSelectedItemPosition();
+                                main.curChannelList = main.getChannelList(main.curGroup);
+                                if(main.curChannel>main.curChannelList.length-1)main.curChannel=main.curChannelList.length-1;
                                 ListView list = (ListView)main.mViewPager.findViewById(R.id.listView);
-                                list.setAdapter(main.ChannelsAdapter(main.ChannelList));
+                                list.setAdapter(main.ChannelsAdapter());
+                                Spinner group_list = (Spinner)Settings.findViewById(R.id.group_list);
+                                group_list.setSelection(main.curGroup);
                                 main.setCh(true);
                                 main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList, "|"));
                                 main.editor.putString(APP_PREFERENCES_CHANNEL,main.curChannel.toString());
@@ -1477,8 +1526,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             if(ScanChannel){
                 if(ScanForward){
-                    if(curChannel<ChannelList.length-1)curChannel++;else curChannel=0;
-                    if(!Boolean.parseBoolean(ChannelList[curChannel].split(",")[6])){
+                    if(curChannel<curChannelList.length-1)curChannel++;else curChannel=0;
+                    if(!Boolean.parseBoolean(curChannelList[curChannel].split(",")[6])){
                         set = false;
                         ScanHandler.sendEmptyMessageDelayed(0,0);
                     }else{
@@ -1486,8 +1535,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         ScanHandler.sendEmptyMessageDelayed(0,ScanDelay);
                     }
                 }else{
-                    if(curChannel>0)curChannel--;else curChannel=ChannelList.length-1;
-                    if(!Boolean.parseBoolean(ChannelList[curChannel].split(",")[6])){
+                    if(curChannel>0)curChannel--;else curChannel=curChannelList.length-1;
+                    if(!Boolean.parseBoolean(curChannelList[curChannel].split(",")[6])){
                         set = false;
                         ScanHandler.sendEmptyMessageDelayed(0,0);
                     }else{
@@ -1656,6 +1705,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             scan_ct.setChecked(ScanRxCt);
             final CheckBox vibro = (CheckBox)Settings.findViewById(R.id.vibro);
             vibro.setChecked(Vibro);
+            final EditText groups = (EditText)Settings.findViewById(R.id.set_groups);
+            groups.setText(Groups);
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(Settings)
@@ -1671,6 +1722,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             ScanDelay = delays[delay.getSelectedItemPosition()];
                             ScanRxCt = scan_ct.isChecked();
                             Vibro = vibro.isChecked();
+                            Groups = groups.getText().toString();
                             editor.putString(APP_PREFERENCES_NICK,Nick);
                             editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
                             editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
@@ -1679,6 +1731,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
                             editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
                             editor.putString(APP_PREFERENCES_VIBRO,Vibro.toString());
+                            editor.putString(APP_PREFERENCES_GROUPS,Groups);
                             editor.commit();
                             TextView nick = (TextView)mViewPager.findViewById(R.id.nick);
                             if(nick != null)nick.setText(Nick+" >");
@@ -1728,6 +1781,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                 }
                                 Toast.makeText(MainActivity.this, String.format(getString(R.string.ch_imported), imported.split("\\|").length, FileName), Toast.LENGTH_LONG).show();
                                 if(curChannel == -1)ChannelList = imported.split("\\|"); else ChannelList = (join(ChannelList, "|") + "|" + imported).split("\\|");
+                                curChannelList = getChannelList(curGroup);
                             } else if (ActionInput.equals("export")) {
 
                                 try {
@@ -1800,6 +1854,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             final Spinner txct = (Spinner)Settings.findViewById(R.id.ch_txctcss);
             final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
             final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
+            final Spinner group = (Spinner)Settings.findViewById(R.id.ch_group);
             if(!setSOS){
                 name.setText(getString(R.string.title_chan)+" "+Integer.toString(ChannelList.length));
                 rx.setText(curRxFreq.toString());
@@ -1807,6 +1862,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 rxct.setSelection(curRxCt);
                 txct.setSelection(curTxCt);
                 sq.setSelection(Sq-1);
+                group.setAdapter(getGroups());
+                group.setSelection(curGroup);
             }else{
                 name.setText("SOS");
                 name.setEnabled(false);
@@ -1832,12 +1889,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                                 Integer.toString(rxct.getSelectedItemPosition()) + "," +
                                                 Integer.toString(txct.getSelectedItemPosition()) + "," +
                                                 Integer.toString(sq.getSelectedItemPosition()+1) + "," +
-                                                Boolean.toString(scan.isChecked());
+                                                Boolean.toString(scan.isChecked())+ "," +
+                                                Integer.toString(group.getSelectedItemPosition());
                                 if(curChannel == -1)ChannelList = new String[]{result};else
                                     ChannelList = (join(ChannelList, "|") + "|" + result).split("\\|");
-                                curChannel = ChannelList.length - 1;
+                                curGroup = group.getSelectedItemPosition();
+                                curChannelList = getChannelList(curGroup);
+                                curChannel = curChannelList.length - 1;
                                 ListView list = (ListView)mViewPager.findViewById(R.id.listView);
-                                list.setAdapter(ChannelsAdapter(ChannelList));
+                                list.setAdapter(ChannelsAdapter());
+                                Spinner group_list = (Spinner)mViewPager.findViewById(R.id.group_list);
+                                group_list.setSelection(curGroup);
                                 editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
                                 editor.commit();
                             }else{

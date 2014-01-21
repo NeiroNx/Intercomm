@@ -198,7 +198,30 @@
                     android:id="@+id/scan_ct"
                     android:layout_column="1"
                     android:layout_weight="1000" />
+
             </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/group_label"
+                    android:id="@+id/set_groups_label"
+                    android:layout_weight=".1"
+                    android:layout_column="0" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/set_groups"
+                    android:layout_column="1"
+                    android:layout_weight="1000" />
+            </TableRow>
+
         </TableLayout>
     </ScrollView>
 
