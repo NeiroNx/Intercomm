@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
@@ -63,8 +64,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Intercom;
-
-
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,OnClickListener {
     /**
@@ -167,7 +166,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean Vibro = false;
     public Integer TabPos = 0;
     public String Search = "";
-    public String FileName = "/sdcard/Channels.csv";
+    public String FileName = Environment.getExternalStorageDirectory().getPath()+"/Channels.csv";
     public String ActionInput = "";
 
     //Old values to track changes
@@ -178,16 +177,279 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Integer Old_Sq;
     private Integer Old_Volume;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        /**
+         * Settings get
+         */
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        editor = mSettings.edit();
+        TabPos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TAB, "0"));
+        Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
+        History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
+        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER, Power.toString()));
+        minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
+        maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
+        ChannelList = mSettings.getString(APP_PREFERENCES_CHANNELS, getString(R.string.channels_std)).split("\\|");
+        Groups = mSettings.getString(APP_PREFERENCES_GROUPS, getString(R.string.groups_list));
+        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP,curGroup.toString()));
+        curChannelList = getChannelList(curGroup);
+        curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL,curChannel.toString()));
+        curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString()));
+        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
+        curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
+        curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
+        sosRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_SOS, sosRxFreq.toString()));
+        sosTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString()));
+        sosRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS_SOS, sosRxCt.toString()));
+        sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
+        Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
+        Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
+        Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
+        isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
+        Vibro = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO,Vibro.toString()));
+        Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
+        ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY,ScanDelay.toString()));
+        ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
+        Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
+        //Set old Values to send it with timer to module
+        Old_curRxFreq = curRxFreq;
+        Old_curTxFreq = curTxFreq;
+        Old_curRxCt = curRxCt;
+        Old_curTxCt = curTxCt;
+        Old_Sq = Sq;
+        Old_Volume = Volume;
+        getTheme().applyStyle(Theme.equals("Black")?R.style.Black:R.style.Light,true);
+        super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setContentView(R.layout.activity_main);
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //Create format
+        Format = NumberFormat.getInstance(Locale.ENGLISH);
+        ((DecimalFormat)Format).applyPattern(FORMAT);
+        Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
+        Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
+
+        // Set up the action bar.
+        mActionBar = getSupportActionBar();
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        mActionBar.setDisplayShowCustomEnabled(true);
+        mActionBar.setDisplayShowHomeEnabled(true);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mPagerAdapter = new SampleAdapter(this, getSupportFragmentManager());
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+
+        mManual = ManualFrequency.newInstance(this);
+        mChannels = Channel.newInstance(this);
+        mChat = Chat.newInstance(this);
+        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        mViewPager.setAdapter(mPagerAdapter);
+
+        // When swiping between different sections, select the corresponding
+        // tab. We can also use ActionBar.Tab#select() to do this if we have
+        // a reference to the Tab.
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                TabPos = position;
+                mActionBar.setSelectedNavigationItem(position);
+            }
+        });
+        /**
+         * Adding Tabs
+         */
+        for(int i =0;i < mPagerAdapter.getCount();i++)
+            mActionBar.addTab(
+                    mActionBar.newTab()
+                            .setText(mPagerAdapter.getPageTitle(i).toUpperCase())
+                            .setTabListener(this));
+        mActionBar.getTabAt(TabPos).select();
+        mViewPager.setCurrentItem(TabPos);
+        try{
+            mIntercom.openCharDev();
+        }catch (NoSuchMethodError e){
+            Log.w("Intercom","openCharDev()");
+        }
+        try {
+            mIntercom.resumeIntercomSetting();
+        }catch (NoSuchMethodError e){
+            Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
+            mIntercom = new uartIntercom();
+            //mIntercom.openCharDev();
+        }
+        try{
+            int m = mIntercom.checkMessageBuffer();
+        }catch(NoSuchMethodError e){
+            isChat = false;
+        }catch (NullPointerException e){
+            // Just check method existence
+        }
+        /**
+         * State listener - off intercomm when calling or alarm
+         */
+        mState = new IntentFilter();
+        mState.addAction("android.intent.action.PHONE_STATE");
+        mState.addAction("android.intent.action.NEW_OUTGOING_CALL");
+        mState.addAction("com.android.deskclock.ALARM_ALERT");
+        mState.addAction("com.android.deskclock.ALARM_DONE");
+        mStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!Power)return;
+                if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
+                    mIntercom.intercomPowerOff();
+                    isBusy = true;
+                } else if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
+                    String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                    if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                        mIntercom.intercomPowerOff();
+                        isBusy = true;
+                    } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
+                        mIntercom.intercomPowerOff();
+                        isBusy = true;
+                    } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
+                        mIntercom.intercomPowerOn();
+                        mIntercom.resumeIntercomSetting();
+                        isBusy = false;
+                    }
+                }else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")){
+                    mIntercom.intercomPowerOff();
+                    isBusy = true;
+                }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
+                    mIntercom.intercomPowerOn();
+                    mIntercom.resumeIntercomSetting();
+                    isBusy = false;
+                }
+            }
+        };
+        registerReceiver(mStateReceiver, mState);
+        if(Power){
+            Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
+            mIntercom.intercomPowerOn();
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            setRxFreq();
+            setTxFreq();
+            mIntercom.setCtcss(curRxCt);
+            try{
+                mIntercom.setTxCtcss(curTxCt);
+                Ver = mIntercom.getIntercomVersion();
+            }catch(NoSuchMethodError e){
+                Log.w("Hardware","is too old hardware lib version");
+            }
+            mIntercom.setSq(Sq);
+            mIntercom.resumeIntercomSetting();
+            mIntercom.setVolume(Volume);
+            if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
+            mIntercom.resumeIntercomSetting();
+            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
+
+        }
+        /**
+         * Start timed events
+         */
+        ChatHandler.sendEmptyMessageDelayed(0,5000L);
+        Timer autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            /**
+             * Apply Settings and INIT
+             */
+            @Override
+            public void run() {
+                if(Power){
+                    Boolean up = false;
+                    if(!curRxFreq.equals(Old_curRxFreq)){
+                        setRxFreq();
+                        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
+                        Old_curRxFreq = curRxFreq;
+                        up = true;
+                    }
+                    if(!curTxFreq.equals(Old_curTxFreq)){
+                        setTxFreq();
+                        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
+                        Old_curTxFreq = curTxFreq;
+                        up = true;
+                    }
+                    if(!curRxCt.equals(Old_curRxCt)){
+                        mIntercom.setCtcss(curRxCt);
+                        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
+                        Old_curRxCt = curRxCt;
+                        up = true;
+                    }
+                    if(!curTxCt.equals(Old_curTxCt)){
+                        try{
+                            mIntercom.setTxCtcss(curTxCt);
+                        }catch(NoSuchMethodError e){
+                            Log.w("TXCTCSS","You version not allowed to set txctcss");
+                        }
+                        editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
+                        Old_curTxCt = curTxCt;
+                        up = true;
+                    }
+                    if(!Sq.equals(Old_Sq)){
+                        mIntercom.setSq(Sq);
+                        editor.putString(APP_PREFERENCES_SQ,Sq.toString());
+                        Old_Sq = Sq;
+                        up = true;
+                    }
+                    if(!Volume.equals(Old_Volume)){
+                        mIntercom.setVolume(Volume);
+                        editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
+                        Old_Volume = Volume;
+                        up = true;
+                    }
+                    if(up){
+                        mIntercom.resumeIntercomSetting();//Commit setting
+                        editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                        editor.commit();
+                        Notify();
+                    }
+                }
+            }
+        }, 0, 3000);
+        Notify();
+        if(Vibro)mVibrator.vibrate(75L);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d("Intent",intent.getAction());
+        if(intent.getAction().equals("com.nxn.intercomm.CHAT")){
+            mViewPager.setCurrentItem(2,true);
+            mActionBar.setSelectedNavigationItem(2);
+        }else if(intent.getAction().equals("com.nxn.intercomm.CHANNEL")){
+            mViewPager.setCurrentItem(1,true);
+            mActionBar.setSelectedNavigationItem(1);
+        }else if(intent.getAction().equals("com.nxn.intercomm.FREQ")){
+                mViewPager.setCurrentItem(0,true);
+                mActionBar.setSelectedNavigationItem(0);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(android.view.MotionEvent event) {
+     /* compiled code */
+        return true;
+    }
+
     public void Notify(){
-        final Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Intent.ACTION_MAIN);
-        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         mNotificationManager.notify(R.id.pager, new NotificationCompat.Builder(MainActivity.this)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle(String.format("%s %s [%s]",getString(R.string.app_name), ChannelName,((Power) ? getString(R.string.on) : getString(R.string.off))))
-                .setContentText(String.format("RX: %s[%s]  TX: %s[%s]", Format.format(curRxFreq),Integer.toString(curRxCt), Format.format(curTxFreq),Integer.toString(curTxCt)))
-                .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, 0))
+                .setContentTitle(String.format("%s %s [%s]", getString(R.string.app_name), ChannelName, ((Power) ? getString(R.string.on) : getString(R.string.off))))
+                .setContentText(String.format("RX: %s[%s]  TX: %s[%s]", Format.format(curRxFreq), Integer.toString(curRxCt), Format.format(curTxFreq), Integer.toString(curTxCt)))
+                .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class)
+                        .setAction(Intent.ACTION_MAIN)
+                        .addCategory(Intent.CATEGORY_LAUNCHER), 0))
                 .build());
     }
 
@@ -561,257 +823,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return false;
     }*/
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        /**
-         * Settings get
-         */
-        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        editor = mSettings.edit();
-        TabPos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TAB, "0"));
-        Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
-        History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
-        Power = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_POWER, Power.toString()));
-        minFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MIN_FREQ, minFreq.toString()));
-        maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString()));
-        ChannelList = mSettings.getString(APP_PREFERENCES_CHANNELS, getString(R.string.channels_std)).split("\\|");
-        Groups = mSettings.getString(APP_PREFERENCES_GROUPS, getString(R.string.groups_list));
-        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP,curGroup.toString()));
-        curChannelList = getChannelList(curGroup);
-        curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL,curChannel.toString()));
-        curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString()));
-        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
-        curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
-        curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
-        sosRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_SOS, sosRxFreq.toString()));
-        sosTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString()));
-        sosRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS_SOS, sosRxCt.toString()));
-        sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
-        Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
-        Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
-        Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
-        isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
-        Vibro = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO,Vibro.toString()));
-        Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
-        ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY,ScanDelay.toString()));
-        ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
-        Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
-        //Set old Values to send it with timer to module
-        Old_curRxFreq = curRxFreq;
-        Old_curTxFreq = curTxFreq;
-        Old_curRxCt = curRxCt;
-        Old_curTxCt = curTxCt;
-        Old_Sq = Sq;
-        Old_Volume = Volume;
-        getTheme().applyStyle(Theme.equals("Black")?R.style.Black:R.style.Light,true);
-        super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setContentView(R.layout.activity_main);
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //Create format
-        Format = NumberFormat.getInstance(Locale.ENGLISH);
-        ((DecimalFormat)Format).applyPattern(FORMAT);
-        Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
-        Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
-
-        // Set up the action bar.
-        mActionBar = getSupportActionBar();
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        mActionBar.setDisplayShowCustomEnabled(true);
-        mActionBar.setDisplayShowHomeEnabled(true);
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mPagerAdapter = new SampleAdapter(this, getSupportFragmentManager());
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-
-        mManual = ManualFrequency.newInstance(this);
-        mChannels = Channel.newInstance(this);
-        mChat = Chat.newInstance(this);
-        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-        mViewPager.setAdapter(mPagerAdapter);
-
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                TabPos = position;
-                mActionBar.setSelectedNavigationItem(position);
-                //actionBar;
-            }
-        });
-        /**
-         * Adding Tabs
-         */
-        for(int i =0;i < mPagerAdapter.getCount();i++)
-            mActionBar.addTab(
-                    mActionBar.newTab()
-                            .setText(mPagerAdapter.getPageTitle(i).toUpperCase())
-                            .setTabListener(this));
-        mActionBar.getTabAt(TabPos).select();
-        mViewPager.setCurrentItem(TabPos);
-        try{
-            mIntercom.openCharDev();
-        }catch (NoSuchMethodError e){
-            Log.w("Intercom","openCharDev()");
-        }
-        try {
-            mIntercom.resumeIntercomSetting();
-        }catch (NoSuchMethodError e){
-            Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
-            mIntercom = new uartIntercom();
-            //mIntercom.openCharDev();
-        }
-        try{
-            int m = mIntercom.checkMessageBuffer();
-        }catch(NoSuchMethodError e){
-            isChat = false;
-        }catch (NullPointerException e){
-            // Just check method existence
-        }
-        /**
-         * State listener - off intercomm when calling or alarm
-         */
-        mState = new IntentFilter();
-        mState.addAction("android.intent.action.PHONE_STATE");
-        mState.addAction("android.intent.action.NEW_OUTGOING_CALL");
-        mState.addAction("com.android.deskclock.ALARM_ALERT");
-        mState.addAction("com.android.deskclock.ALARM_DONE");
-        mStateReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(!Power)return;
-                if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
-                    mIntercom.intercomPowerOff();
-                    isBusy = true;
-                } else if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
-                    String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-                    if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                        mIntercom.intercomPowerOff();
-                        isBusy = true;
-                    } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
-                        mIntercom.intercomPowerOff();
-                        isBusy = true;
-                    } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
-                        mIntercom.intercomPowerOn();
-                        mIntercom.resumeIntercomSetting();
-                        isBusy = false;
-                    }
-                }else if(intent.getAction().equals("com.android.deskclock.ALARM_ALERT")){
-                    mIntercom.intercomPowerOff();
-                    isBusy = true;
-                }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
-                    mIntercom.intercomPowerOn();
-                    mIntercom.resumeIntercomSetting();
-                    isBusy = false;
-                }
-            }
-        };
-        registerReceiver(mStateReceiver, mState);
-        if(Power){
-            Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
-            mIntercom.intercomPowerOn();
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            setRxFreq();
-            setTxFreq();
-            mIntercom.setCtcss(curRxCt);
-            try{
-                mIntercom.setTxCtcss(curTxCt);
-                Ver = mIntercom.getIntercomVersion();
-            }catch(NoSuchMethodError e){
-                Log.w("Hardware","is too old hardware lib version");
-            }
-            mIntercom.setSq(Sq);
-            mIntercom.resumeIntercomSetting();
-            mIntercom.setVolume(Volume);
-            if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-            mIntercom.resumeIntercomSetting();
-            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
-
-        }
-        /**
-         * Start timed events
-         */
-        ChatHandler.sendEmptyMessageDelayed(0,5000L);
-        Timer autoUpdate = new Timer();
-        autoUpdate.schedule(new TimerTask() {
-            /**
-             * Apply Settings and INIT
-             */
-            @Override
-            public void run() {
-                if(Power){
-                    Boolean up = false;
-                    if(!curRxFreq.equals(Old_curRxFreq)){
-                        setRxFreq();
-                        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-                        Old_curRxFreq = curRxFreq;
-                        up = true;
-                    }
-                    if(!curTxFreq.equals(Old_curTxFreq)){
-                        setTxFreq();
-                        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-                        Old_curTxFreq = curTxFreq;
-                        up = true;
-                    }
-                    if(!curRxCt.equals(Old_curRxCt)){
-                        mIntercom.setCtcss(curRxCt);
-                        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-                        Old_curRxCt = curRxCt;
-                        up = true;
-                    }
-                    if(!curTxCt.equals(Old_curTxCt)){
-                        try{
-                            mIntercom.setTxCtcss(curTxCt);
-                        }catch(NoSuchMethodError e){
-                            Log.w("TXCTCSS","You version not allowed to set txctcss");
-                        }
-                        editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
-                        Old_curTxCt = curTxCt;
-                        up = true;
-                    }
-                    if(!Sq.equals(Old_Sq)){
-                        mIntercom.setSq(Sq);
-                        editor.putString(APP_PREFERENCES_SQ,Sq.toString());
-                        Old_Sq = Sq;
-                        up = true;
-                    }
-                    if(!Volume.equals(Old_Volume)){
-                        mIntercom.setVolume(Volume);
-                        editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
-                        Old_Volume = Volume;
-                        up = true;
-                    }
-                    if(up){
-                        mIntercom.resumeIntercomSetting();//Commit setting
-                        editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                        editor.commit();
-                        Notify();
-                    }
-                }
-            }
-        }, 0, 3000);
-        Notify();
-        if(Vibro)mVibrator.vibrate(75L);
-        /*registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                startActivity(MainActivity.this.getIntent());
-                Toast.makeText(MainActivity.this, ":P", Toast.LENGTH_SHORT).show();
-            }
-        },new IntentFilter("com.nxn.intercomm.RESTORE"));*/
-
-    }
 
     @Override
     public void onClick(View view){
@@ -1451,12 +1462,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         Integer.toString(group.getSelectedItemPosition());
                                 Log.e("OnEdit",Integer.toString(main.getPosList(main.curChannel,main.curGroup)));
                                 main.ChannelList[main.getPosList(main.curChannel,main.curGroup)]=result;
-                                main.curGroup = group.getSelectedItemPosition();
+                                main.curGroup = (main.curGroup == 0)?main.curGroup:group.getSelectedItemPosition();
                                 main.curChannelList = main.getChannelList(main.curGroup);
                                 if(main.curChannel>main.curChannelList.length-1)main.curChannel=main.curChannelList.length-1;
                                 ListView list = (ListView)main.mViewPager.findViewById(R.id.listView);
                                 list.setAdapter(main.ChannelsAdapter());
-                                Spinner group_list = (Spinner)Settings.findViewById(R.id.group_list);
+                                Spinner group_list = (Spinner)main.mViewPager.findViewById(R.id.group_list);
                                 group_list.setSelection(main.curGroup);
                                 main.setCh(true);
                                 main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList, "|"));
@@ -1660,14 +1671,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         if(chat != null)chat.setText(Html.fromHtml(History+"<br/>"));
                         if(scroll != null)scroll.fullScroll(View.FOCUS_DOWN);
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
-                        final Intent notificationIntent = new Intent(MainActivity.this, MainActivity.class);
-                        notificationIntent.setAction(Intent.ACTION_MAIN);
-                        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
                         mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
                                 .setSmallIcon(android.R.drawable.ic_dialog_email)
-                                .setContentTitle(String.format("%s %s",getString(R.string.message), ChannelName))
+                                .setContentTitle(String.format("%s %s", getString(R.string.message), ChannelName))
                                 .setContentText(msg)
-                                .setContentIntent(PendingIntent.getActivity(MainActivity.this, 0, notificationIntent, 0))
+                                .setContentIntent(PendingIntent.getActivity(MainActivity.this, 0, new Intent(MainActivity.this, MainActivity.class)
+                                        .setAction("com.nxn.intercomm.CHAT")
+                                        .addCategory(Intent.CATEGORY_LAUNCHER), 0))
                                 .build());
                         mViewPager.setCurrentItem(2);
                         mActionBar.setSelectedNavigationItem(2);
@@ -1826,11 +1836,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     // Add action buttons
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            //
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             AboutDialog.this.getDialog().cancel();
                         }
