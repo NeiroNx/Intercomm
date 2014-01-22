@@ -69,6 +69,7 @@
     <string name="block">Block</string>
     <string name="check_all">Select all</string>
     <string name="invert">Invert selection</string>
+    <string name="gpsmsg" formatted="false"><![CDATA[<div>%s Latitude:%s, Longitude:%s <a href=\"geo:%s,%s?z=16\">View MAP</a></div>]]></string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>

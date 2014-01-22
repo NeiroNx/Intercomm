@@ -24,6 +24,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -42,6 +45,7 @@ import android.support.v4.view.ViewPager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -84,6 +88,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     ActionBar mActionBar;
     IntentFilter mState;
     BroadcastReceiver mStateReceiver;
+    LocationManager mLocationManager;
+    LocationListener mLocationListener;
     /**
      * Settings declaration
      */
@@ -128,6 +134,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer Ver = -1;
     public String Nick = "MyNick";
     public String History = "";
+    public Double Longitude = 0.0;
+    public Double Latitude = 0.0;
     public String[] ChannelList = {};
     public String[] curChannelList = {};
     public String Groups = "";
@@ -223,7 +231,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
-        keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySearch.toString()));
+        keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
         //Set old Values to send it with timer to module
         Old_curRxFreq = curRxFreq;
         Old_curTxFreq = curTxFreq;
@@ -344,6 +352,29 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
         };
         registerReceiver(mStateReceiver, mState);
+
+
+        // Acquire a reference to the system Location Manager
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        mLocationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                //makeUseOfNewLocation(location);
+                Latitude = location.getLatitude();
+                Longitude = location.getLongitude();
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+        // Register the listener with the Location Manager to receive location updates
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+
+
         if(Power){
             Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
             mIntercom.intercomPowerOn();
@@ -465,6 +496,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         .setAction(Intent.ACTION_MAIN)
                         .addCategory(Intent.CATEGORY_LAUNCHER), 0))
                 .build());
+    }
+
+    public void AppendMessage(String msg){
+        History += "<div>"+msg+"</div>";
+        TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
+        ScrollView scroll = (ScrollView)mViewPager.findViewById(R.id.scrollView);
+        if(chat != null)chat.setText(Html.fromHtml(History + "<br/>"));
+        if(scroll != null)scroll.fullScroll(View.FOCUS_DOWN);
     }
 
     //Get list with groups
@@ -840,7 +879,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
-        keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySearch.toString()));
+        keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
         super.onPostResume();
     }
     @Override
@@ -954,6 +993,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         if(!isBlocked)
         switch (item.getItemId()){
+            case R.id.share_gps:
+                if(isChat&&!Longitude.equals(0.0)&&!Latitude.equals(0.0)){
+                    String msg = String.format(getString(R.string.gpsmsg), Nick, Latitude, Longitude, Latitude, Longitude);
+                    if(Power)mIntercom.sendMessage(msg);
+                    AppendMessage(msg);
+                }
+                return true;
             case R.id.change_theme:
                 if(Theme.equals("Black")){
                     Theme = "Light";
@@ -1092,6 +1138,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ChatHandler.removeMessages(0);
                 ScanHandler.removeMessages(0);
                 unregisterReceiver(mStateReceiver);
+                mLocationManager.removeUpdates(mLocationListener);
                 if(Vibrato)mVibrator.vibrate(75L);
                 finish();
                 return true;
@@ -1465,6 +1512,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     ListView list = (ListView)getView().findViewById(R.id.listView);
                     list.setAdapter(main.ChannelsAdapter());
                     list.setSelection(main.curChannel);
+                    Toast.makeText(main, getString(R.string.invert), Toast.LENGTH_SHORT).show();
                     main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList,"|"));
                     main.editor.commit();
                     break;
@@ -1474,6 +1522,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     ListView list1 = (ListView)getView().findViewById(R.id.listView);
                     list1.setAdapter(main.ChannelsAdapter());
                     list1.setSelection(main.curChannel);
+                    Toast.makeText(main, getString(R.string.check_all), Toast.LENGTH_SHORT).show();
                     main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList,"|"));
                     main.editor.commit();
                     break;
@@ -1755,8 +1804,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             EditText msg = (EditText)rootView.findViewById(R.id.message);
             ScrollView scroll = (ScrollView)rootView.findViewById(R.id.scrollView);
             msg.setOnKeyListener(this);
-            nick.setText(main.Nick+" >");
+            nick.setText(main.Nick + " >");
             chat.setText(Html.fromHtml(main.History+"<br/>"));
+            chat.setClickable(true);
+            chat.setMovementMethod(LinkMovementMethod.getInstance());
             scroll.fullScroll(View.FOCUS_DOWN);
             return rootView;
         }
@@ -1775,18 +1826,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         /**
                          * TODO: Set Nick with "/name MyNick"
                          */
-                        TextView chat = (TextView)getView().findViewById(R.id.chat);
-                        ScrollView scroll = (ScrollView)getView().findViewById(R.id.scrollView);
                         msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
                         try{
                             if(main.Power)main.mIntercom.sendMessage(msg);
                         }catch (NoSuchMethodError e){
-                            Log.w("Message","can not be send");
-                            Toast.makeText(super.getActivity(), getString(R.string.no_func), Toast.LENGTH_SHORT).show();
+                            Log.w("Message", "can not be send");
                         }
-                        main.History += msg;
-                        chat.setText(Html.fromHtml(main.History+"<br/>"));
-                        scroll.fullScroll(View.FOCUS_DOWN);
+                        main.AppendMessage(msg);
                         message.setText("");
                         message.requestFocus();
                     }
@@ -1803,11 +1849,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if(Power&&!isBusy){
                     String msg;
                     if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
-                        History += "<div>"+msg+"</div>";
-                        TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
-                        ScrollView scroll = (ScrollView)mViewPager.findViewById(R.id.scrollView);
-                        if(chat != null)chat.setText(Html.fromHtml(History+"<br/>"));
-                        if(scroll != null)scroll.fullScroll(View.FOCUS_DOWN);
+                        AppendMessage(msg);
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
                         mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
                                 .setSmallIcon(android.R.drawable.ic_dialog_email)
@@ -1895,7 +1937,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             keySearch = Integer.parseInt(set_search.getText().toString());
                             Spinner groups_list = (Spinner)mViewPager.findViewById(R.id.group_list);
                             groups_list.setAdapter(getGroups());
-                            editor.putString(APP_PREFERENCES_NICK,Nick);
+                            editor.putString(APP_PREFERENCES_NICK, Nick);
                             editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
                             editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
                             editor.putString(APP_PREFERENCES_STEP,Step.toString());
@@ -1920,7 +1962,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return builder.create();
 
         }
-    }
+    } 
     public class InputDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -1986,6 +2028,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
     }
+
     public class AboutDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -2009,6 +2052,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
     }
+
     public class ChannelAddDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){

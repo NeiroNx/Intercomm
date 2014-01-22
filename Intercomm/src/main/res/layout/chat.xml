@@ -17,11 +17,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/chat"
-            android:autoLink="email|map|web"
             android:bufferType="spannable"
             android:enabled="true"
             android:linksClickable="true"
-            android:textAppearance="@android:style/TextAppearance" />
+            android:clickable="true"
+            android:textIsSelectable="true" />
     </ScrollView>
 
     <LinearLayout

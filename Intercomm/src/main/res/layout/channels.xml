@@ -61,7 +61,8 @@
         <Spinner
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:id="@+id/group_list" />
+            android:id="@+id/group_list"
+            android:layout_weight=".1" />
 
         <ImageButton
             android:layout_width="40dp"
