@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nxn.intercomm"
-    android:versionCode="5"
-    android:versionName="0.4c">
+    android:versionCode="6"
+    android:versionName="0.5a">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -28,6 +28,8 @@
                 <action android:name="com.nxn.intercomm.FREQ" />
                 <action android:name="com.nxn.intercomm.CHANNEL" />
                 <action android:name="com.nxn.intercomm.CHAT" />
+                <action android:name="com.nxn.intercomm.BLOCK" />
+                <action android:name="com.nxn.intercomm.UNBLOCK" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

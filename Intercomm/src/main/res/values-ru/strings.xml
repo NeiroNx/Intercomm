@@ -63,6 +63,9 @@
     <string name="groups_list">Все,Избранные,PMR,LPD</string>
     <string name="group_label">Группа</string>
     <string name="filter_label">Фильтр</string>
+    <string name="block">Блокировка</string>
+    <string name="check_all">Выбрать все</string>
+    <string name="invert">Инвертировать выбор</string>
     <string-array name="ctcss">
         <item>Выкл</item>
         <item>1: 67.0Гц</item>

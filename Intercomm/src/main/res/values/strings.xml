@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.4c</string>
+    <string name="version">0.5a</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Freq</string>
     <string name="title_chan">Channel</string>
@@ -66,6 +66,9 @@
     <string name="groups_list">All,Favorite,PMR,LPD</string>
     <string name="group_label">Group</string>
     <string name="filter_label">Filter</string>
+    <string name="block">Block</string>
+    <string name="check_all">Select all</string>
+    <string name="invert">Invert selection</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>
