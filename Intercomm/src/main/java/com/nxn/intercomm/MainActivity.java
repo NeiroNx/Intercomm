@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -69,6 +70,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Intercom;
+
+import org.xml.sax.XMLReader;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,OnClickListener {
     /**
@@ -502,9 +505,23 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         History += "<div>"+msg+"</div>";
         TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
         ScrollView scroll = (ScrollView)mViewPager.findViewById(R.id.scrollView);
-        if(chat != null)chat.setText(Html.fromHtml(History + "<br/>"));
+        if(chat != null)chat.setText(Html.fromHtml(History + "<br/>", htmlImageGetter, htmlTagHandler));
         if(scroll != null)scroll.fullScroll(View.FOCUS_DOWN);
     }
+
+    Html.ImageGetter htmlImageGetter = new Html.ImageGetter() {
+        public Drawable getDrawable(String source) {
+            int resId = getResources().getIdentifier(source, "drawable", getPackageName());
+            Drawable ret = MainActivity.this.getResources().getDrawable(resId);
+            ret.setBounds(0, 0, ret.getIntrinsicWidth(), ret.getIntrinsicHeight());
+            return ret;
+        }
+    };
+    Html.TagHandler htmlTagHandler = new Html.TagHandler() {
+        public void handleTag(boolean opening, String tag, Editable output,	XMLReader xmlReader) {
+
+        }
+    };
 
     //Get list with groups
     public ArrayAdapter getGroups(){
@@ -1015,7 +1032,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 History = "<h1>"+getString(R.string.title_chat)+"</h1>";
                 try{
                     TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
-                    chat.setText(Html.fromHtml(History));
+                    chat.setText(Html.fromHtml(History+"<br/>", htmlImageGetter, htmlTagHandler));
                 }catch (Exception e){
                     //
                 }
@@ -1805,7 +1822,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             ScrollView scroll = (ScrollView)rootView.findViewById(R.id.scrollView);
             msg.setOnKeyListener(this);
             nick.setText(main.Nick + " >");
-            chat.setText(Html.fromHtml(main.History+"<br/>"));
+            chat.setText(Html.fromHtml(main.History+"<br/>", main.htmlImageGetter, main.htmlTagHandler));
             chat.setClickable(true);
             chat.setMovementMethod(LinkMovementMethod.getInstance());
             scroll.fullScroll(View.FOCUS_DOWN);
