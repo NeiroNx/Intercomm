@@ -55,7 +55,7 @@
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         app:showAsAction="always"/>
     <item android:id="@+id/three_dots_item"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@android:drawable/ic_menu_more"
         android:title="@string/action_settings"
         app:showAsAction="always">
         <menu>
@@ -63,6 +63,11 @@
                 android:title="@string/ch_search_help"
                 android:orderInCategory="0"
                 android:icon="@android:drawable/ic_menu_search"
+                app:showAsAction="ifRoom" />
+            <item android:id="@+id/share_gps"
+                android:title="@string/share_gps"
+                android:orderInCategory="1"
+                android:icon="@android:drawable/ic_menu_share"
                 app:showAsAction="ifRoom" />
             <item android:id="@+id/ch_add"
                 android:title="@string/ch_add"
@@ -85,6 +90,11 @@
                 android:orderInCategory="3"
                 android:icon="@android:drawable/ic_menu_preferences"
                 app:showAsAction="never" />
+            <item android:id="@+id/block"
+                android:title="@string/block"
+                android:checkable="true"
+                android:icon="@android:drawable/ic_lock_lock"
+                android:orderInCategory="3"/>
         </menu>
     </item>
 </menu>

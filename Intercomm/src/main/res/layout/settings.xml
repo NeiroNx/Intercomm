@@ -224,6 +224,75 @@
                     android:inputType="textNoSuggestions" />
             </TableRow>
 
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/sos_set"
+                    android:id="@+id/set_sos_label"
+                    android:layout_weight=".1"
+                    android:layout_column="0" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/set_sos"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:singleLine="true"
+                    android:inputType="textNoSuggestions" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/block"
+                    android:id="@+id/textView3"
+                    android:layout_weight=".1"
+                    android:layout_column="0"/>
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/set_block"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:singleLine="true"
+                    android:inputType="textNoSuggestions" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/ch_search_help"
+                    android:id="@+id/set_search_label"
+                    android:layout_weight=".1"
+                    android:layout_column="0" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/set_search"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:singleLine="true"
+                    android:inputType="textNoSuggestions" />
+            </TableRow>
+
         </TableLayout>
     </ScrollView>
 
