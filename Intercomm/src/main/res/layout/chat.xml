@@ -46,8 +46,15 @@
             android:cursorVisible="true"
             android:hint="@string/message"
             android:singleLine="true"
-            android:inputType="textNoSuggestions"
+            android:inputType="textShortMessage|textNoSuggestions|textLongMessage"
             android:enabled="true" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/send"
+            android:src="@android:drawable/ic_menu_send" />
+
     </LinearLayout>
 
 </LinearLayout>

@@ -4,13 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.app.AlertDialog;
@@ -43,6 +47,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.widget.GridLayout;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.Html;
@@ -59,11 +64,13 @@ import android.view.View.OnClickListener;
 import android.text.TextWatcher;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -134,6 +141,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public static final Double[] tones = {0.0,67.0,71.9,74.4,77.0,79.7,82.5,85.4,88.5,91.5,94.8,97.4,100.0,103.5,107.2,110.9,114.8,118.8,123.0,127.3,131.8,136.5,141.3,146.2,151.4,156.7,162.2,167.9,173.8,179.9,186.2,192.8,203.5,210.7,218.1,225.7,233.6,241.8,250.3};
     public static final Long[] delays = {100L,200L,500L,1000L,2000L,3000L,5000L,10000L,60000L,300000L};
+    public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YU*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*,*YES*,*NO*,*TO_KRYIZHOPOL*,*BUBA_PHONE*,*GOPNIC*,*ALCOHOLIC*,*SUPERSTITION*,|-),*PAINT*,*CRAZY_PILOT*,*TSSS*,*WAIT*,*FALL_ASLEEP*,*ZOOM*,*PARTY*,*Дафай-дафай*,*STARIK*,*CENSORED*,*DOG*,*PIG*,*WORK*,*FOOD*,*MANIAC*,*SCARE*,*RUSSIAN_KULAK*,*HAPPY*,*TOMATO*,*ZOMBY*,*HEAT*,*BIG_BOSS*,*DOWN*,*DISOBEDIENT*,*VAMPIRE*,*POOH_DOOR*,*POOH_BIRTH_DAY*,*PIG_BALL*,*POOH_LOL*,*POOH_GO*,*SEX_BED*,*SEX*,*GIRL_BLUM*,*GIRL_CRY*,*WASSUP*,*GIRL_HAHA*,*FEMINIST*,*GIRL_DANCE*,*GIRL_CRAZY*,*GIRL_SIGH*,*QUEEN*,*GIRL_MAD*,*GIRL_WEREWOLF*,*CURTSEY*,*IMPOSSIBLE*,*GIRL_BYE_CRY*,*BEELINE*,*GIRL_SAD*,*GIRL_WITCH*,*GIRL_IN_LOVE*,*GIRL_HIDE*,*GIRL_DRINK*,*BABY*,*FLIRT*,*TO_BABRUYSK*,*PALADIN*,*GIRL_WINK*,*HYSTERIC*,*GIRL_DEVIL*,*GIRL_SMILE*,*SPAM*,*MANICURE*,*GIRL_PARDON*,*GIRL_WORK*,*GIRL_GIVE_HEART*,*GIRL_OOPS*,*GIRL_AND_BABY_GO*";
     public Integer Ver = -1;
     public String Nick = "MyNick";
     public String History = "";
@@ -502,26 +510,232 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void AppendMessage(String msg){
-        History += "<div>"+msg+"</div>";
+        History += "<div>"+getSmile(msg)+"</div>";
         TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
         ScrollView scroll = (ScrollView)mViewPager.findViewById(R.id.scrollView);
         if(chat != null)chat.setText(Html.fromHtml(History + "<br/>", htmlImageGetter, htmlTagHandler));
         if(scroll != null)scroll.fullScroll(View.FOCUS_DOWN);
+        editor.putString(APP_PREFERENCES_HISTORY,History);
+        editor.commit();
     }
 
-    Html.ImageGetter htmlImageGetter = new Html.ImageGetter() {
+    public Html.ImageGetter htmlImageGetter = new Html.ImageGetter() {
         public Drawable getDrawable(String source) {
-            int resId = getResources().getIdentifier(source, "drawable", getPackageName());
-            Drawable ret = MainActivity.this.getResources().getDrawable(resId);
-            ret.setBounds(0, 0, ret.getIntrinsicWidth(), ret.getIntrinsicHeight());
+            Drawable ret;
+            if(!source.contains("/")){
+                int resId = getResources().getIdentifier(source, "drawable", getPackageName());
+                ret = MainActivity.this.getResources().getDrawable(resId);
+                ret.setBounds(0, 0, ret.getIntrinsicWidth()*8/6, ret.getIntrinsicHeight()*8/6);
+            }else{
+                try {
+                    ret = Drawable.createFromStream(new URL(source).openStream(), "src name");
+                    ret.setBounds(0, 0, ret.getIntrinsicWidth(),ret.getIntrinsicHeight());
+                } catch(IOException exception) {
+                    Log.v("IOException",exception.getMessage());
+                    ret = null;
+                }
+            }
             return ret;
         }
     };
-    Html.TagHandler htmlTagHandler = new Html.TagHandler() {
+    public  Html.TagHandler htmlTagHandler = new Html.TagHandler() {
         public void handleTag(boolean opening, String tag, Editable output,	XMLReader xmlReader) {
 
         }
     };
+
+    public String getSmile(String msg){
+        HashMap<String, String> smileys = new HashMap<String, String>();
+        smileys.put(":-)","<img src=\"aa\"");smileys.put(":)","<img src=\"aa\"");smileys.put("=)","<img src=\"aa\"");smileys.put("+)","<img src=\"aa\"/>");
+        smileys.put(":-D","<img src=\"ab\"");smileys.put(":D","<img src=\"ab\"");smileys.put("+D","<img src=\"ab\"");smileys.put("=D","<img src=\"ab\"/>");
+        smileys.put("*ROFL*","<img src=\"ac\"");smileys.put("*LOL*","<img src=\"ac\"/>");
+        smileys.put("*JOKINGLY*","<img src=\"ad\"");smileys.put("8P","<img src=\"ad\"");smileys.put("8p","<img src=\"ad\"/>");
+        smileys.put("*HAHA*","<img src=\"ae\"/>");
+        smileys.put("*PREVED*","<img src=\"af\"");smileys.put("*PRIVET*","<img src=\"af\"");smileys.put("*HELLO*","<img src=\"af\"/>");
+        smileys.put(":-(","<img src=\"ag\"");smileys.put(":(","<img src=\"ag\"");smileys.put("+(","<img src=\"ag\"");smileys.put("=(","<img src=\"ag\"/>");
+        smileys.put(":'(","<img src=\"ah\"");smileys.put(":-'(","<img src=\"ah\"/>");
+        smileys.put(":-\\","<img src=\"ai\"");smileys.put(":-/","<img src=\"ai\"");smileys.put(":\\","<img src=\"ai\"");smileys.put("*BEEE*","<img src=\"ai\"/>");
+        smileys.put(":-!","<img src=\"aj\"");smileys.put(";-!","<img src=\"aj\"");smileys.put(":!","<img src=\"aj\"");smileys.put(";!","<img src=\"aj\"");smileys.put(":-~","<img src=\"aj\"");smileys.put(";-~","<img src=\"aj\"/>");
+        smileys.put("*VAVA*","<img src=\"ak\"");smileys.put("*eye_blue*","<img src=\"ak\"/>");
+        smileys.put("*BYE*","<img src=\"al\"/>");
+        smileys.put("=-O","<img src=\"am\"");smileys.put("=O","<img src=\"am\"");smileys.put("=-o","<img src=\"am\"");smileys.put("=0","<img src=\"am\"");smileys.put("O_O","<img src=\"am\"");smileys.put("O_o","<img src=\"am\"");smileys.put("o_O","<img src=\"am\"");smileys.put("O_0","<img src=\"am\"");smileys.put("o_0","<img src=\"am\"");smileys.put("0_O","<img src=\"am\"");smileys.put("0_o","<img src=\"am\"/>");
+        smileys.put("*MEGA_SHOK*","<img src=\"an\"");smileys.put("*SWOON*","<img src=\"an\"/>");
+        smileys.put("%)","<img src=\"ao\"");smileys.put("%-)","<img src=\"ao\"");smileys.put(":$","<img src=\"ao\"/>");
+        smileys.put("*ANGRY*","<img src=\"ap\"");smileys.put("*angry*","<img src=\"ap\"");smileys.put("*ANGER*","<img src=\"ap\"/>");
+        smileys.put(">:o","<img src=\"aq\"");smileys.put(">:O","<img src=\"aq\"");smileys.put(">+O","<img src=\"aq\"");smileys.put(">:o","<img src=\"aq\"");smileys.put(">+o","<img src=\"aq\"");smileys.put(":-@","<img src=\"aq\"/>");
+        smileys.put("*PUNISH*","<img src=\"ar\"");smileys.put("*PORKA*","<img src=\"ar\"/>");
+        smileys.put(";-)","<img src=\"as\"");smileys.put(";)","<img src=\"as\"");smileys.put("^_~","<img src=\"as\"/>");
+        smileys.put("*SARCASTIC*","<img src=\"at\"/>");
+        smileys.put(":-P","<img src=\"au\"");smileys.put(":P","<img src=\"au\"");smileys.put(":-p","<img src=\"au\"");smileys.put(":p","<img src=\"au\"");smileys.put("+P","<img src=\"au\"");smileys.put("=P","<img src=\"au\"");smileys.put("+p","<img src=\"au\"");smileys.put("=p","<img src=\"au\"");smileys.put(":-b","<img src=\"au\"");smileys.put(":b","<img src=\"au\"");smileys.put("+b","<img src=\"au\"");smileys.put("=b","<img src=\"au\"/>");
+        smileys.put("*CRAZY*","<img src=\"av\"/>");
+        smileys.put("8-)","<img src=\"aw\"");smileys.put("8)","<img src=\"aw\"");smileys.put("B)","<img src=\"aw\"/>");
+        smileys.put("*DRINK*","<img src=\"ax\"/>");
+        smileys.put("*THUMBS UP*","<img src=\"ay\"");smileys.put("*GOOD*","<img src=\"ay\"/>");
+        smileys.put("*STOP*","<img src=\"az\"/>");
+        smileys.put("*OK*","<img src=\"ba\"/>");
+        smileys.put(";D","<img src=\"bb\"");smileys.put("*ACUTE*","<img src=\"bb\"/>");
+        smileys.put("*PARDON*","<img src=\"bc\"");smileys.put("=]","<img src=\"bc\"/>");
+        smileys.put("*FRIEND*","<img src=\"bd\"");smileys.put("*FRIENDS*","<img src=\"bd\"");smileys.put("*friends*","<img src=\"bd\"/>");
+        smileys.put("*DANCE*","<img src=\"be\"/>");
+        smileys.put("*KISSED*","<img src=\"bf\"/>");
+        smileys.put("@}->--","<img src=\"bg\"");smileys.put("@}-:--","<img src=\"bg\"");smileys.put("@>}--`---","<img src=\"bg\"/>");
+        smileys.put("*SIGH*","<img src=\"bh\"");smileys.put("*sigh*","<img src=\"bh\"/>");
+        smileys.put("*FIE*","<img src=\"bi\"/>");
+        smileys.put("*KISSING*","<img src=\"bj\"/>");
+        smileys.put(":-[","<img src=\"bk\"");smileys.put(":[","<img src=\"bk\"");smileys.put(";'>","<img src=\"bk\"");smileys.put(";-.","<img src=\"bk\"/>");
+        smileys.put("*TO_PICK_ONES_NOSE*","<img src=\"bl\"");smileys.put("*NOSE*","<img src=\"bl\"/>");
+        smileys.put("*TIRED*","<img src=\"bm\"");smileys.put("|-0","<img src=\"bm\"/>");
+        smileys.put("*LAZY*","<img src=\"bn\"");smileys.put("*Z*","<img src=\"bn\"");smileys.put("*SLEEP*","<img src=\"bn\"/>");
+        smileys.put("*WALL*","<img src=\"bo\"");smileys.put("*DASH*","<img src=\"bo\"/>");
+        smileys.put("*S_BUBNOM*","<img src=\"bp\"");smileys.put("*WITH_BUBEN*","<img src=\"bp\"");smileys.put("*with_buben*","<img src=\"bp\"");smileys.put("*s_bubnom*","<img src=\"bp\"/>");
+        smileys.put("]:->","<img src=\"bq\"");smileys.put("}:->","<img src=\"bq\"");smileys.put("]:>","<img src=\"bq\"");smileys.put("}:>","<img src=\"bq\"");smileys.put(">:-]","<img src=\"bq\"");smileys.put(">:]","<img src=\"bq\"");smileys.put("*DIABLO*","<img src=\"bq\"/>");
+        smileys.put(":-|","<img src=\"br\"");smileys.put(":|","<img src=\"br\"");smileys.put("=|","<img src=\"br\"/>");
+        smileys.put("X-)","<img src=\"bs\"");smileys.put("X)","<img src=\"bs\"");smileys.put("*poveshen*","<img src=\"bs\"/>");
+        smileys.put("*THANK*","<img src=\"bt\"");smileys.put("*THANKS*","<img src=\"bt\"");smileys.put("*THANK_YOU*","<img src=\"bt\"/>");
+        smileys.put("*SEARCH*","<img src=\"bu\"/>");
+        smileys.put("*BEGU*","<img src=\"bv\"/>");
+        smileys.put("*SMOKE*","<img src=\"bw\"");smileys.put("*holliday*","<img src=\"bw\"/>");
+        smileys.put("*CUP_OF_COFFEE*","<img src=\"bx\"");smileys.put("*COFFEE*","<img src=\"bx\"/>");
+        smileys.put("*BEACH*","<img src=\"by\"/>");
+        smileys.put("*NYAM*","<img src=\"bz\"/>");
+        smileys.put("*HELP*","<img src=\"ca\"/>");
+        smileys.put("*F_TOPKU*","<img src=\"cb\"");smileys.put("*f_topku*","<img src=\"cb\"");smileys.put("*ftopku*","<img src=\"cb\"/>");
+        smileys.put(":-*","<img src=\"cc\"");smileys.put(":*","<img src=\"cc\"");smileys.put(":-{}","<img src=\"cc\"");smileys.put(":{}","<img src=\"cc\"");smileys.put("+{}","<img src=\"aa\"");smileys.put("={}","<img src=\"cc\"");smileys.put("^.^","<img src=\"cc\"/>");
+        smileys.put("*DONT_KNOW*","<img src=\"cd\"");smileys.put("*UNKNOWN*","<img src=\"cd\"/>");
+        smileys.put("*TOILET_PLUMS*","<img src=\"ce\"");smileys.put("*toilet_plums*","<img src=\"ce\"");smileys.put("*TOILET*","<img src=\"ce\"/>");
+        smileys.put("*COLD*","<img src=\"cf\"");smileys.put("*cold*","<img src=\"cf\"/>");
+        smileys.put("*BLIND*","<img src=\"cg\"/>");
+        smileys.put("*GRABLI*","<img src=\"ch\"");smileys.put("*grabli*","<img src=\"ch\"/>");
+        smileys.put("*YAHOO*","<img src=\"ci\"");smileys.put("*YAHOO!*","<img src=\"ci\"/>");
+        smileys.put("*BRAVO*","<img src=\"cj\"/>");
+        smileys.put("*YEEES!*","<img src=\"ck\"/>");
+        smileys.put("*MEDAL*","<img src=\"cl\"");smileys.put("*medal*","<img src=\"cl\"/>");
+        smileys.put("\\m/","<img src=\"cm\"/>");
+        smileys.put("*WINNER*","<img src=\"cn\"");smileys.put("*N1*","<img src=\"cn\"/>");
+        smileys.put("*HOSPITAL*","<img src=\"co\"/>");
+        smileys.put("*STINK*","<img src=\"cp\"/>");
+        smileys.put("*STINKER*","<img src=\"cq\"/>");
+        smileys.put("*SHOUT*","<img src=\"cr\"/>");
+        smileys.put("*NOT_I*","<img src=\"cs\"/>");
+        smileys.put("*SEX_BEHIND*","<img src=\"ct\"/>");
+        smileys.put("*ROCK*","<img src=\"cu\"");smileys.put("*HMR*","<img src=\"cu\"/>");
+        smileys.put("[:-}","<img src=\"cv\"");smileys.put("[:}","<img src=\"cv\"/>");
+        smileys.put("*HI*","<img src=\"cw\"/>");
+        smileys.put("*KUKU*","<img src=\"cx\"");smileys.put("*KU_KU*","<img src=\"cx\"");smileys.put("*kuku*","<img src=\"cx\"/>");
+        smileys.put("*READ*","<img src=\"cy\"/>");
+        smileys.put("*RUSSIAN*","<img src=\"cz\"");smileys.put("*russian*","<img src=\"cz\"/>");
+        smileys.put("*GIVE_HEART*","<img src=\"da\"/>");
+        smileys.put("O:-)","<img src=\"db\"");smileys.put("O:)","<img src=\"db\"");smileys.put("O+)","<img src=\"db\"");smileys.put("O=)","<img src=\"db\"");smileys.put("0:-)","<img src=\"db\"");smileys.put("0:)","<img src=\"db\"");smileys.put("0+)","<img src=\"db\"");smileys.put("0=)","<img src=\"db\"/>");
+        smileys.put("*GAMER*","<img src=\"dc\"");smileys.put("*gamer*","<img src=\"dc\"/>");
+        smileys.put("*DOWNLOAD*","<img src=\"dd\"");smileys.put("*download*","<img src=\"dd\"/>");
+        smileys.put("*WRITE*","<img src=\"de\"");smileys.put("*MAIL*","<img src=\"de\"/>");
+        smileys.put("*SUICIDE*","<img src=\"df\"");smileys.put("*suicide*","<img src=\"df\"/>");
+        smileys.put("*BOUQUET*","<img src=\"dg\"");smileys.put("*many flowers*","<img src=\"dg\"/>");
+        smileys.put("*SKULL*","<img src=\"dh\"");smileys.put("*skull*","<img src=\"dh\"/>");
+        smileys.put("*RTFM*","<img src=\"di\"/>");
+        smileys.put("@=","<img src=\"dj\"/>");
+        smileys.put("*ASS*","<img src=\"dk\"");smileys.put("*ass*","<img src=\"dk\"");smileys.put("(_|_)","<img src=\"dk\"");smileys.put("[_I_]","<img src=\"dk\"/>");
+        smileys.put("*SLOW*","<img src=\"dl\"");smileys.put("*tormoz*","<img src=\"dl\"/>");
+        smileys.put("*BB*","<img src=\"dm\"/>");
+        smileys.put("*V*","<img src=\"dn\"");smileys.put("*VICTORI*","<img src=\"dn\"/>");
+        smileys.put("*YU*","<img src=\"do1\"");smileys.put("*db*","<img src=\"do1\"/>");
+        smileys.put(":-X","<img src=\"dp\"");smileys.put(":-x","<img src=\"dp\"");smileys.put("X:","<img src=\"dp\"");smileys.put("x:","<img src=\"dp\"");smileys.put(":-#","<img src=\"dp\"");smileys.put(":#","<img src=\"dp\"/>");
+        smileys.put("*NONO*","<img src=\"dq\"/>");
+        smileys.put("*TRAINING*","<img src=\"dr\"/>");
+        smileys.put("*FOCUS*","<img src=\"ds\"/>");
+        smileys.put("*SUN*","<img src=\"dt\"/>");
+        smileys.put("*PLEASANTRY*","<img src=\"du\"/>");
+        smileys.put("*IN LOVE*","<img src=\"dv\"/>");
+        smileys.put("*NOT_AT_ALL!*","<img src=\"dw\"/>");
+        smileys.put("*ZA_RULYOM*","<img src=\"dx\"");smileys.put("*RACING*","<img src=\"dx\"/>");
+        smileys.put("*PADONAK*","<img src=\"dy\"/>");
+        smileys.put("*SPITEFUL*","<img src=\"dz\"/>");
+        smileys.put("*SORRY*","<img src=\"ea\"");smileys.put("*sorry*","<img src=\"ea\"/>");
+        smileys.put("*UMNIK*","<img src=\"eb\"/>");
+        smileys.put("*SCRATCH*","<img src=\"ec\"/>");
+        smileys.put("*BUTCHER*","<img src=\"ed\"/>");
+        smileys.put("*TEASE*","<img src=\"ee\"/>");
+        smileys.put("*KING*","<img src=\"ef\"/>");
+        smileys.put("*BUBA*","<img src=\"eg\"/>");
+        smileys.put("*YES*","<img src=\"eh\"/>");
+        smileys.put("*NO*","<img src=\"ei\"/>");
+        smileys.put("*TO_KRYIZHOPOL*","<img src=\"ej\"/>");
+        smileys.put("*BUBA_PHONE*","<img src=\"ek\"");smileys.put("*buba_phone*","<img src=\"ek\"/>");
+        smileys.put("*GOPNIC*","<img src=\"el\"/>");
+        smileys.put("*ALCOHOLIC*","<img src=\"em\"/>");
+        smileys.put("*SUPERSTITION*","<img src=\"en\"");smileys.put("*superstition*","<img src=\"en\"/>");
+        smileys.put("|-)","<img src=\"eo\"/>");
+        smileys.put("*PAINT*","<img src=\"ep\"");smileys.put("*paint*","<img src=\"ep\"/>");
+        smileys.put("*CRAZY_PILOT*","<img src=\"eq\"");smileys.put("*crazy_pilot*","<img src=\"eq\"/>");
+        smileys.put("*TSSS*","<img src=\"er\"/>");
+        smileys.put("*WAIT*","<img src=\"es\"/>");
+        smileys.put("*FALL_ASLEEP*","<img src=\"et\"/>");
+        smileys.put("*LOOK*","<img src=\"eu\"");smileys.put("*look*","<img src=\"eu\"");smileys.put("*ZOOM*","<img src=\"eu\"/>");
+        smileys.put("*PARTY*","<img src=\"ev\"/>");
+        smileys.put("*Дафай-дафай*","<img src=\"ew\"/>");
+        smileys.put("*STARIK*","<img src=\"ex\"");smileys.put("*starik*","<img src=\"ex\"/>");
+        smileys.put("*CENSORED*","<img src=\"ey\"");smileys.put("*censored*","<img src=\"ey\"/>");
+        smileys.put("*DOG*","<img src=\"ez\"");smileys.put("*VIANNEN*","<img src=\"ez\"/>");
+        smileys.put("*PIG*","<img src=\"fa\"/>");
+        smileys.put("*WORK*","<img src=\"fb\"/>");
+        smileys.put("*FOOD*","<img src=\"fc\"");smileys.put("*food*","<img src=\"fc\"/>");
+        smileys.put("*MANIAC*","<img src=\"fd\"/>");
+        smileys.put("*SCARE*","<img src=\"fe\"");smileys.put("*scare*","<img src=\"fe\"/>");
+        smileys.put("*RUSSIAN_KULAK*","<img src=\"ff\"");smileys.put("*russian_kulak*","<img src=\"ff\"/>");
+        smileys.put("*I'M_HAPPY*","<img src=\"fg\"");smileys.put("*HAPPY*","<img src=\"fg\"/>");
+        smileys.put("*TOMATO*","<img src=\"fh\"");smileys.put("*tomato*","<img src=\"fh\"/>");
+        smileys.put("*ZOMBY*","<img src=\"fi\"");smileys.put("*SNOOZER*","<img src=\"fi\"/>");
+        smileys.put("*HEAT*","<img src=\"fj\"");smileys.put("*heat*","<img src=\"fj\"");smileys.put("*fever*","<img src=\"dj\"/>");
+        smileys.put("*BIG_BOSS*","<img src=\"fk\"");smileys.put("*big_boss*","<img src=\"fk\"/>");
+        smileys.put("*THUMBS DOWN*","<img src=\"fl\"");smileys.put("*THUMBS_DOWN*","<img src=\"fl\"");smileys.put("*DOWN*","<img src=\"fl\"/>");
+        smileys.put("*DISOBEDIENT*","<img src=\"fm\"/>");
+        smileys.put("*VAMPIRE*","<img src=\"fn\"");smileys.put("*vampire*","<img src=\"fn\"/>");
+        smileys.put("*POOH_DOOR*","<img src=\"fo\"");smileys.put("*pooh_door*","<img src=\"fo\"/>");
+        smileys.put("*POOH_BIRTH_DAY*","<img src=\"fp\"");smileys.put("*pooh_birth_day*","<img src=\"fp\"/>");
+        smileys.put("*PIG_BALL*","<img src=\"fq\"");smileys.put("*pig_ball*","<img src=\"fq\"");smileys.put("*пяточок*","<img src=\"fq\"/>");
+        smileys.put("*POOH_LOL*","<img src=\"fr\"");smileys.put("*pooh_lol*","<img src=\"fr\"/>");
+        smileys.put("*POOH_GO*","<img src=\"fs\"");smileys.put("*pooh_go*","<img src=\"fs\"/>");
+        smileys.put("*SEX_BED*","<img src=\"ft\"/>");
+        smileys.put("*SEX*","<img src=\"fu\"/>");
+        smileys.put("*GIRL_BLUM*","<img src=\"fv\"/>");
+        smileys.put("*GIRL_CRY*","<img src=\"fw\"/>");
+        smileys.put("*WASSUP*","<img src=\"fx\"");smileys.put("*SUP*","<img src=\"fx\"/>");
+        smileys.put("*GIRL_HAHA*","<img src=\"fy\"/>");
+        smileys.put("*FEMINIST*","<img src=\"fz\"/>");
+        smileys.put("*GIRL_DANCE*","<img src=\"ga\"/>");
+        smileys.put("*GIRL_CRAZY*","<img src=\"gb\"/>");
+        smileys.put("*GIRL_SIGH*","<img src=\"gc\"/>");
+        smileys.put("*QUEEN*","<img src=\"gd\"");smileys.put("*queen*","<img src=\"gd\"/>");
+        smileys.put("*GIRL_MAD*","<img src=\"ge\"/>");
+        smileys.put("*GIRL_WEREWOLF*","<img src=\"gf\"/>");
+        smileys.put("*CURTSEY*","<img src=\"gg\"/>");
+        smileys.put("*IMPOSSIBLE*","<img src=\"gh\"/>");
+        smileys.put("*GIRL_BYE_CRY*","<img src=\"gi\"/>");
+        smileys.put("*BEELINE*","<img src=\"gj\"/>");
+        smileys.put("*GIRL_SAD*","<img src=\"gk\"/>");
+        smileys.put("*GIRL_WITCH*","<img src=\"gl\"/>");
+        smileys.put("*GIRL_IN_LOVE*","<img src=\"gm\"");smileys.put("*girl_in_love*","<img src=\"gm\"/>");
+        smileys.put("*GIRL_HIDE*","<img src=\"gn\"");smileys.put("*girl_hide*","<img src=\"gn\"/>");
+        smileys.put("*GIRL_DRINK*","<img src=\"go\"");smileys.put("*girl_drink*","<img src=\"go\"/>");
+        smileys.put("*BABY*","<img src=\"gp\"");smileys.put("*BABY1*","<img src=\"gp\"");smileys.put("*baby1*","<img src=\"gp\"/>");
+        smileys.put("*FLIRT*","<img src=\"gq\"");smileys.put("*flirt*","<img src=\"gq\"/>");
+        smileys.put("*TO_BABRUYSK*","<img src=\"gr\"");smileys.put("*to_babruysk*","<img src=\"gr\"/>");
+        smileys.put("*PALADIN*","<img src=\"gs\"/>");
+        smileys.put("*GIRL_WINK*","<img src=\"gt\"/>");
+        smileys.put("*HYSTERIC*","<img src=\"gu\"/>");
+        smileys.put("*GIRL_DEVIL*","<img src=\"gv\"/>");
+        smileys.put("*GIRL_SMILE*","<img src=\"gw\"/>");
+        smileys.put("*SPAM*","<img src=\"gx\"/>");
+        smileys.put("*MANICURE*","<img src=\"gy\"/>");
+        smileys.put("*GIRL_PARDON*","<img src=\"gz\"/>");
+        smileys.put("*GIRL_WORK*","<img src=\"ha\"/>");
+        smileys.put("*GIRL_GIVE_HEART*","<img src=\"hb\"/>");
+        smileys.put("*GIRL_OOPS*","<img src=\"hc\"/>");
+        smileys.put("*GIRL_AND_BABY_GO*","<img src=\"hd\"/>");
+        for(Map.Entry<String, String> smiley : smileys.entrySet())
+            msg = msg.replace(smiley.getKey(), smiley.getValue());
+        return msg;
+    }
 
     //Get list with groups
     public ArrayAdapter getGroups(){
@@ -1790,7 +2004,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public static class Chat extends Fragment implements
             OnClickListener,
-            View.OnKeyListener
+            View.OnKeyListener,
+            View.OnLongClickListener
     {
         private MainActivity main;
         public Chat(){
@@ -1803,6 +2018,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         @Override
         public void onClick(View view){
+            if(main.isBlocked)return;
+            TextView nick = (TextView)getView().findViewById(R.id.nick);
+            nick.setText(main.Nick+" >");
+            if(main.Vibrato)main.mVibrator.vibrate(75L);
+            EditText message = (EditText)getView().findViewById(R.id.message);
+            String msg = message.getText().toString();
+            if(!msg.equals("")){
+                /**
+                 * TODO: Set Nick with "/name MyNick"
+                 */
+                msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
+                try{
+                    if(main.Power)main.mIntercom.sendMessage(msg);
+                }catch (NoSuchMethodError e){
+                    Log.w("Message", "can not be send");
+                }
+                main.AppendMessage(msg);
+                message.setText("");
+                message.requestFocus();
+            }
 
         }
         @Override
@@ -1820,7 +2055,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TextView chat = (TextView)rootView.findViewById(R.id.chat);
             EditText msg = (EditText)rootView.findViewById(R.id.message);
             ScrollView scroll = (ScrollView)rootView.findViewById(R.id.scrollView);
+            ImageButton send = (ImageButton)rootView.findViewById(R.id.send);
+            send.setOnClickListener(this);
             msg.setOnKeyListener(this);
+            msg.setOnLongClickListener(this);
             nick.setText(main.Nick + " >");
             chat.setText(Html.fromHtml(main.History+"<br/>", main.htmlImageGetter, main.htmlTagHandler));
             chat.setClickable(true);
@@ -1831,30 +2069,42 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if(main.isBlocked)return true;
-            TextView nick = (TextView)getView().findViewById(R.id.nick);
-            nick.setText(main.Nick+" >");
-            if(main.Vibrato)main.mVibrator.vibrate(75L);
-            switch (keyCode){
-                case KeyEvent.KEYCODE_ENTER :
+            ImageButton btn = (ImageButton)getView().findViewById(R.id.send);
+            if(keyCode == KeyEvent.KEYCODE_ENTER)return btn.callOnClick();
+            return false;
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            final AlertDialog dialog = new AlertDialog.Builder(main).setCancelable(true).create();
+            final String[] codes = Smiles.split(",");
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View sm = inflater.inflate(R.layout.smiles, null);
+            GridLayout rel = (GridLayout)sm.findViewById(R.id.smiles);
+            OnClickListener onClickListener = new OnClickListener() {
+                @Override
+                public void onClick(View view) {
                     EditText message = (EditText)getView().findViewById(R.id.message);
-                    String msg = message.getText().toString();
-                    if(!msg.equals("")){
-                        /**
-                         * TODO: Set Nick with "/name MyNick"
-                         */
-                        msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
-                        try{
-                            if(main.Power)main.mIntercom.sendMessage(msg);
-                        }catch (NoSuchMethodError e){
-                            Log.w("Message", "can not be send");
-                        }
-                        main.AppendMessage(msg);
-                        message.setText("");
-                        message.requestFocus();
-                    }
-                    return true;
+                    message.getText().append(" "+Smiles.split(",")[view.getId()]);
+                    dialog.cancel();
+                }
+            };
+            for (int i=0; i<186; i++) {
+                ImageButton btn = new ImageButton(main);
+
+                String src = String.format("%c%c",'a'+i/('z'-'a'+1),'a'+i%('z'-'a'+1));
+                src = src.equals("do")?"do1":src;
+                btn.setId(i);
+                btn.setImageResource(main.getResources().getIdentifier(src, "drawable", main.getPackageName()));
+                btn.setContentDescription(src);
+                btn.setMinimumWidth(60);
+                btn.setMinimumHeight(60);
+                btn.setOnClickListener(onClickListener);
+                //btn.setContentDescription();
+                rel.addView(btn);
             }
+            dialog.setView(sm);
+            dialog.show();
             return false;
         }
     }
