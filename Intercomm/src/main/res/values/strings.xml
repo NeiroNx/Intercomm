@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.5a</string>
+    <string name="version">0.5b</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Freq</string>
     <string name="title_chan">Channel</string>
@@ -69,9 +69,10 @@
     <string name="block">Block</string>
     <string name="check_all">Select all</string>
     <string name="invert">Invert selection</string>
-    <string name="gpsmsg" formatted="false"><![CDATA[<div>%s Latitude:%s, Longitude:%s <a href=\"geo:%s,%s?z=16\">View MAP</a></div>]]></string>
+    <string name="gpsmsg" formatted="false"><![CDATA[<div>%s Latitude:%.6f, Longitude:%.6f <a href=\"geo:%s,%s?z=16\">View MAP</a></div>]]></string>
     <string name="smiles">Smiles</string>
     <string name="send">Send</string>
+    <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> has change nick to <b>%s</b></i>]]>has change nick to</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>

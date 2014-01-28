@@ -15,8 +15,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -57,20 +55,17 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.text.TextWatcher;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -196,14 +191,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer keyBlock = 301;
     public Integer keySearch = 84;
 
-    //Old values to track changes
-    private Double Old_curRxFreq;
-    private Double Old_curTxFreq;
-    private Integer Old_curRxCt;
-    private Integer Old_curTxCt;
-    private Integer Old_Sq;
-    private Integer Old_Volume;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         /**
@@ -240,20 +227,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY,ScanDelay.toString()));
         ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
         Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
+        getTheme().applyStyle(Theme.equals("Black")?R.style.Black:R.style.Light,true);
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
-        //Set old Values to send it with timer to module
-        Old_curRxFreq = curRxFreq;
-        Old_curTxFreq = curTxFreq;
-        Old_curRxCt = curRxCt;
-        Old_curTxCt = curTxCt;
-        Old_Sq = Sq;
-        Old_Volume = Volume;
-        getTheme().applyStyle(Theme.equals("Black")?R.style.Black:R.style.Light,true);
+
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
@@ -413,67 +395,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
         /**
-         * Start timed events
+         * Start timed msg buffer pol
          */
-        ChatHandler.sendEmptyMessageDelayed(0,5000L);
-        Timer autoUpdate = new Timer();
-        autoUpdate.schedule(new TimerTask() {
-            /**
-             * Apply Settings and INIT
-             */
-            @Override
-            public void run() {
-                if(Power){
-                    Boolean up = false;
-                    if(!curRxFreq.equals(Old_curRxFreq)){
-                        setRxFreq();
-                        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-                        Old_curRxFreq = curRxFreq;
-                        up = true;
-                    }
-                    if(!curTxFreq.equals(Old_curTxFreq)){
-                        setTxFreq();
-                        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-                        Old_curTxFreq = curTxFreq;
-                        up = true;
-                    }
-                    if(!curRxCt.equals(Old_curRxCt)){
-                        mIntercom.setCtcss(curRxCt);
-                        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-                        Old_curRxCt = curRxCt;
-                        up = true;
-                    }
-                    if(!curTxCt.equals(Old_curTxCt)){
-                        try{
-                            mIntercom.setTxCtcss(curTxCt);
-                        }catch(NoSuchMethodError e){
-                            Log.w("TXCTCSS","You version not allowed to set txctcss");
-                        }
-                        editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
-                        Old_curTxCt = curTxCt;
-                        up = true;
-                    }
-                    if(!Sq.equals(Old_Sq)){
-                        mIntercom.setSq(Sq);
-                        editor.putString(APP_PREFERENCES_SQ,Sq.toString());
-                        Old_Sq = Sq;
-                        up = true;
-                    }
-                    if(!Volume.equals(Old_Volume)){
-                        mIntercom.setVolume(Volume);
-                        editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
-                        Old_Volume = Volume;
-                        up = true;
-                    }
-                    if(up){
-                        //mIntercom.resumeIntercomSetting();//Commit setting
-                        editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                        editor.commit();
-                        Notify();
-                    }
-                }
-            }
-        }, 0, 3000);
+        ChatHandler.sendEmptyMessageDelayed(0, 5000L);
         Notify();
         if(Vibrato)mVibrator.vibrate(75L);
     }
@@ -522,12 +446,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Html.ImageGetter htmlImageGetter = new Html.ImageGetter() {
         public Drawable getDrawable(String source) {
             Drawable ret;
-            if(!source.contains("/")){
+            if(!source.contains("/")){//Get it from resource
                 int resId = getResources().getIdentifier(source, "drawable", getPackageName());
                 ret = MainActivity.this.getResources().getDrawable(resId);
                 ret.setBounds(0, 0, ret.getIntrinsicWidth()*8/6, ret.getIntrinsicHeight()*8/6);
             }else{
-                try {
+                try {//try to get from url
                     ret = Drawable.createFromStream(new URL(source).openStream(), "src name");
                     ret.setBounds(0, 0, ret.getIntrinsicWidth(),ret.getIntrinsicHeight());
                 } catch(IOException exception) {
@@ -807,14 +731,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 curTxCt = Integer.parseInt(array[4]);
                 Sq = Integer.parseInt(array[5]);
                 ChannelName = array[0];
+                if(Power&&!isBusy){
+                    setRxFreq();
+                    setTxFreq();
+                    mIntercom.setCtcss(curRxCt);
+                    try{
+                        mIntercom.setTxCtcss(curTxCt);
+                    }catch (NoSuchMethodError e){
+                        Log.e("setTxCt","No method");
+                    }
+                    mIntercom.setSq(Sq);
+                }
             }
             setTitle(ChannelName);
             Notify();
-            str = //"<h1>"+ChannelName+"</h1>"+
-                    getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
-                            getString(R.string.txfreq_label)+": "+Format.format(curTxFreq)+"<br/>"+
-                            getString(R.string.rxctcss_label)+": "+curRxCt+"       "+
-                            getString(R.string.txctcss_label)+": "+curTxCt;
+            str = getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
+                  getString(R.string.txfreq_label)+": "+Format.format(curTxFreq)+"<br/>"+
+                  getString(R.string.rxctcss_label)+": "+curRxCt+"       "+
+                  getString(R.string.txctcss_label)+": "+curTxCt;
         }else{
             curChannel = -1;
             setTitle(R.string.app_name);
@@ -833,6 +767,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 txct.setSelection(curTxCt);
                 Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
                 sq.setSelection(Sq-1);
+                editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                editor.commit();
             }catch (Exception e){
                 //
             }
@@ -940,6 +876,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(num > maxFreq-Offset) num = maxFreq;
         curRxFreq = num;
         curTxFreq = num+Offset;
+        if(Power&&!isBusy){
+           setRxFreq();
+           setTxFreq();
+        }
         Notify();
         setTitle(R.string.app_name);
         return Format.format(num);
@@ -1053,7 +993,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     mIntercom.setSq(Sq);
                     setRxFreq();
                     setTxFreq();
-                    mIntercom.resumeIntercomSetting();
                 }else{
                     mIntercom.intercomPowerOff();
                 }
@@ -1568,6 +1507,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if(main.isBlocked)return;
             main.Volume = progress;
+            if(main.Power&&!main.isBusy)main.mIntercom.setVolume(main.Volume);
         }
 
         @Override
@@ -1587,12 +1527,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             switch (parent.getId()){
                 case R.id.rxctcss:
                     main.curRxCt = position;
+                    if(main.Power&&!main.isBusy)main.mIntercom.setCtcss(main.curRxCt);
                     break;
                 case R.id.txctcss:
                     main.curTxCt = position;
+                    if(main.Power&&!main.isBusy)try{
+                        main.mIntercom.setTxCtcss(main.curTxCt);
+                    }catch (NoSuchMethodError e){
+                        Log.e("setTxCt","No method");
+                    }
                     break;
                 case R.id.sq:
                     main.Sq = position+1;
+                    if(main.Power&&!main.isBusy)main.mIntercom.setSq(main.Sq);
                     break;
             }
         }
@@ -1661,7 +1608,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             if(main.isBlocked)return;
             Double freq;
-            if(s.length()>=4&&before != count){
+            if(s.length()>=7&&before != count){
                 freq = Double.parseDouble(s.toString());
                 main.setFreq(freq ,0.0);
             }
@@ -1826,6 +1773,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             main.curChannel = 0;
             ListView list = (ListView)getView().findViewById(R.id.listView);
             list.setAdapter(main.ChannelsAdapter());
+            main.editor.putString(APP_PREFERENCES_GROUP,main.curGroup.toString());
+            main.editor.commit();
         }
 
         @Override
@@ -1903,13 +1852,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    /**
-     * TODO Scan Frequency with service
-     */
     private Handler ScanHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
-            Boolean set = true;
             if(ScanFreq){
                 EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
                 Spinner rx = (Spinner)mViewPager.findViewById(R.id.rxctcss);
@@ -1934,20 +1879,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 if(Power&&!isBusy){
                     if(ScanRxCt&&curRxCt>-1&&curRxCt<tones.length){
-                        Old_curRxCt=curRxCt;
                         mIntercom.setCtcss(curRxCt);
                         Toast.makeText(MainActivity.this, Format.format(curRxFreq)+" MHz "+getString(R.string.rxctcss_label) + "  "+tones[curRxCt] + " Hz ["+curRxCt+"]", Toast.LENGTH_SHORT).show();
-                        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-                        editor.commit();
                     }else{
-                        Old_curRxFreq = curRxFreq;
-                        Old_curTxFreq = curTxFreq = curRxFreq + Offset;
-                        setRxFreq();
-                        setTxFreq();
                         Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
-                        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-                        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-                        editor.commit();
                     }
                 }
                 ScanHandler.sendMessageDelayed(new Message(),ScanDelay);
@@ -1956,7 +1891,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if(ScanForward){
                     if(curChannel<curChannelList.length-1)curChannel++;else curChannel=0;
                     if(!Boolean.parseBoolean(curChannelList[curChannel].split(",")[6])){
-                        set = false;
                         ScanHandler.sendEmptyMessageDelayed(0,0);
                     }else{
                         setCh(true);
@@ -1965,7 +1899,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }else{
                     if(curChannel>0)curChannel--;else curChannel=curChannelList.length-1;
                     if(!Boolean.parseBoolean(curChannelList[curChannel].split(",")[6])){
-                        set = false;
                         ScanHandler.sendEmptyMessageDelayed(0,0);
                     }else{
                         setCh(true);
@@ -1973,32 +1906,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     }
                 }
             }
-            if(set&&Power&&ScanChannel&&!isBusy){
-                Old_curRxFreq = curRxFreq;
-                Old_curTxFreq = curTxFreq;
-                Old_curRxCt = curRxCt;
-                Old_curTxCt = curTxCt;
-                Old_Sq = Sq;
-                setRxFreq();
-                setTxFreq();
-                mIntercom.setCtcss(curRxCt);
-                try{
-                    mIntercom.setTxCtcss(curTxCt);
-                }catch(NoSuchMethodError e){
-                    Log.e("Scanner","Can not set TxCTCSS - no such method");
-                }
-                mIntercom.setSq(Sq);
-                mIntercom.resumeIntercomSetting();
-                Toast.makeText(MainActivity.this, getString(R.string.title_chan) + "  "+ChannelName, Toast.LENGTH_SHORT).show();
-                editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-                editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-                editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-                editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
-                editor.putString(APP_PREFERENCES_SQ,Sq.toString());
-                editor.commit();
-            }
-
         }
     };
 
@@ -2024,10 +1931,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     EditText message = (EditText)getView().findViewById(R.id.message);
                     String msg = message.getText().toString();
                     if(!msg.equals("")){
-                        /**
-                         * TODO: Set Nick with "/name MyNick"
-                         */
-                        msg = "<div>"+main.Nick+"&nbsp;&gt;"+msg+"</div>";
+                        if(msg.charAt(0)=='/'){//CMD parsing
+                            if(msg.indexOf("/name ") == 0){
+                                String old = main.Nick;
+                                main.Nick = msg.replace("/name ","");
+                                msg = String.format(getString(R.string.change_name_to),old,main.Nick);
+                            }
+                            if(msg.indexOf("/me ") == 0){
+                                msg = msg.replace("/me ","");
+                                msg = "<i><b>"+main.Nick+"</b> "+msg+"</i>";
+                            }
+                            if(msg.indexOf("/gps") == 0){
+                                msg = String.format(getString(R.string.gpsmsg),main.Nick,main.Latitude,main.Longitude,main.Latitude,main.Longitude);
+                            }
+                        }else{//STD message
+                            msg = main.Nick+"&nbsp;&gt;"+msg;
+                        }
                         try{
                             if(main.Power)main.mIntercom.sendMessage(msg);
                         }catch (NoSuchMethodError e){
@@ -2040,7 +1959,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     break;
                 case R.id.smile:
                     final AlertDialog dialog = new AlertDialog.Builder(main).setCancelable(true).create();
-                    final String[] codes = Smiles.split(",");
                     LayoutInflater inflater = getActivity().getLayoutInflater();
                     final View sm = inflater.inflate(R.layout.smiles, null);
                     GridLayout rel = (GridLayout)sm.findViewById(R.id.smiles);
@@ -2048,20 +1966,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         @Override
                         public void onClick(View view) {
                             EditText message = (EditText)getView().findViewById(R.id.message);
-                            message.getText().append(" "+Smiles.split(",")[view.getId()]);
+                            message.getText().append(Smiles.split(",")[view.getId()]);
                             dialog.cancel();
                         }
                     };
                     for (int i=0; i<186; i++) {
                         ImageButton btn = new ImageButton(main);
 
-                        String src = String.format("%c%c",'a'+i/('z'-'a'+1),'a'+i%('z'-'a'+1));
-                        src = src.equals("do")?"do1":src;
+                        String src = String.format("%c%c",'a'+i/('z'-'a'+1),'a'+i%('z'-'a'+1));//num to 2char code
+                        src = src.equals("do")?"do1":src;//костыль
                         btn.setId(i);
                         btn.setImageResource(main.getResources().getIdentifier(src, "drawable", main.getPackageName()));
                         btn.setContentDescription(src);
-                        btn.setMinimumWidth(60);
-                        btn.setMinimumHeight(60);
                         btn.setOnClickListener(onClickListener);
                         rel.addView(btn);
                     }

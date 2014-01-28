@@ -66,9 +66,10 @@
     <string name="block">Блокировка</string>
     <string name="check_all">Выбрать все</string>
     <string name="invert">Инвертировать выбор</string>
-    <string name="gpsmsg" formatted="false"><![CDATA[<div>%s Широта:%s, Долгота:%s <a href=\"geo:%s,%s?z=16\">Показать на КАРТЕ</a></div>]]></string>
+    <string name="gpsmsg" formatted="false"><![CDATA[<div>%s Широта:%.6f, Долгота:%.6f <a href=\"geo:%s,%s?z=16\">Показать на КАРТЕ</a></div>]]></string>
     <string name="smiles">Смайлики</string>
     <string name="send">Отправить</string>
+    <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> сменил имя на <b>%s</b></i>]]></string>
     <string-array name="ctcss">
         <item>Выкл</item>
         <item>1: 67.0Гц</item>
