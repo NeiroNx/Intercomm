@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="70dp">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/ch_prew"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="@string/ch_prew_help"
+            android:clickable="true"
+            android:longClickable="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/ch_info"
+            android:layout_weight="1"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:enabled="true"
+            android:clickable="true"
+            android:singleLine="false"
+            android:layout_gravity="center_vertical"
+            android:gravity="fill_vertical"
+            android:textAppearance="@android:style/TextAppearance" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/ch_next"
+            android:src="@android:drawable/ic_media_next"
+            android:contentDescription="@string/ch_next_help"
+            android:clickable="true"
+            android:longClickable="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/filter_label"
+            android:id="@+id/filter_label"
+            android:gravity="center_vertical"
+            android:singleLine="false" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/group_list"
+            android:layout_weight=".1" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/check_all"
+            android:src="@android:drawable/ic_menu_slideshow"
+            android:contentDescription="@string/check_all" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/invert"
+            android:contentDescription="@string/invert"
+            android:src="@android:drawable/ic_menu_set_as" />
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/listView"
+        android:fastScrollAlwaysVisible="true"
+        android:fastScrollEnabled="true"
+        android:longClickable="true" />
+
+</LinearLayout>

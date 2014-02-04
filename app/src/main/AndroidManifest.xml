@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.nxn.intercomm"
+    android:versionCode="8"
+    android:versionName="0.5b">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="15" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:description="@string/about_text"
+        android:theme="@style/Black">
+        <activity
+            android:launchMode="singleInstance"
+            android:name="com.nxn.intercomm.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.nxn.intercomm.FREQ" />
+                <action android:name="com.nxn.intercomm.CHANNEL" />
+                <action android:name="com.nxn.intercomm.CHAT" />
+                <action android:name="com.nxn.intercomm.BLOCK" />
+                <action android:name="com.nxn.intercomm.UNBLOCK" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

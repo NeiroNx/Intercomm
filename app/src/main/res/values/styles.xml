@@ -1,0 +1,10 @@
+<resources>
+
+
+    <style name="Light" parent="@style/Theme.Base.AppCompat.Light">
+    </style>
+
+    <style name="Black" parent="@style/Theme.Base.AppCompat">
+    </style>
+
+</resources>
