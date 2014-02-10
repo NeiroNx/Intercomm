@@ -30,7 +30,7 @@
     <string name="txfreq_label">Передача МГц</string>
     <string name="txctcss_label">TX Тон</string>
     <string name="rxctcss_label">RX Тон</string>
-    <string name="sq_label">Шумодав</string>
+    <string name="sq_label">ШПд</string>
     <string name="power_enabling">Подождите, Активация модуля!!!</string>
     <string name="non_runbo">Не Runbo, пытаемся найти.</string>
     <string name="about_text"><![CDATA[Разработал программу NeiroN<br/> ссылка на исходный код <br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Приму пожертвования на счет PayPal]]></string>

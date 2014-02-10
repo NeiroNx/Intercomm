@@ -174,6 +174,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Channel mChannels;
     public Chat mChat;
     public Vibrator mVibrator;
+    public Boolean isTxCt = true;
     public Boolean isChat = true;
     public Boolean isBusy = false;
     public Boolean isBlocked = false;
@@ -234,7 +235,53 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
+        if(Nick.equals(""))isChat = false;
+        try{
+            mIntercom.openCharDev();
+        }catch (NoSuchMethodError e){
+            Log.w("Intercom","openCharDev()");
+        }
+        try {
+            mIntercom.resumeIntercomSetting();
+        }catch (NoSuchMethodError e){
+            Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
+            mIntercom = new uartIntercom();
+            //mIntercom.openCharDev();
+        }
+        if(isChat)
+            try{
+                int m = mIntercom.checkMessageBuffer();
+            }catch(NoSuchMethodError e){
+                isChat = false;
+            }catch (NullPointerException e){
+                // Just check method existence
+                isChat = false;
+            }
+        if(Power){
+            Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
+            mIntercom.intercomPowerOn();
+            try {
+                Thread.sleep(400L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
+            setRxFreq();
+            setTxFreq();
+            mIntercom.setCtcss(curRxCt);
+            try{
+                mIntercom.setTxCtcss(curTxCt);
+                Ver = mIntercom.getIntercomVersion();
+            }catch(NoSuchMethodError e){
+                Log.w("Hardware","is too old hardware lib version");
+                isTxCt = false;
+            }
+            mIntercom.setSq(Sq);
+            mIntercom.setVolume(Volume);
+            if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
+            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
+
+        }
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
@@ -261,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         mManual = ManualFrequency.newInstance(this);
         mChannels = Channel.newInstance(this);
-        mChat = Chat.newInstance(this);
+        if(isChat)mChat = Chat.newInstance(this);
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         mViewPager.setAdapter(mPagerAdapter);
@@ -290,25 +337,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setTabListener(this));
         mActionBar.getTabAt(TabPos).select();
         mViewPager.setCurrentItem(TabPos);
-        try{
-            mIntercom.openCharDev();
-        }catch (NoSuchMethodError e){
-            Log.w("Intercom","openCharDev()");
-        }
-        try {
-            mIntercom.resumeIntercomSetting();
-        }catch (NoSuchMethodError e){
-            Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
-            mIntercom = new uartIntercom();
-            //mIntercom.openCharDev();
-        }
-        try{
-            int m = mIntercom.checkMessageBuffer();
-        }catch(NoSuchMethodError e){
-            isChat = false;
-        }catch (NullPointerException e){
-            // Just check method existence
-        }
         /**
          * State listener - off intercomm when calling or alarm
          */
@@ -369,46 +397,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Register the listener with the Location Manager to receive location updates
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-
-
-        if(Power){
-            Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
-            mIntercom.intercomPowerOn();
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            setRxFreq();
-            setTxFreq();
-            mIntercom.setCtcss(curRxCt);
-            try{
-                mIntercom.setTxCtcss(curTxCt);
-                Ver = mIntercom.getIntercomVersion();
-            }catch(NoSuchMethodError e){
-                Log.w("Hardware","is too old hardware lib version");
-            }
-            mIntercom.setSq(Sq);
-            mIntercom.resumeIntercomSetting();
-            mIntercom.setVolume(Volume);
-            if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-            mIntercom.resumeIntercomSetting();
-            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
-
-        }
         /**
          * Start timed msg buffer pol
          */
-        ChatHandler.sendEmptyMessageDelayed(0, 5000L);
+        if(isChat)ChatHandler.sendEmptyMessageDelayed(0, 5000L);
         Notify();
         if(Vibrato)mVibrator.vibrate(75L);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        if(intent.getAction() == null)return;
         Log.d("Intent",intent.getAction());
-        if(intent.getAction().equals("com.nxn.intercomm.CHAT")){
+        if(isChat&&intent.getAction().equals("com.nxn.intercomm.CHAT")){
             mViewPager.setCurrentItem(2,true);
             mActionBar.setSelectedNavigationItem(2);
         }else if(intent.getAction().equals("com.nxn.intercomm.CHANNEL")){
@@ -739,11 +740,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     setRxFreq();
                     setTxFreq();
                     mIntercom.setCtcss(curRxCt);
-                    try{
-                        mIntercom.setTxCtcss(curTxCt);
-                    }catch (NoSuchMethodError e){
-                        Log.e("setTxCt","No method");
-                    }
+                    if(isTxCt)
+                        try{
+                            mIntercom.setTxCtcss(curTxCt);
+                        }catch (NoSuchMethodError e){
+                            Log.e("setTxCt","No method");
+                            isTxCt = false;
+                        }
                     mIntercom.setSq(Sq);
                 }
             }
@@ -773,7 +776,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 sq.setSelection(Sq-1);
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                 editor.commit();
-            }catch (Exception e){
+            }catch (NullPointerException e){
                 //
             }
         }
@@ -974,12 +977,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public boolean onKeyUp(int KeyCode,KeyEvent event){
+        if(Vibrato&&!isBlocked)mVibrator.vibrate(75L);
         if(KeyCode == keySos){
             if(!sosMode){
                 sosMode = true;
                 mIntercom.intercomPowerOn();
                 mIntercom.setCtcss(sosRxCt);
-                mIntercom.setTxCtcss(sosTxCt);
+                if(isTxCt)
+                    try{
+                        mIntercom.setTxCtcss(sosTxCt);
+                    }catch(NoSuchMethodError e){
+                        isTxCt = false;
+                    }
                 Double f = sosRxFreq * pow(10.0,Format.getMinimumFractionDigits());
                 mIntercom.setRXFrequency(f.intValue());
                 f = sosTxFreq * pow(10.0,Format.getMinimumFractionDigits());
@@ -993,7 +1002,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 sosMode = false;
                 if(Power){
                     mIntercom.setCtcss(curRxCt);
-                    mIntercom.setTxCtcss(curTxCt);
+                    if(isTxCt)
+                        try{
+                            mIntercom.setTxCtcss(curTxCt);
+                        }catch(NoSuchMethodError e){
+                            isTxCt = false;
+                        }
                     mIntercom.setSq(Sq);
                     setRxFreq();
                     setTxFreq();
@@ -1002,7 +1016,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 setTitle(ChannelName);
                 Toast.makeText(this, getString(R.string.freq), Toast.LENGTH_SHORT).show();
-                if(Vibrato)mVibrator.vibrate(75L);
             }
             return true;
         }
@@ -1094,7 +1107,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onPostCreate(Bundle savedInstanceState){
         mManual.main = this;
-        mChat.main = this;
+        if(isChat)mChat.main = this;
         mChannels.main = this;
         super.onPostCreate(savedInstanceState);
     }
@@ -1150,7 +1163,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     item.setIcon(android.R.drawable.ic_lock_idle_charging);
                     item.setChecked(Power);
                 }
-            }catch (Error e){
+            }catch (NullPointerException e){
                 Log.w("Power","can not set icon");
             }
         return true;
@@ -1175,6 +1188,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     if(Power)mIntercom.sendMessage(msg);
                     AppendMessage(msg);
                 }
+                if(!isChat)item.setEnabled(false);
                 return true;
             case R.id.change_theme:
                 if(Theme.equals("Black")){
@@ -1188,12 +1202,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 recreate();
                 return true;
             case R.id.clear_history_action:
-                History = "<h1>"+getString(R.string.title_chat)+"</h1>";
-                try{
+                if(isChat){
+                    History = "<h1>"+getString(R.string.title_chat)+"</h1>";
                     TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
                     chat.setText(Html.fromHtml(History+"<br/>", htmlImageGetter, htmlTagHandler));
-                }catch (Exception e){
-                    //
+                    editor.putString(APP_PREFERENCES_HISTORY,History);
+                    editor.commit();
+                }else{
+                    item.setEnabled(false);
                 }
                 return true;
             case R.id.clear_channels:
@@ -1417,7 +1433,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 case 1:
                     return mChannels;
                 case 2:
-                    return mChat;
+                    return (main.isChat)?mChat:null;
             }
             return null;
         }
@@ -1571,23 +1587,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             rootView.findViewById(R.id.freq_next).setOnLongClickListener(this);
             rootView.findViewById(R.id.freq_prew).setOnLongClickListener(this);
             ImageButton snd = (ImageButton)rootView.findViewById(R.id.sound_src);
-            snd.setOnClickListener(this);
             EditText freq = (EditText)rootView.findViewById(R.id.freq);
-            freq.setOnClickListener(this);
-            freq.addTextChangedListener(this);
             Spinner sq = (Spinner)rootView.findViewById(R.id.sq);
             Spinner rxct = (Spinner)rootView.findViewById(R.id.rxctcss);
             Spinner txct = (Spinner)rootView.findViewById(R.id.txctcss);
             SeekBar vol = (SeekBar)rootView.findViewById(R.id.volume);
-            vol.setOnSeekBarChangeListener(this);
-            sq.setOnItemSelectedListener(this);
-            rxct.setOnItemSelectedListener(this);
-            txct.setOnItemSelectedListener(this);
             /**
              * TODO: Check weather of views before set him
              */
             //if(savedInstanceState.isEmpty())
             try{
+                txct.setEnabled(main.isTxCt);
+                snd.setOnClickListener(this);
+                freq.setOnClickListener(this);
+                freq.addTextChangedListener(this);
+                vol.setOnSeekBarChangeListener(this);
+                sq.setOnItemSelectedListener(this);
+                rxct.setOnItemSelectedListener(this);
+                txct.setOnItemSelectedListener(this);
                 freq.setText(main.Format.format(main.curRxFreq));
                 sq.setSelection(main.Sq - 1);
                 rxct.setSelection(main.curRxCt);
@@ -1807,6 +1824,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 final Spinner rxct = (Spinner)Settings.findViewById(R.id.ch_rxctcss);
                 rxct.setSelection(Integer.parseInt(ch[3]));
                 final Spinner txct = (Spinner)Settings.findViewById(R.id.ch_txctcss);
+                txct.setEnabled(main.isTxCt);
                 txct.setSelection(Integer.parseInt(ch[4]));
                 final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
                 sq.setSelection(Integer.parseInt(ch[5])-1);
@@ -2252,6 +2270,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
             final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
             final Spinner group = (Spinner)Settings.findViewById(R.id.ch_group);
+            txct.setEnabled(isTxCt);
             if(!setSOS){
                 name.setText(getString(R.string.title_chan)+" "+Integer.toString(ChannelList.length));
                 rx.setText(curRxFreq.toString());
