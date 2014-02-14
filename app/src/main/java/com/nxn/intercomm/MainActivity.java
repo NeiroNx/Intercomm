@@ -236,17 +236,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
         if(Nick.equals(""))isChat = false;
+        Power = true;
         try{
             mIntercom.openCharDev();
         }catch (NoSuchMethodError e){
             Log.w("Intercom","openCharDev()");
+        }catch(UnsatisfiedLinkError e){
+            Log.w("INIT",getString(R.string.non_runbo));
+            mIntercom = new uartIntercom();
         }
         try {
             mIntercom.resumeIntercomSetting();
         }catch (NoSuchMethodError e){
-            Toast.makeText(this, R.string.non_runbo, Toast.LENGTH_SHORT).show();
-            mIntercom = new uartIntercom();
-            //mIntercom.openCharDev();
+            //
         }
         if(isChat)
             try{
