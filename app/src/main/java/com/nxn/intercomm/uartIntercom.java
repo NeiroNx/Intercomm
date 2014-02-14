@@ -139,14 +139,6 @@ public class uartIntercom extends Intercom{
     private Integer TxFreq = 4460062;
     private Integer RxCTCSS = 0;
     private Integer TxCTCSS = 0;
-    // JNI
-    public static native void IntercomStart();
-    public static native void IntercomStop();
-    private native static FileDescriptor open(String path, int baudrate, int flags);
-    public native void close();
-    static {
-        System.loadLibrary("serial_port");
-    }
 
     public uartIntercom(){
         String[] ports = serialPortFinder.getAllDevices();
@@ -186,20 +178,20 @@ public class uartIntercom extends Intercom{
     public void intercomPowerOff()
     {
         //JNI_intercomPowerOff();
-        IntercomStop();
+        //IntercomStop();
         Log.e("UART","Powered OFF");
-        /*if(uart != null){
+        if(uart != null){
             uart.close();
             uart = null;
-        }*/
+        }
     }
     @Override
     public void intercomPowerOn()
     {
         //JNI_intercomPowerOn();
-        IntercomStart();
+        //IntercomStart();
         Log.e("UART","Powered ONN");
-       /* if(uart == null){
+        if(uart == null){
             try {
                 uart = new SerialPort(new File(port),baud,0);
                 uart.getOutputStream().write((AT+DMO+CONNECT+"\r\n").getBytes("US-ASCII"));
@@ -207,7 +199,7 @@ public class uartIntercom extends Intercom{
                 e.printStackTrace();
                 uart = null;
             }
-        }*/
+        }
     }
     @Override
     public void intercomSpeakerMode()
@@ -352,6 +344,15 @@ public class uartIntercom extends Intercom{
 
         public OutputStream getOutputStream() {
             return mFileOutputStream;
+        }
+        // JNI
+        public static native void IntercomStart();
+        public static native void IntercomStop();
+        private native static FileDescriptor open(String path, int baudrate, int flags);
+        public native void close();
+        static
+        {
+            System.loadLibrary("serial_port");
         }
     }
 
