@@ -27,7 +27,7 @@
     <string name="sound" />
     <string name="name">Имя канала</string>
     <string name="rxfreq_label">Прием МГц</string>
-    <string name="txfreq_label">Передача МГц</string>
+    <string name="txfreq_label">Перед. МГц</string>
     <string name="txctcss_label">TX Тон</string>
     <string name="rxctcss_label">RX Тон</string>
     <string name="sq_label">ШПд</string>

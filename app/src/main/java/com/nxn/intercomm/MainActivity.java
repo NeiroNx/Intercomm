@@ -235,6 +235,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
+
+        //Create format
+        Format = NumberFormat.getInstance(Locale.ENGLISH);
+        ((DecimalFormat)Format).applyPattern(FORMAT);
+        Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
+        Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
+
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
         if(Nick.equals(""))isChat = false;
         Power = true;
         try{
@@ -288,12 +297,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
 
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //Create format
-        Format = NumberFormat.getInstance(Locale.ENGLISH);
-        ((DecimalFormat)Format).applyPattern(FORMAT);
-        Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
-        Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
 
         // Set up the action bar.
         mActionBar = getSupportActionBar();
@@ -726,18 +729,41 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @TargetApi(Build.VERSION_CODES.FROYO)
+    public void selectList(ListView list){
+        list.smoothScrollToPosition(curChannel);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void applyTheme(){
+        recreate();
+    }
+
     public String setCh(Boolean set){
+        String[] array = {};
         String str = getString(R.string.no_data);
         if(curChannelList.length>0&&curChannel > -1){
             if(curChannel > curChannelList.length-1)curChannel = 0;
-            String[] array = curChannelList[curChannel].split(",");
-            if(array.length >= 5){
-                curRxFreq = Double.parseDouble(array[1]);
-                curTxFreq = Double.parseDouble(array[2]);
-                curRxCt = Integer.parseInt(array[3]);
-                curTxCt = Integer.parseInt(array[4]);
-                Sq = Integer.parseInt(array[5]);
-                ChannelName = array[0];
+            array = curChannelList[curChannel].split(",");
+            str = getString(R.string.rxfreq_label)+": "+array[1]+"<br/>"+
+                  getString(R.string.txfreq_label)+": "+array[2]+"<br/>"+
+                  getString(R.string.rxctcss_label)+": "+array[3]+"       "+
+                  getString(R.string.txctcss_label)+": "+array[4];
+        }else{
+            curChannel = -1;
+            setTitle(R.string.app_name);
+        }
+        if(set){
+            try{
+                if(array.length >= 5){
+                    curRxFreq = Double.parseDouble(array[1]);
+                    curTxFreq = Double.parseDouble(array[2]);
+                    curRxCt = Integer.parseInt(array[3]);
+                    curTxCt = Integer.parseInt(array[4]);
+                    Sq = Integer.parseInt(array[5]);
+                    ChannelName = array[0];
+                }
+                setTitle(ChannelName);
+                Notify();
                 if(Power&&!isBusy){
                     setRxFreq();
                     setTxFreq();
@@ -751,23 +777,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         }
                     mIntercom.setSq(Sq);
                 }
-            }
-            setTitle(ChannelName);
-            Notify();
-            str = getString(R.string.rxfreq_label)+": "+Format.format(curRxFreq)+"<br/>"+
-                  getString(R.string.txfreq_label)+": "+Format.format(curTxFreq)+"<br/>"+
-                  getString(R.string.rxctcss_label)+": "+curRxCt+"       "+
-                  getString(R.string.txctcss_label)+": "+curTxCt;
-        }else{
-            curChannel = -1;
-            setTitle(R.string.app_name);
-        }
-        if(set){
-            try{
                 TextView info = (TextView)mViewPager.findViewById(R.id.ch_info);
                 info.setText(Html.fromHtml(str));
-                ListView list = (ListView)mViewPager.findViewById(R.id.listView);
-                list.smoothScrollToPosition(curChannel);
+                selectList((ListView)mViewPager.findViewById(R.id.listView));
                 EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
                 freq.setText(Format.format(curRxFreq));
                 Spinner rxct = (Spinner)mViewPager.findViewById(R.id.rxctcss);
@@ -1125,13 +1137,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return super.onMenuOpened(id,menu);
     }
 
-    @TargetApi(Build.VERSION_CODES.FROYO)
     public void setIsBlocked(Boolean block){
         isBlocked=block;
         if(!isBlocked){
             ListView list = (ListView)mViewPager.findViewById(R.id.listView);
             if(list != null)list.setAdapter(ChannelsAdapter());
-            if(list != null)list.smoothScrollToPosition(curChannel);
+            if(list != null)selectList(list);
             EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
             if(freq != null)freq.setText(Format.format(curRxFreq));
             Spinner rxct = (Spinner)mViewPager.findViewById(R.id.rxctcss);
@@ -1171,7 +1182,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return true;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -1201,7 +1211,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 editor.putString(APP_PREFERENCES_THEME,Theme);
                 editor.commit();
                 //getTheme().applyStyle(Theme.equals("Black") ? R.style.Black : R.style.Light, true);
-                recreate();
+                applyTheme();
                 return true;
             case R.id.clear_history_action:
                 if(isChat){
