@@ -30,7 +30,7 @@
     <string name="freq_def">000.00000</string>
     <string name="name">Channel name</string>
     <string name="rxfreq_label">Recive MHz</string>
-    <string name="txfreq_label">Transmit MHz</string>
+    <string name="txfreq_label">Transm MHz</string>
     <string name="txctcss_label">TX Tone</string>
     <string name="rxctcss_label">RX Tone</string>
     <string name="power_enabling">Please wait while Activating!!!</string>
