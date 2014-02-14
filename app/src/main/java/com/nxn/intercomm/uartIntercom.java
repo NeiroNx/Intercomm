@@ -139,8 +139,14 @@ public class uartIntercom extends Intercom{
     private Integer TxFreq = 4460062;
     private Integer RxCTCSS = 0;
     private Integer TxCTCSS = 0;
+    // JNI
     public static native void IntercomStart();
     public static native void IntercomStop();
+    private native static FileDescriptor open(String path, int baudrate, int flags);
+    public native void close();
+    static {
+        System.loadLibrary("serial_port");
+    }
 
     public uartIntercom(){
         String[] ports = serialPortFinder.getAllDevices();
@@ -347,14 +353,8 @@ public class uartIntercom extends Intercom{
         public OutputStream getOutputStream() {
             return mFileOutputStream;
         }
-
-        // JNI
-        private native static FileDescriptor open(String path, int baudrate, int flags);
-        public native void close();
-        static {
-            System.loadLibrary("serial_port");
-        }
     }
+
     public class SerialPortFinder {
 
         public class Driver {

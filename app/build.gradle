@@ -18,8 +18,21 @@ android {
     }
 }
 
+task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
+    destinationDir file("$buildDir/native-libs")
+    baseName 'native-libs'
+    extension 'jar'
+    from fileTree(dir: 'src/main/libs', include: '**/*.so')
+    into 'lib/'
+}
+
+tasks.withType(Compile) {
+    compileTask -> compileTask.dependsOn(nativeLibsToJar)
+}
+
 dependencies {
     compile 'com.android.support:gridlayout-v7:19.0.1'
     compile 'com.android.support:support-v4:19.0.1'
     compile 'com.android.support:appcompat-v7:19.0.1'
+    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
 }
