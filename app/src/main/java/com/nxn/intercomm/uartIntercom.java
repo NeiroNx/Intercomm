@@ -145,6 +145,7 @@ public class uartIntercom extends Intercom{
     public uartIntercom(){
         String[] ports = serialPortFinder.getAllDevices();
         String[] ports_path = serialPortFinder.getAllDevicesPath();
+        Log.e("UART","Init");
         /**
          * TODO Find Intercom and get version
          */
@@ -158,20 +159,17 @@ public class uartIntercom extends Intercom{
     @Override
     public void closeCharDev()
     {
-        if(uart != null){
-            uart.close();
-            uart = null;
-        }
+        //
     }
     @Override
     public int getIntercomVersion()
     {
-        return 0;
+        return 4;
     }
     @Override
     public String getMessage()
     {
-        return "null";
+        return "";
     }
     @Override
     public void intercomHeadsetMode()
@@ -183,12 +181,27 @@ public class uartIntercom extends Intercom{
     {
         //JNI_intercomPowerOff();
         IntercomStop();
+        Log.e("UART","Powered OFF");
+        /*if(uart != null){
+            uart.close();
+            uart = null;
+        }*/
     }
     @Override
     public void intercomPowerOn()
     {
         //JNI_intercomPowerOn();
         IntercomStart();
+        Log.e("UART","Powered ONN");
+       /* if(uart == null){
+            try {
+                uart = new SerialPort(new File(port),baud,0);
+                uart.getOutputStream().write((AT+DMO+CONNECT+"\r\n").getBytes("US-ASCII"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                uart = null;
+            }
+        }*/
     }
     @Override
     public void intercomSpeakerMode()
@@ -198,15 +211,7 @@ public class uartIntercom extends Intercom{
     @Override
     public void openCharDev()
     {
-        if(uart == null){
-            try {
-                uart = new SerialPort(new File(port),baud,0);
-                uart.getOutputStream().write((AT+DMO+CONNECT+"\r\n").getBytes("US-ASCII"));
-            } catch (IOException e) {
-                e.printStackTrace();
-                uart = null;
-            }
-        }
+        //
     }
     @Override
     public void resumeIntercomSetting()
@@ -268,7 +273,8 @@ public class uartIntercom extends Intercom{
                     ((TxFreq<10000000)?Double.toString(TxFreq/10000):Double.toString(TxFreq/100000))+","+
                     ((RxFreq<10000000)?Double.toString(RxFreq/10000):Double.toString(RxFreq/100000))+","+
                     RxCTCSS+","+SQ+","+TxCTCSS+"\r\n";
-            try {
+            Log.w("WRITE SendFREQ",str);
+            /*try {
                 uart.getInputStream().reset();
                 uart.getOutputStream().write(str.getBytes("US-ASCII"));
                 //uart.getInputStream().
@@ -277,17 +283,18 @@ public class uartIntercom extends Intercom{
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
     private void sendVol(){
         if(uart != null){
             String str = AT+DMO+VOLUME+Volume+"\r\n";
-            try {
+            Log.w("WRITE SendVOL",str);
+            /*try {
                 uart.getOutputStream().write(str.getBytes("US-ASCII"));
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 
