@@ -254,11 +254,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Log.w("INIT",getString(R.string.non_runbo));
             mIntercom = new uartIntercom();
         }
-        try {
-            mIntercom.resumeIntercomSetting();
-        }catch (NoSuchMethodError e){
-            //
-        }
         if(isChat)
             try{
                 int m = mIntercom.checkMessageBuffer();
@@ -266,6 +261,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 isChat = false;
             }catch (NullPointerException e){
                 // Just check method existence
+                isChat = false;
+            }catch (UnsatisfiedLinkError e){
                 isChat = false;
             }
         if(Power){
@@ -285,6 +282,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 Ver = mIntercom.getIntercomVersion();
             }catch(NoSuchMethodError e){
                 Log.w("Hardware","is too old hardware lib version");
+                isTxCt = false;
+            }catch (UnsatisfiedLinkError e){
                 isTxCt = false;
             }
             mIntercom.setSq(Sq);
@@ -699,6 +698,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         }catch (NoSuchMethodError e){
                             Log.e("setTxCt","No method");
                             isTxCt = false;
+                        }catch (UnsatisfiedLinkError e){
+                            isTxCt = false;
                         }
                     mIntercom.setSq(Sq);
                 }
@@ -927,6 +928,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         mIntercom.setTxCtcss(sosTxCt);
                     }catch(NoSuchMethodError e){
                         isTxCt = false;
+                    }catch (UnsatisfiedLinkError e){
+                        isTxCt = false;
                     }
                 Double f = sosRxFreq * pow(10.0,Format.getMinimumFractionDigits());
                 mIntercom.setRXFrequency(f.intValue());
@@ -945,6 +948,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         try{
                             mIntercom.setTxCtcss(curTxCt);
                         }catch(NoSuchMethodError e){
+                            isTxCt = false;
+                        }catch (UnsatisfiedLinkError e){
                             isTxCt = false;
                         }
                     mIntercom.setSq(Sq);
@@ -1494,6 +1499,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         main.mIntercom.setTxCtcss(main.curTxCt);
                     }catch (NoSuchMethodError e){
                         Log.e("setTxCt","No method");
+                    }catch (UnsatisfiedLinkError e){
+                        //
                     }
                     break;
                 case R.id.sq:
