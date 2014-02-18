@@ -139,7 +139,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public static final Double[] tones = {0.0,67.0,71.9,74.4,77.0,79.7,82.5,85.4,88.5,91.5,94.8,97.4,100.0,103.5,107.2,110.9,114.8,118.8,123.0,127.3,131.8,136.5,141.3,146.2,151.4,156.7,162.2,167.9,173.8,179.9,186.2,192.8,203.5,210.7,218.1,225.7,233.6,241.8,250.3};
     public static final Long[] delays = {100L,200L,500L,1000L,2000L,3000L,5000L,10000L,60000L,300000L};
-    public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YU*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*,*YES*,*NO*,*TO_KRYIZHOPOL*,*BUBA_PHONE*,*GOPNIC*,*ALCOHOLIC*,*SUPERSTITION*,|-),*PAINT*,*CRAZY_PILOT*,*TSSS*,*WAIT*,*FALL_ASLEEP*,*ZOOM*,*PARTY*,*Дафай-дафай*,*STARIK*,*CENSORED*,*DOG*,*PIG*,*WORK*,*FOOD*,*MANIAC*,*SCARE*,*RUSSIAN_KULAK*,*HAPPY*,*TOMATO*,*ZOMBY*,*HEAT*,*BIG_BOSS*,*DOWN*,*DISOBEDIENT*,*VAMPIRE*,*POOH_DOOR*,*POOH_BIRTH_DAY*,*PIG_BALL*,*POOH_LOL*,*POOH_GO*,*SEX_BED*,*SEX*,*GIRL_BLUM*,*GIRL_CRY*,*WASSUP*,*GIRL_HAHA*,*FEMINIST*,*GIRL_DANCE*,*GIRL_CRAZY*,*GIRL_SIGH*,*QUEEN*,*GIRL_MAD*,*GIRL_WEREWOLF*,*CURTSEY*,*IMPOSSIBLE*,*GIRL_BYE_CRY*,*BEELINE*,*GIRL_SAD*,*GIRL_WITCH*,*GIRL_IN_LOVE*,*GIRL_HIDE*,*GIRL_DRINK*,*BABY*,*FLIRT*,*TO_BABRUYSK*,*PALADIN*,*GIRL_WINK*,*HYSTERIC*,*GIRL_DEVIL*,*GIRL_SMILE*,*SPAM*,*MANICURE*,*GIRL_PARDON*,*GIRL_WORK*,*GIRL_GIVE_HEART*,*GIRL_OOPS*,*GIRL_AND_BABY_GO*";
+    public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YES*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*";
     public Integer Ver = -1;
     public String Nick = "MyNick";
     public String History = "";
@@ -245,7 +245,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if(Nick.equals(""))isChat = false;
-        Power = true;
+
         try{
             mIntercom.openCharDev();
         }catch (NoSuchMethodError e){
@@ -571,7 +571,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         smileys.put("*SLOW*","<img src=\"dl\"/>");smileys.put("*tormoz*","<img src=\"dl\"/>");
         smileys.put("*BB*","<img src=\"dm\"/>");
         smileys.put("*V*","<img src=\"dn\"/>");smileys.put("*VICTORI*","<img src=\"dn\"/>");
-        smileys.put("*YU*","<img src=\"do1\"/>");smileys.put("*db*","<img src=\"do1\"/>");
+        smileys.put("*YES*","<img src=\"do1\"/>");smileys.put("*db*","<img src=\"do1\"/>");
         smileys.put(":-X","<img src=\"dp\"/>");smileys.put(":-x","<img src=\"dp\"/>");smileys.put("X:","<img src=\"dp\"/>");smileys.put("x:","<img src=\"dp\"/>");smileys.put(":-#","<img src=\"dp\"/>");smileys.put(":#","<img src=\"dp\"/>");
         smileys.put("*NONO*","<img src=\"dq\"/>");
         smileys.put("*TRAINING*","<img src=\"dr\"/>");
@@ -590,81 +590,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         smileys.put("*TEASE*","<img src=\"ee\"/>");
         smileys.put("*KING*","<img src=\"ef\"/>");
         smileys.put("*BUBA*","<img src=\"eg\"/>");
-        smileys.put("*YES*","<img src=\"eh\"/>");
-        smileys.put("*NO*","<img src=\"ei\"/>");
-        smileys.put("*TO_KRYIZHOPOL*","<img src=\"ej\"/>");
-        smileys.put("*BUBA_PHONE*","<img src=\"ek\"/>");smileys.put("*buba_phone*","<img src=\"ek\"/>");
-        smileys.put("*GOPNIC*","<img src=\"el\"/>");
-        smileys.put("*ALCOHOLIC*","<img src=\"em\"/>");
-        smileys.put("*SUPERSTITION*","<img src=\"en\"/>");smileys.put("*superstition*","<img src=\"en\"/>");
-        smileys.put("|-)","<img src=\"eo\"/>");
-        smileys.put("*PAINT*","<img src=\"ep\"/>");smileys.put("*paint*","<img src=\"ep\"/>");
-        smileys.put("*CRAZY_PILOT*","<img src=\"eq\"/>");smileys.put("*crazy_pilot*","<img src=\"eq\"/>");
-        smileys.put("*TSSS*","<img src=\"er\"/>");
-        smileys.put("*WAIT*","<img src=\"es\"/>");
-        smileys.put("*FALL_ASLEEP*","<img src=\"et\"/>");
-        smileys.put("*LOOK*","<img src=\"eu\"/>");smileys.put("*look*","<img src=\"eu\"/>");smileys.put("*ZOOM*","<img src=\"eu\"/>");
-        smileys.put("*PARTY*","<img src=\"ev\"/>");
-        smileys.put("*Дафай-дафай*","<img src=\"ew\"/>");
-        smileys.put("*STARIK*","<img src=\"ex\"/>");smileys.put("*starik*","<img src=\"ex\"/>");
-        smileys.put("*CENSORED*","<img src=\"ey\"/>");smileys.put("*censored*","<img src=\"ey\"/>");
-        smileys.put("*DOG*","<img src=\"ez\"/>");smileys.put("*VIANNEN*","<img src=\"ez\"/>");
-        smileys.put("*PIG*","<img src=\"fa\"/>");
-        smileys.put("*WORK*","<img src=\"fb\"/>");
-        smileys.put("*FOOD*","<img src=\"fc\"/>");smileys.put("*food*","<img src=\"fc\"/>");
-        smileys.put("*MANIAC*","<img src=\"fd\"/>");
-        smileys.put("*SCARE*","<img src=\"fe\"/>");smileys.put("*scare*","<img src=\"fe\"/>");
-        smileys.put("*RUSSIAN_KULAK*","<img src=\"ff\"/>");smileys.put("*russian_kulak*","<img src=\"ff\"/>");
-        smileys.put("*I'M_HAPPY*","<img src=\"fg\"/>");smileys.put("*HAPPY*","<img src=\"fg\"/>");
-        smileys.put("*TOMATO*","<img src=\"fh\"/>");smileys.put("*tomato*","<img src=\"fh\"/>");
-        smileys.put("*ZOMBY*","<img src=\"fi\"/>");smileys.put("*SNOOZER*","<img src=\"fi\"/>");
-        smileys.put("*HEAT*","<img src=\"fj\"/>");smileys.put("*heat*","<img src=\"fj\"/>");smileys.put("*fever*","<img src=\"dj\"/>");
-        smileys.put("*BIG_BOSS*","<img src=\"fk\"/>");smileys.put("*big_boss*","<img src=\"fk\"/>");
-        smileys.put("*THUMBS DOWN*","<img src=\"fl\"/>");smileys.put("*THUMBS_DOWN*","<img src=\"fl\"/>");smileys.put("*DOWN*","<img src=\"fl\"/>");
-        smileys.put("*DISOBEDIENT*","<img src=\"fm\"/>");
-        smileys.put("*VAMPIRE*","<img src=\"fn\"/>");smileys.put("*vampire*","<img src=\"fn\"/>");
-        smileys.put("*POOH_DOOR*","<img src=\"fo\"/>");smileys.put("*pooh_door*","<img src=\"fo\"/>");
-        smileys.put("*POOH_BIRTH_DAY*","<img src=\"fp\"/>");smileys.put("*pooh_birth_day*","<img src=\"fp\"/>");
-        smileys.put("*PIG_BALL*","<img src=\"fq\"/>");smileys.put("*pig_ball*","<img src=\"fq\"/>");smileys.put("*пяточок*","<img src=\"fq\"/>");
-        smileys.put("*POOH_LOL*","<img src=\"fr\"/>");smileys.put("*pooh_lol*","<img src=\"fr\"/>");
-        smileys.put("*POOH_GO*","<img src=\"fs\"/>");smileys.put("*pooh_go*","<img src=\"fs\"/>");
-        smileys.put("*SEX_BED*","<img src=\"ft\"/>");
-        smileys.put("*SEX*","<img src=\"fu\"/>");
-        smileys.put("*GIRL_BLUM*","<img src=\"fv\"/>");
-        smileys.put("*GIRL_CRY*","<img src=\"fw\"/>");
-        smileys.put("*WASSUP*","<img src=\"fx\"/>");smileys.put("*SUP*","<img src=\"fx\"/>");
-        smileys.put("*GIRL_HAHA*","<img src=\"fy\"/>");
-        smileys.put("*FEMINIST*","<img src=\"fz\"/>");
-        smileys.put("*GIRL_DANCE*","<img src=\"ga\"/>");
-        smileys.put("*GIRL_CRAZY*","<img src=\"gb\"/>");
-        smileys.put("*GIRL_SIGH*","<img src=\"gc\"/>");
-        smileys.put("*QUEEN*","<img src=\"gd\"/>");smileys.put("*queen*","<img src=\"gd\"/>");
-        smileys.put("*GIRL_MAD*","<img src=\"ge\"/>");
-        smileys.put("*GIRL_WEREWOLF*","<img src=\"gf\"/>");
-        smileys.put("*CURTSEY*","<img src=\"gg\"/>");
-        smileys.put("*IMPOSSIBLE*","<img src=\"gh\"/>");
-        smileys.put("*GIRL_BYE_CRY*","<img src=\"gi\"/>");
-        smileys.put("*BEELINE*","<img src=\"gj\"/>");
-        smileys.put("*GIRL_SAD*","<img src=\"gk\"/>");
-        smileys.put("*GIRL_WITCH*","<img src=\"gl\"/>");
-        smileys.put("*GIRL_IN_LOVE*","<img src=\"gm\"/>");smileys.put("*girl_in_love*","<img src=\"gm\"/>");
-        smileys.put("*GIRL_HIDE*","<img src=\"gn\"/>");smileys.put("*girl_hide*","<img src=\"gn\"/>");
-        smileys.put("*GIRL_DRINK*","<img src=\"go\"/>");smileys.put("*girl_drink*","<img src=\"go\"/>");
-        smileys.put("*BABY*","<img src=\"gp\"/>");smileys.put("*BABY1*","<img src=\"gp\"/>");smileys.put("*baby1*","<img src=\"gp\"/>");
-        smileys.put("*FLIRT*","<img src=\"gq\"/>");smileys.put("*flirt*","<img src=\"gq\"/>");
-        smileys.put("*TO_BABRUYSK*","<img src=\"gr\"/>");smileys.put("*to_babruysk*","<img src=\"gr\"/>");
-        smileys.put("*PALADIN*","<img src=\"gs\"/>");
-        smileys.put("*GIRL_WINK*","<img src=\"gt\"/>");
-        smileys.put("*HYSTERIC*","<img src=\"gu\"/>");
-        smileys.put("*GIRL_DEVIL*","<img src=\"gv\"/>");
-        smileys.put("*GIRL_SMILE*","<img src=\"gw\"/>");
-        smileys.put("*SPAM*","<img src=\"gx\"/>");
-        smileys.put("*MANICURE*","<img src=\"gy\"/>");
-        smileys.put("*GIRL_PARDON*","<img src=\"gz\"/>");
-        smileys.put("*GIRL_WORK*","<img src=\"ha\"/>");
-        smileys.put("*GIRL_GIVE_HEART*","<img src=\"hb\"/>");
-        smileys.put("*GIRL_OOPS*","<img src=\"hc\"/>");
-        smileys.put("*GIRL_AND_BABY_GO*","<img src=\"hd\"/>");
         for(Map.Entry<String, String> smiley : smileys.entrySet())
             msg = msg.replace(smiley.getKey(), smiley.getValue());
         return msg;
@@ -2006,7 +1931,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             dialog.cancel();
                         }
                     };
-                    for (int i=0; i<186; i++) {
+                    for (int i=0; i<111; i++) {
                         ImageButton btn = new ImageButton(main);
 
                         String src = String.format("%c%c",'a'+i/('z'-'a'+1),'a'+i%('z'-'a'+1));//num to 2char code
