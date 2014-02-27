@@ -273,13 +273,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+            try{
+                Ver = mIntercom.getIntercomVersion();
+            }catch(NoSuchMethodError e){
+                //
+            }catch (UnsatisfiedLinkError e){
+                //
+            }
             setRxFreq();
             setTxFreq();
             mIntercom.setCtcss(curRxCt);
             try{
                 mIntercom.setTxCtcss(curTxCt);
-                Ver = mIntercom.getIntercomVersion();
             }catch(NoSuchMethodError e){
                 Log.w("Hardware","is too old hardware lib version");
                 isTxCt = false;
@@ -366,6 +371,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         isBusy = true;
                     } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
                         mIntercom.intercomPowerOn();
+                        try{
+                            Ver = mIntercom.getIntercomVersion();
+                        }catch(NoSuchMethodError e){
+                            //
+                        }catch (UnsatisfiedLinkError e){
+                            //
+                        }
                         mIntercom.resumeIntercomSetting();
                         isBusy = false;
                     }
@@ -374,6 +386,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     isBusy = true;
                 }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
                     mIntercom.intercomPowerOn();
+                    try{
+                        Ver = mIntercom.getIntercomVersion();
+                    }catch(NoSuchMethodError e){
+                        //
+                    }catch (UnsatisfiedLinkError e){
+                        //
+                    }
                     mIntercom.resumeIntercomSetting();
                     isBusy = false;
                 }
@@ -922,6 +941,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(!sosMode){
                 sosMode = true;
                 mIntercom.intercomPowerOn();
+                try{
+                    Ver = mIntercom.getIntercomVersion();
+                }catch(NoSuchMethodError e){
+                    //
+                }catch (UnsatisfiedLinkError e){
+                    //
+                }
                 mIntercom.setCtcss(sosRxCt);
                 if(isTxCt)
                     try{
@@ -1305,13 +1331,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    try{
+                        Ver = mIntercom.getIntercomVersion();
+                    }catch(NoSuchMethodError e){
+                        //
+                    }catch (UnsatisfiedLinkError e){
+                        //
+                    }
                     setTxFreq();
                     setRxFreq();
                     //mIntercom.setRadioFrequency(getFreq());
                     mIntercom.setSq(Sq);
                     mIntercom.setCtcss(curRxCt);
                     try{
-                        Ver = mIntercom.getIntercomVersion();
                         mIntercom.setTxCtcss(curTxCt);
                     }catch(NoSuchMethodError e){
                         Log.w("Intercom","getIntercomVersion()");
@@ -1470,7 +1502,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if(main.isBlocked)return;
-            main.Volume = progress;
+            main.Volume = progress+1;
             if(main.Power&&!main.isBusy)main.mIntercom.setVolume(main.Volume);
         }
 
@@ -1553,7 +1585,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 sq.setSelection(main.Sq - 1);
                 rxct.setSelection(main.curRxCt);
                 txct.setSelection(main.curTxCt);
-                vol.setProgress(main.Volume);
+                vol.setProgress(main.Volume-1);
                 if(main.isSpeaker){
                     snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
                 }else{

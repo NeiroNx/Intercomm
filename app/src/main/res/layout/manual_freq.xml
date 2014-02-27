@@ -168,8 +168,8 @@
             android:layout_margin="10dp"
             android:layout_weight="5"
             android:layout_gravity="center_vertical"
-            android:max="6"
-            android:progress="4"
+            android:max="8"
+            android:progress="0"
             android:paddingEnd="10dp"
             android:paddingStart="10dp" />
     </LinearLayout>
