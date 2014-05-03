@@ -1086,12 +1086,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Toast.makeText(this, "KeyCode="+KeyCode+" Ev="+event.getCharacters(), Toast.LENGTH_SHORT).show();
         return false;
     }*/
-    @Override
+    /**
+     * TODO: SET Checkbox in menu
+     */
+
+/*    @Override
     public boolean onMenuOpened(int id,Menu menu){
         MenuItem block = menu.findItem(R.id.block);
         if(block != null)block.setChecked(isBlocked);
         return super.onMenuOpened(id,menu);
-    }
+    }*/
 
     public void setIsBlocked(Boolean block){
         isBlocked=block;
