@@ -1089,12 +1089,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * TODO: SET Checkbox in menu
      */
-
+    
 /*    @Override
     public boolean onMenuOpened(int id,Menu menu){
-        MenuItem block = menu.findItem(R.id.block);
-        if(block != null)block.setChecked(isBlocked);
-        return super.onMenuOpened(id,menu);
+        try{
+            MenuItem block = menu.findItem(R.id.block);
+            if(block != null)block.setChecked(isBlocked);
+            return super.onMenuOpened(id,menu);
+        }catch(Error e){
+            return true;
+        }
     }*/
 
     public void setIsBlocked(Boolean block){
