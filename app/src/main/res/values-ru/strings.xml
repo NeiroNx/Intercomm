@@ -33,7 +33,7 @@
     <string name="sq_label">ШПд</string>
     <string name="power_enabling">Подождите, Активация модуля!!!</string>
     <string name="non_runbo">Не Runbo, пытаемся найти.</string>
-    <string name="about_text"><![CDATA[Разработал программу NeiroN<br/> ссылка на исходный код <br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Приму пожертвования на счет PayPal]]></string>
+    <string name="about_text"><![CDATA[Разработал программу NeiroN<br/> ссылка на исходный код <br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Приму пожертвования на счет https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Пожертвования&default-sum=30&button-text=04]]></string>
     <string name="about"> О программе</string>
     <string name="scan">Сканировать</string>
     <string name="imp_csv">Импротировать из CSV</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.5c</string>
+    <string name="version">0.6a</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Freq</string>
     <string name="title_chan">Channel</string>
@@ -35,7 +35,7 @@
     <string name="rxctcss_label">RX Tone</string>
     <string name="power_enabling">Please wait while Activating!!!</string>
     <string name="non_runbo">Not Runbo X5 phone, trying other.</string>
-    <string name="about_text"><![CDATA[Developed by NeiroN<br/> link to source code LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Accept donations on PayPal]]></string>
+    <string name="about_text"><![CDATA[Developed by NeiroN<br/> link to source code LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Accept donations on https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Пожертвования&default-sum=30&button-text=04]]></string>
     <string name="about">About</string>
     <string name="scan">Scan</string>
     <string name="imp_csv">Import from CSV</string>

@@ -4,15 +4,7 @@ package com.nxn.intercomm;
  * Created by NeiroN on 20.12.13.
  */
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.LineNumberReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -123,15 +115,22 @@ AT + DMOMES: 0 Ответить на сообщение о подтвержде�
 public class uartIntercom extends Intercom{
     protected String command = "";
     protected String message = "";
+    private final static String[] dev_list = {"/dev/intercom_A1840","/dev/SA808"};
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
     private final static String CONNECT = "CONNECT";
     private final static String MSG = "MSG";
     private final static String VOLUME = "SETVOLUME=";
     private final static String GRP = "SETGROUP=0,";
+    private final static int INTERCOM_PULL_DOWN = 0;
+    private final static int INTERCOM_PULL_UP =  1;
+    //private final static int INTERCOM_SPEAKER_MODE = 2;
+    private final static int INTERCOM_HEADSET_MODE = 3;
+    private final static int INTERCOM_SPEAKER_MODE = 4;
     SerialPortFinder serialPortFinder = new SerialPortFinder();
     SerialPort uart;
     public String port = "/dev/ttyMT1";
+    public String ctl = "";
     public Integer baud = 9600;
     private Integer Volume = 6;
     private Integer SQ = 5;
@@ -141,13 +140,17 @@ public class uartIntercom extends Intercom{
     private Integer TxCTCSS = 0;
 
     public uartIntercom(){
-        String[] ports = serialPortFinder.getAllDevices();
-        String[] ports_path = serialPortFinder.getAllDevicesPath();
+        //String[] ports = serialPortFinder.getAllDevices();
+        //String[] ports_path = serialPortFinder.getAllDevicesPath();
         Log.e("UART","Init");
         /**
          * TODO Find Intercom and get version
          */
-
+        for(String d:dev_list){
+            File dev1 = new File(d);
+            if(dev1.exists()) ctl = d;
+        }
+        Log.e("UART","Control: "+ctl);
     }
     @Override
     public int checkMessageBuffer()
@@ -162,7 +165,7 @@ public class uartIntercom extends Intercom{
     @Override
     public int getIntercomVersion()
     {
-        return 4;
+        return 2014;
     }
     @Override
     public String getMessage()
@@ -172,13 +175,12 @@ public class uartIntercom extends Intercom{
     @Override
     public void intercomHeadsetMode()
     {
-        //JNI_intercomHeadsetMode();
+        ioctl(ctl,INTERCOM_HEADSET_MODE);
     }
     @Override
     public void intercomPowerOff()
     {
-        //JNI_intercomPowerOff();
-        //IntercomStop();
+        ioctl(ctl,INTERCOM_PULL_DOWN);
         Log.e("UART","Powered OFF");
         if(uart != null){
             uart.close();
@@ -188,8 +190,7 @@ public class uartIntercom extends Intercom{
     @Override
     public void intercomPowerOn()
     {
-        //JNI_intercomPowerOn();
-        //IntercomStart();
+        ioctl(ctl,INTERCOM_PULL_UP);
         Log.e("UART","Powered ONN");
         if(uart == null){
             try {
@@ -204,7 +205,7 @@ public class uartIntercom extends Intercom{
     @Override
     public void intercomSpeakerMode()
     {
-        //JNI_intercomSpeakerMode();
+        ioctl(ctl,INTERCOM_SPEAKER_MODE);
     }
     @Override
     public void openCharDev()
@@ -265,6 +266,19 @@ public class uartIntercom extends Intercom{
         sendVol();
     }
 
+    private void ioctl(String dev, int param){
+        try {
+                Process su;
+                su = Runtime.getRuntime().exec("/system/bin/sh");
+                String cmd = "ioctl " + dev +" "+ Integer.toString(param) + "\n"
+                        + "exit\n";
+                su.getOutputStream().write(cmd.getBytes());
+        } catch (Exception e) {
+                e.printStackTrace();
+                throw new SecurityException();
+        }
+    }
+
     private void sendFreq(){
         if(uart != null){
             String str = AT+DMO+GRP+
@@ -272,7 +286,7 @@ public class uartIntercom extends Intercom{
                     ((RxFreq<10000000)?Double.toString(RxFreq/10000):Double.toString(RxFreq/100000))+","+
                     RxCTCSS+","+SQ+","+TxCTCSS+"\r\n";
             Log.w("WRITE SendFREQ",str);
-            /*try {
+            try {
                 uart.getInputStream().reset();
                 uart.getOutputStream().write(str.getBytes("US-ASCII"));
                 //uart.getInputStream().
@@ -281,18 +295,18 @@ public class uartIntercom extends Intercom{
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }*/
+            }
         }
     }
     private void sendVol(){
         if(uart != null){
             String str = AT+DMO+VOLUME+Volume+"\r\n";
             Log.w("WRITE SendVOL",str);
-            /*try {
+            try {
                 uart.getOutputStream().write(str.getBytes("US-ASCII"));
             } catch (IOException e) {
                 e.printStackTrace();
-            }*/
+            }
         }
     }
 
@@ -303,7 +317,7 @@ public class uartIntercom extends Intercom{
         /*
          * Do not remove or rename the field mFd: it is used by native method close();
          */
-        private FileDescriptor mFd;
+        private File mFd;
         private FileInputStream mFileInputStream;
         private FileOutputStream mFileOutputStream;
 
@@ -345,15 +359,24 @@ public class uartIntercom extends Intercom{
         public OutputStream getOutputStream() {
             return mFileOutputStream;
         }
-        // JNI
-        public static native void IntercomStart();
-        public static native void IntercomStop();
-        private native static FileDescriptor open(String path, int baudrate, int flags);
-        public native void close();
-        static
-        {
-            System.loadLibrary("serial_port");
+
+        private static File open(String path, int baudrate, int flags){
+            try {
+                Process su;
+                su = Runtime.getRuntime().exec("/system/bin/sh");
+                String cmd = "stty -F " + path +" "+ Integer.toString(baudrate) + "\n"
+                        + "exit\n";
+                su.getOutputStream().write(cmd.getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new SecurityException();
+            }
+            return new File(path);
         }
+        public void close(){
+
+        }
+
     }
 
     public class SerialPortFinder {
