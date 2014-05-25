@@ -331,6 +331,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if(!isBlocked){
                     TabPos = position;
                     mActionBar.setSelectedNavigationItem(position);
+                    if(TabPos == 2 && isChat)mNotificationManager.cancel(R.id.chat);
                 }else{
                     mActionBar.setSelectedNavigationItem(TabPos);
                 }
@@ -433,6 +434,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(intent.getAction() == null)return;
         Log.d("Intent",intent.getAction());
         if(isChat&&intent.getAction().equals("com.nxn.intercomm.CHAT")){
+            mNotificationManager.cancel(R.id.chat);
             mViewPager.setCurrentItem(2,true);
             mActionBar.setSelectedNavigationItem(2);
         }else if(intent.getAction().equals("com.nxn.intercomm.CHANNEL")){
@@ -1379,6 +1381,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(!isBlocked){
             TabPos = tab.getPosition();
             mViewPager.setCurrentItem(tab.getPosition());
+            if(TabPos == 2&& isChat)mNotificationManager.cancel(R.id.chat);
         }else{
             mViewPager.setCurrentItem(TabPos);
         }
@@ -2036,7 +2039,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if(Power&&!isBusy){
                     String msg;
                     if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
-                        AppendMessage(msg);
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
                         mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
                                 .setSmallIcon(android.R.drawable.ic_dialog_email)
@@ -2048,9 +2050,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                 .build());
                         mViewPager.setCurrentItem(2);
                         mActionBar.setSelectedNavigationItem(2);
+                        AppendMessage(msg);
                     }
                 }
-                ChatHandler.sendEmptyMessageDelayed(0,5000L);//5 sec update
+                ChatHandler.sendEmptyMessageDelayed(0,1000L);//1 sec update
             }catch(NoSuchMethodError e){
                 Log.w("Message","can not found function");
             }
