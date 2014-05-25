@@ -12,16 +12,10 @@ android {
     }
     /*signingConfigs {
         debug {
-            storeFile file("android.jks")
-            storePassword "ZX12mn09as34lk87"
-            keyAlias "android"
-            keyPassword "ZX12mn09AS34lk87"
+
         }
         release {
-            storeFile file("android.jks")
-            storePassword "ZX12mn09as34lk87"
-            keyAlias "android"
-            keyPassword "ZX12mn09AS34lk87"
+
         }
     }*/
     buildTypes {
