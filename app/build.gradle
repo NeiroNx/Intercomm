@@ -10,7 +10,23 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    signingConfigs {
+        debug {
+            storeFile file("android.jks")
+        }
+
+        release {
+            storeFile file("android.jks")
+            storePassword "ZX12mn09as34lk87"
+            keyAlias "android"
+            keyPassword "ZX12mn09AS34lk87"
+        }
+    }
     buildTypes {
+        debug {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
