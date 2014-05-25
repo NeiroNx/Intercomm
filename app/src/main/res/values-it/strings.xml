@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.6a</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Frequenza</string>
     <string name="title_chan">Canale</string>
@@ -16,14 +15,14 @@
     <string name="search">Ricerca</string>
     <string name="power">Potenza</string>
     <string name="power_disabled">Modulo Spento</string>
-    <string name="power_enabled">Module Acceso</string>
+    <string name="power_enabled">Modulo Acceso</string>
     <string name="nick_lable">Nick name per la chat</string>
     <string name="set_min">Limite freq. inferiore</string>
     <string name="set_max">Limite freq. superiore</string>
     <string name="step_label">Passo</string>
     <string name="clear_history">Cancella cronologia</string>
     <string name="share_gps">Condividi GPS</string>
-    <string name="not_send"> (Non inviato)</string>
+    <string name="not_send">(Non inviato)</string>
     <string name="sound" />
     <string name="ctcss_label">CTCSS: </string>
     <string name="sq_label">SQ</string>
@@ -33,9 +32,9 @@
     <string name="txfreq_label">Trasmissione MHz</string>
     <string name="txctcss_label">Tono TX</string>
     <string name="rxctcss_label">Tono RX</string>
-    <string name="power_enabling">Per favore attendi l`attivazione!!!</string>
+    <string name="power_enabling">Per favore attendi l&apos;attivazione!!!</string>
     <string name="non_runbo">Nessun telefono Runbo X5, provarne altri.</string>
-    <string name="about_text"><![CDATA[Sviluppato da NeiroN<br/> link per i codici sorgenti LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Accept donations on https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Donate&default-sum=30&button-text=04]]></string>
+    <string name="about_text"><![CDATA[Sviluppato da NeiroN<br/> link per i codici sorgenti LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Eventuali contributi volontari su https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Donate&default-sum=30&button-text=04]]></string>
     <string name="about">Informazioni</string>
     <string name="scan">Scan</string>
     <string name="imp_csv">Importa da CSV</string>
