@@ -2,77 +2,77 @@
 <resources>
     <string name="version">0.6a</string>
     <string name="app_name">Intercomm</string>
-    <string name="title_freq">Freq</string>
-    <string name="title_chan">Channel</string>
+    <string name="title_freq">Frequenza</string>
+    <string name="title_chan">Canale</string>
     <string name="title_chat">Chat</string>
-    <string name="title_sets">Settings</string>
-    <string name="action_settings">Settings</string>
-    <string name="freq_next">Next Freq</string>
-    <string name="freq_prew">Prev Freq</string>
-    <string name="freq">freq</string>
-    <string name="action_quit">Quit</string>
+    <string name="title_sets">Impostazioni</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="freq_next">Freq. successiva</string>
+    <string name="freq_prew">Freq. precedente</string>
+    <string name="freq">Frequenza</string>
+    <string name="action_quit">Chiudi</string>
     <string name="nick"><![CDATA[Nick >]]></string>
-    <string name="message">Message</string>
-    <string name="search">Search …</string>
-    <string name="power">Power</string>
-    <string name="power_disabled">Module Power OFF</string>
-    <string name="power_enabled">Module Power ON</string>
-    <string name="nick_lable">Nick name in chat</string>
-    <string name="set_min">Minimal Frequency</string>
-    <string name="set_max">Maximal Frequency</string>
-    <string name="step_label">Step</string>
-    <string name="clear_history">Clear History</string>
-    <string name="share_gps">Share GPS</string>
-    <string name="not_send"> (Not Sended)</string>
+    <string name="message">Messaggio</string>
+    <string name="search">Ricerca</string>
+    <string name="power">Potenza</string>
+    <string name="power_disabled">Modulo Spento</string>
+    <string name="power_enabled">Module Acceso</string>
+    <string name="nick_lable">Nick name per la chat</string>
+    <string name="set_min">Limite freq. inferiore</string>
+    <string name="set_max">Limite freq. superiore</string>
+    <string name="step_label">Passo</string>
+    <string name="clear_history">Cancella cronologia</string>
+    <string name="share_gps">Condividi GPS</string>
+    <string name="not_send"> (Non inviato)</string>
     <string name="sound" />
     <string name="ctcss_label">CTCSS: </string>
     <string name="sq_label">SQ</string>
     <string name="freq_def">000.00000</string>
-    <string name="name">Channel name</string>
-    <string name="rxfreq_label">Recive MHz</string>
-    <string name="txfreq_label">Transm MHz</string>
-    <string name="txctcss_label">TX Tone</string>
-    <string name="rxctcss_label">RX Tone</string>
-    <string name="power_enabling">Please wait while Activating!!!</string>
-    <string name="non_runbo">Not Runbo X5 phone, trying other.</string>
-    <string name="about_text"><![CDATA[Developed by NeiroN<br/> link to source code LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Accept donations on https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Пожертвования&default-sum=30&button-text=04]]></string>
-    <string name="about">About</string>
+    <string name="name">Nome canale</string>
+    <string name="rxfreq_label">Ricezione MHz</string>
+    <string name="txfreq_label">Trasmissione MHz</string>
+    <string name="txctcss_label">Tono TX</string>
+    <string name="rxctcss_label">Tono RX</string>
+    <string name="power_enabling">Per favore attendi l`attivazione!!!</string>
+    <string name="non_runbo">Nessun telefono Runbo X5, provarne altri.</string>
+    <string name="about_text"><![CDATA[Sviluppato da NeiroN<br/> link per i codici sorgenti LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Accept donations on https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Donate&default-sum=30&button-text=04]]></string>
+    <string name="about">Informazioni</string>
     <string name="scan">Scan</string>
-    <string name="imp_csv">Import from CSV</string>
-    <string name="exp_csv">Export to CSV</string>
-    <string name="ch_add_help">Add channel</string>
-    <string name="ch_add">Add</string>
-    <string name="ch_apply">Apply</string>
-    <string name="ch_search_help">Search channel</string>
-    <string name="ch_prew_help">Prewius channel</string>
-    <string name="ch_next_help">Next channel</string>
-    <string name="ch_src_help">Sound source</string>
+    <string name="imp_csv">Importa da CSV</string>
+    <string name="exp_csv">Esporta in CSV</string>
+    <string name="ch_add_help">Aggiungi canale</string>
+    <string name="ch_add">Aggiungi</string>
+    <string name="ch_apply">Applica</string>
+    <string name="ch_search_help">Ricerca canale</string>
+    <string name="ch_prew_help">Canale precedente</string>
+    <string name="ch_next_help">Canale successivo</string>
+    <string name="ch_src_help">Sorgente audio</string>
     <string name="channels_std">PMR 1,446.00625,446.00625,0,0,5,true,2|PMR 2,446.01875,446.01875,0,0,5,true,2|PMR 3,446.03125,446.03125,0,0,5,true,2|PMR 4,446.04375,446.04375,0,0,5,true,2|PMR 5,446.05625,446.05625,0,0,5,true,2|PMR 6,446.06875,446.06875,0,0,5,true,2|PMR 7,446.08125,446.08125,0,0,5,true,2|PMR 8,446.09375,446.09375,0,0,5,true,2|LPD 01,433.075,433.075,0,0,5,true,3|LPD 02,433.1,433.1,0,0,5,true,3|LPD 03,433.125,433.125,0,0,5,true,3|LPD 04,433.15,433.15,0,0,5,true,3|LPD 05,433.175,433.175,0,0,5,true,3|LPD 06,433.2,433.2,0,0,5,true,3|LPD 07,433.225,433.225,0,0,5,true,3|LPD 08,433.25,433.25,0,0,5,true,3|LPD 09,433.275,433.275,0,0,5,true,3|LPD 10,433.3,433.3,0,0,5,true,3|LPD 11,433.325,433.325,0,0,5,true,3|LPD 12,433.35,433.35,0,0,5,true,3|LPD 13,433.375,433.375,0,0,5,true,3|LPD 14,433.4,433.4,0,0,5,true,3|LPD 15,433.425,433.425,0,0,5,true,3|LPD 16,433.45,433.45,0,0,5,true,3|LPD 17,433.475,433.475,0,0,5,true,3|LPD 18,433.5,433.5,0,0,5,true,3|LPD 19,433.525,433.525,0,0,5,true,3|LPD 20,433.55,433.55,0,0,5,true,3|LPD 21,433.575,433.575,0,0,5,true,3|LPD 22,433.6,433.6,0,0,5,true,3|LPD 23,433.625,433.625,0,0,5,true,3|LPD 24,433.65,433.65,0,0,5,true,3|LPD 25,433.675,433.675,0,0,5,true,3|LPD 26,433.7,433.7,0,0,5,true,3|LPD 27,433.725,433.725,0,0,5,true,3|LPD 28,433.75,433.75,0,0,5,true,3|LPD 29,433.775,433.775,0,0,5,true,3|LPD 30,433.8,433.8,0,0,5,true,3|LPD 31,433.825,433.825,0,0,5,true,3|LPD 32,433.85,433.85,0,0,5,true,3|LPD 33,433.875,433.875,0,0,5,true,3|LPD 34,433.9,433.9,0,0,5,true,3|LPD 35,433.925,433.925,0,0,5,true,3|LPD 36,433.95,433.95,0,0,5,true,3|LPD 37,433.975,433.975,0,0,5,true,3|LPD 38,434,434,0,0,5,true,3|LPD 39,434.025,434.025,0,0,5,true,3|LPD 40,434.05,434.05,0,0,5,true,3|LPD 41,434.075,434.075,0,0,5,true,3|LPD 42,434.1,434.1,0,0,5,true,3|LPD 43,434.125,434.125,0,0,5,true,3|LPD 44,434.15,434.15,0,0,5,true,3|LPD 45,434.175,434.175,0,0,5,true,3|LPD 46,434.2,434.2,0,0,5,true,3|LPD 47,434.225,434.225,0,0,5,true,3|LPD 48,434.25,434.25,0,0,5,true,3|LPD 49,434.275,434.275,0,0,5,true,3|LPD 50,434.3,434.3,0,0,5,true,3|LPD 51,434.325,434.325,0,0,5,true,3|LPD 52,434.35,434.35,0,0,5,true,3|LPD 53,434.375,434.375,0,0,5,true,3|LPD 54,434.4,434.4,0,0,5,true,3|LPD 55,434.425,434.425,0,0,5,true,3|LPD 56,434.45,434.45,0,0,5,true,3|LPD 57,434.475,434.475,0,0,5,true,3|LPD 58,434.5,434.5,0,0,5,true,3|LPD 59,434.525,434.525,0,0,5,true,3|LPD 60,434.55,434.55,0,0,5,true,3|LPD 61,434.575,434.575,0,0,5,true,3|LPD 62,434.6,434.6,0,0,5,true,3|LPD 63,434.625,434.625,0,0,5,true,3|LPD 64,434.65,434.65,0,0,5,true,3|LPD 65,434.675,434.675,0,0,5,true,3|LPD 66,434.7,434.7,0,0,5,true,3|LPD 67,434.725,434.725,0,0,5,true,3|LPD 68,434.75,434.75,0,0,5,true,3|LPD 69,434.775,434.775,0,0,5,true,3</string>
     <string name="no_data">N/D</string>
-    <string name="clear_channels">Reset Channels</string>
-    <string name="scan_stopped">Scaning has stopped</string>
-    <string name="ch_del">Delete</string>
-    <string name="ver_label">Version:</string>
-    <string name="no_func">No function</string>
-    <string name="file_label">Select file</string>
-    <string name="delete_all">Delete all</string>
-    <string name="ch_imported" formatted="false">Imported %d channel(s)\n From %s</string>
-    <string name="vibro_label">Vibration</string>
+    <string name="clear_channels">Resetta canali</string>
+    <string name="scan_stopped">Scansione fermata</string>
+    <string name="ch_del">Elimina</string>
+    <string name="ver_label">Versione:</string>
+    <string name="no_func">Nessuna funzione</string>
+    <string name="file_label">Seleziona file</string>
+    <string name="delete_all">Elimina tutto</string>
+    <string name="ch_imported" formatted="false">Importato %d canale(i)\n da %s</string>
+    <string name="vibro_label">Vibrazione</string>
     <string name="on">ON</string>
     <string name="off">OFF</string>
-    <string name="sos_set">SOS Button set</string>
+    <string name="sos_set">Imposta pulsante SOS</string>
     <string name="offset_label">TX Offset</string>
-    <string name="change_theme">Change Theme</string>
-    <string name="groups_list">All,Favorite,PMR,LPD</string>
-    <string name="group_label">Group</string>
-    <string name="filter_label">Filter</string>
-    <string name="block">Block</string>
-    <string name="check_all">Select all</string>
-    <string name="invert">Invert selection</string>
+    <string name="change_theme">Cambia tema</string>
+    <string name="groups_list">Tutto,Preferiti,PMR,LPD</string>
+    <string name="group_label">Gruppo</string>
+    <string name="filter_label">Filtro</string>
+    <string name="block">Blocco</string>
+    <string name="check_all">Seleziona tutto</string>
+    <string name="invert">Inverti selezione</string>
     <string name="gpsmsg" formatted="false"><![CDATA[<div>%s Latitude:%.6f, Longitude:%.6f <a href=\"geo:%s,%s?z=16\">View MAP</a></div>]]></string>
-    <string name="smiles">Smiles</string>
-    <string name="send">Send</string>
-    <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> has change nick to <b>%s</b></i>]]></string>
+    <string name="smiles">Emoticon</string>
+    <string name="send">Invia</string>
+    <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> è stato cambiato il nick in <b>%s</b></i>]]></string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>
@@ -239,7 +239,7 @@
         <item>25.0 KHz</item>
         <item>30.0 KHz</item>
         <item>50.0 KHz</item>
-        <item>100  KHz</item>
+        <item>100 KHz</item>
     </string-array>
     <string-array name="scan_delay">
         <item>0.1 sec</item>
@@ -249,7 +249,7 @@
         <item>2.0 sec</item>
         <item>3.0 sec</item>
         <item>5.0 sec</item>
-        <item>10  sec</item>
+        <item>10 sec</item>
         <item>1 min</item>
         <item>5 min</item>
     </string-array>

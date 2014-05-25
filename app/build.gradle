@@ -26,9 +26,9 @@ android {
 //    into 'lib/'
 //}
 
-tasks.withType(Compile) {
-    compileTask -> compileTask.dependsOn(nativeLibsToJar)
-}
+//tasks.withType(Compile) {
+//    compileTask -> compileTask.dependsOn(nativeLibsToJar)
+//}
 
 dependencies {
     compile 'com.android.support:gridlayout-v7:19.0.1'
