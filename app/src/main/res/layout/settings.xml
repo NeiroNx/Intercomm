@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minWidth="300dp"
     android:longClickable="false">
 
     <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView" >
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/scrollView"
+        tools:ignore="UselessParent">
 
         <TableLayout
             android:layout_width="match_parent"
@@ -32,7 +35,7 @@
                     android:layout_weight=".1" />
 
                 <EditText
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_nick"
                     android:enabled="true"
@@ -47,21 +50,15 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <Switch
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/vibro_label"
-                    android:id="@+id/vibro_label"
+                    android:id="@+id/vibro"
                     android:layout_column="0"
+                    android:layout_span="2"
                     android:layout_weight=".1" />
 
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/vibro"
-                    android:layout_column="1"
-                    android:layout_weight="1000" />
             </TableRow>
 
             <TableRow
@@ -127,7 +124,7 @@
                     android:layout_weight=".1" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/offset"
                     android:layout_column="1"
@@ -149,7 +146,7 @@
                     android:layout_weight=".1" />
 
                 <Spinner
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_step"
                     android:layout_weight="1000"
@@ -171,7 +168,7 @@
                     android:layout_weight=".1" />
 
                 <Spinner
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_delay"
                     android:layout_column="1"
@@ -183,21 +180,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
 
-                <TextView
+                <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/rxctcss_label"
-                    android:id="@+id/set_scan_ct_label"
-                    android:layout_column="0"
-                    android:layout_weight=".1" />
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:text="@string/scan_ct"
                     android:id="@+id/scan_ct"
-                    android:layout_column="1"
-                    android:layout_weight="1000" />
+                    android:layout_column="0"
+                    android:layout_span="2"
+                    android:layout_weight=".1" />
 
             </TableRow>
 
@@ -215,7 +205,7 @@
                     android:layout_column="0" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_groups"
                     android:layout_column="1"
@@ -238,7 +228,7 @@
                     android:layout_column="0" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_sos"
                     android:layout_column="1"
@@ -261,7 +251,7 @@
                     android:layout_column="0"/>
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_block"
                     android:layout_column="1"
@@ -284,13 +274,114 @@
                     android:layout_column="0" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/set_search"
                     android:layout_column="1"
                     android:layout_weight="1000"
                     android:singleLine="true"
                     android:inputType="textNoSuggestions" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <Switch
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/full_mode"
+                    android:id="@+id/full_mode"
+                    android:layout_column="0"
+                    android:layout_span="2"
+                    android:layout_weight=".1" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/mic_volume"
+                    android:id="@+id/mic_volume_label" />
+
+                <SeekBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/mic_volume"
+                    android:focusable="false"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:max="7"
+                    android:progress="5" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/scram_label"
+                    android:id="@+id/scram_label"
+                    android:layout_column="0"
+                    android:layout_weight=".1" />
+
+                <SeekBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/scram"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:clickable="false"
+                    android:max="8" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/tot"
+                    android:id="@+id/tot_label"
+                    android:layout_column="0"
+                    android:layout_weight=".1"/>
+
+                <SeekBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tot"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:indeterminate="false"
+                    android:max="8" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/vox"
+                    android:id="@+id/vox_label" />
+
+                <SeekBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/vox"
+                    android:clickable="false"
+                    android:max="8" />
             </TableRow>
 
         </TableLayout>

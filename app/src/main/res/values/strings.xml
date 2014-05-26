@@ -73,6 +73,12 @@
     <string name="smiles">Smiles</string>
     <string name="send">Send</string>
     <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> has change nick to <b>%s</b></i>]]></string>
+    <string name="scan_ct">Scan tones</string>
+    <string name="full_mode">Full mode</string>
+    <string name="mic_volume">Mic Volume</string>
+    <string name="scram_label">SCRAMLVL</string>
+    <string name="tot">TOT</string>
+    <string name="vox">VOX</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>

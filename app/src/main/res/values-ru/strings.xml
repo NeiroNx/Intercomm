@@ -70,6 +70,12 @@
     <string name="smiles">Смайлики</string>
     <string name="send">Отправить</string>
     <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> сменил имя на <b>%s</b></i>]]></string>
+    <string name="scan_ct">Скан тонов</string>
+    <string name="full_mode">Полный контроль</string>
+    <string name="mic_volume">Микрофон</string>
+    <string name="scram_label">SCRAMLVL</string>
+    <string name="tot">TOT</string>
+    <string name="vox">VOX</string>
     <string-array name="ctcss">
         <item>Выкл</item>
         <item>1: 67.0Гц</item>

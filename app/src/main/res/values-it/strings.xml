@@ -71,4 +71,10 @@
     <string name="smiles">Emoticon</string>
     <string name="send">Invia</string>
     <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> è stato cambiato il nick in <b>%s</b></i>]]></string>
+    <string name="scan_ct">Tono scan</string>
+    <string name="full_mode">Modalità full</string>
+    <string name="mic_volume">Volume Mic</string>
+    <string name="scram_label">SCRAMLVL</string>
+    <string name="tot">TOT</string>
+    <string name="vox">VOX</string>
 </resources>

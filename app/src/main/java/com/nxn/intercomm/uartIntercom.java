@@ -128,8 +128,6 @@ AT+DMOSETVOX=[0..8]
 
  */
 public class uartIntercom extends Intercom{
-    protected String command = "";
-    protected String message = "";
     private final static String[] dev_list = {"/dev/intercom_A1840","/dev/SA808"};
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
@@ -145,12 +143,12 @@ public class uartIntercom extends Intercom{
     //private final static int INTERCOM_SPEAKER_MODE = 2;
     private final static int INTERCOM_HEADSET_MODE = 3;
     private final static int INTERCOM_SPEAKER_MODE = 4;
-    SerialPortFinder serialPortFinder = new SerialPortFinder();
-    SerialPort uart = null;
-    public String port = "/dev/ttyMT1";
-    public String ctl = "";
-    public Integer baud = 9600;
-    public Integer Ver = 2014;
+    private SerialPortFinder serialPortFinder = new SerialPortFinder();
+    private SerialPort uart = null;
+    private String port = "/dev/ttyMT1";
+    private String ctl = "";
+    private Integer baud = 9600;
+    private Integer Ver = 2014;
     private Integer Volume = 6;
     private Integer Mic = 5;
     private Integer Scram = 0;
@@ -207,14 +205,14 @@ public class uartIntercom extends Intercom{
     {
         String line = uart.readLine();
         if(line == null)return null;
-        if(line.contains(DMO+MES+"="))
-            return line.replace(DMO+MES+"=","");
+        if(line.contains(DMO+MES))
+            return line.replace(DMO+MES,"");
         else if(line.contains(VERQ)){
             if(line.contains("80BK"))Ver=1;
             if(line.contains("81BK"))Ver=2;
             if(line.contains("D150"))Ver=3;
         }
-        return line;
+        return line.replace(DMO,"Config: ");
     }
     @Override
     public void intercomHeadsetMode()
@@ -267,7 +265,7 @@ public class uartIntercom extends Intercom{
     @Override
     public int sendMessage(String paramString)
     {
-        uart.write(AT+DMO+MES+"="+paramString);
+        uart.write(AT+DMO+MES+paramString);
         return 0;
     }
     @Override
@@ -457,7 +455,7 @@ public class uartIntercom extends Intercom{
                 String cmd = "echo \""+ line +"\" >> " + mFd.getAbsolutePath() +"\n";
                 Log.e(TAG, cmd);
                 sin.getOutputStream().write(cmd.getBytes());
-                Thread.sleep(500L);
+                Thread.sleep(200L);
             } catch (Exception e) {
                 e.printStackTrace();
             }

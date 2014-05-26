@@ -72,6 +72,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Intercom;
@@ -121,6 +122,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_OFFSET = "offset";
     public static final String APP_PREFERENCES_POWER = "power";
     public static final String APP_PREFERENCES_VOLUME = "volume";
+    public static final String APP_PREFERENCES_MIC_VOLUME = "mic_volume";
+    public static final String APP_PREFERENCES_SCRAM_VOLUME = "scram_volume";
+    public static final String APP_PREFERENCES_TOT = "tot";
+    public static final String APP_PREFERENCES_VOX = "vox";
     public static final String APP_PREFERENCES_SPEAKER = "speaker";
     public static final String APP_PREFERENCES_MIN_FREQ = "min_freq";
     public static final String APP_PREFERENCES_MAX_FREQ = "max_freq";
@@ -134,6 +139,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_KEY_SOS = "keySos";
     public static final String APP_PREFERENCES_KEY_BLOCK = "keyBlock";
     public static final String APP_PREFERENCES_KEY_SEARCH = "keySearch";
+    public static final String APP_PREFERENCES_FULL_MODE = "full_mode";
     public static final String FORMAT = "###.####";
 
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
@@ -165,6 +171,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Double maxFreq = 480.0;
     public Integer Sq = 1;
     public Integer Volume = 5;
+    public Integer Mic = 5;
+    public Integer Scram = 0;
+    public Integer Tot = 0;
+    public Integer Vox = 0;
+    public Boolean isFull = false;
     public Boolean isSpeaker = true;
     public Boolean Power = false;
     public Boolean setSOS = false;
@@ -179,6 +190,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean isBusy = false;
     public Boolean isBlocked = false;
     public Intercom mIntercom = new Intercom();
+    public uartIntercom uIntercom = null;
     public NotificationManager mNotificationManager;
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
@@ -225,6 +237,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
+        Mic = Integer.parseInt(mSettings.getString(APP_PREFERENCES_MIC_VOLUME,Mic.toString()));
+        Scram = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString()));
+        Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT,Tot.toString()));
+        Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX,Vox.toString()));
+        isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE,isFull.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
@@ -235,7 +252,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
-
+        //Full mode driver activate
+        if(isFull){
+            uIntercom = new uartIntercom();
+            mIntercom = uIntercom;
+        }
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
@@ -252,7 +273,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Log.w("Intercom","openCharDev()");
         }catch(UnsatisfiedLinkError e){
             Log.w("INIT",getString(R.string.non_runbo));
-            mIntercom = new uartIntercom();
+            uIntercom = new uartIntercom();
+            mIntercom = uIntercom;
+            isFull = true;
         }
         if(isChat)
             try{
@@ -683,6 +706,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         recreate();
     }
 
+    public void setMic(){
+        if(uIntercom == null)return;
+        try{
+            uIntercom.setMic(Mic);
+            uIntercom.setScram(Scram);
+            uIntercom.setTot(Tot);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void setVox(){
+        if(uIntercom == null)return;
+        try{
+            uIntercom.setVox(Vox);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public String setCh(Boolean set){
         String[] array = {};
         String str = getString(R.string.no_data);
@@ -1016,11 +1058,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         maxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_MAX_FREQ, maxFreq.toString()));
         ChannelList = mSettings.getString(APP_PREFERENCES_CHANNELS, getString(R.string.channels_std)).split("\\|");
         Groups = mSettings.getString(APP_PREFERENCES_GROUPS, getString(R.string.groups_list));
-        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP,curGroup.toString()));
+        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP, curGroup.toString()));
         curChannelList = getChannelList(curGroup);
         curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL, curChannel.toString()));
         curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ, curRxFreq.toString()));
-        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
+        curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ, curTxFreq.toString()));
         curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
         curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
         sosRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_SOS, sosRxFreq.toString()));
@@ -1030,6 +1072,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
         Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME, Volume.toString()));
+        Mic = Integer.parseInt(mSettings.getString(APP_PREFERENCES_MIC_VOLUME,Mic.toString()));
+        Scram = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString()));
+        Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT, Tot.toString()));
+        Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX, Vox.toString()));
+        isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isFull.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER, isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ, Sq.toString()));
@@ -1064,6 +1111,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_STEP,Step.toString());
         editor.putString(APP_PREFERENCES_OFFSET,Offset.toString());
         editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
+        editor.putString(APP_PREFERENCES_MIC_VOLUME,Mic.toString());
+        editor.putString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString());
+        editor.putString(APP_PREFERENCES_TOT,Tot.toString());
+        editor.putString(APP_PREFERENCES_VOX,Vox.toString());
+        editor.putString(APP_PREFERENCES_FULL_MODE,isFull.toString());
         editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
         editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
         editor.putString(APP_PREFERENCES_SQ,Sq.toString());
@@ -2081,10 +2133,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             for(int i=0;i<steps.length;i++)if(Step.equals(steps[i]))st.setSelection(i);
             final Spinner delay = (Spinner)Settings.findViewById(R.id.set_delay);
             for(int i=0;i<delays.length;i++)if(ScanDelay.equals(delays[i]))delay.setSelection(i);
-            final CheckBox scan_ct = (CheckBox)Settings.findViewById(R.id.scan_ct);
+            final Switch scan_ct = (Switch)Settings.findViewById(R.id.scan_ct);
             scan_ct.setChecked(ScanRxCt);
-            final CheckBox vibro = (CheckBox)Settings.findViewById(R.id.vibro);
+            final Switch vibro = (Switch)Settings.findViewById(R.id.vibro);
             vibro.setChecked(Vibrato);
+            final Switch full_mode = (Switch)Settings.findViewById(R.id.full_mode);
+            full_mode.setChecked(isFull);
+            final SeekBar mic = (SeekBar)Settings.findViewById(R.id.mic_volume);
+            mic.setProgress(Mic-1);
+            final SeekBar scram = (SeekBar)Settings.findViewById(R.id.scram);
+            scram.setProgress(Scram);
+            final SeekBar tot = (SeekBar)Settings.findViewById(R.id.tot);
+            tot.setProgress(Tot);
+            final SeekBar vox = (SeekBar)Settings.findViewById(R.id.vox);
+            vox.setProgress(Vox);
             final EditText groups = (EditText)Settings.findViewById(R.id.set_groups);
             groups.setText(Groups);
             View.OnKeyListener keyListener = new View.OnKeyListener() {
@@ -2125,20 +2187,32 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             keySos = Integer.parseInt(set_sos.getText().toString());
                             keyBlock = Integer.parseInt(set_block.getText().toString());
                             keySearch = Integer.parseInt(set_search.getText().toString());
-                            Spinner groups_list = (Spinner)mViewPager.findViewById(R.id.group_list);
+                            isFull = full_mode.isChecked();
+                            Mic = mic.getProgress() + 1;
+                            Scram = scram.getProgress();
+                            Tot = tot.getProgress();
+                            Vox = vox.getProgress();
+                            setMic();
+                            setVox();
+                            Spinner groups_list = (Spinner) mViewPager.findViewById(R.id.group_list);
                             groups_list.setAdapter(getGroups());
                             editor.putString(APP_PREFERENCES_NICK, Nick);
-                            editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
-                            editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
-                            editor.putString(APP_PREFERENCES_STEP,Step.toString());
-                            editor.putString(APP_PREFERENCES_OFFSET,Offset.toString());
-                            editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
-                            editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
+                            editor.putString(APP_PREFERENCES_MIN_FREQ, minFreq.toString());
+                            editor.putString(APP_PREFERENCES_MAX_FREQ, maxFreq.toString());
+                            editor.putString(APP_PREFERENCES_STEP, Step.toString());
+                            editor.putString(APP_PREFERENCES_OFFSET, Offset.toString());
+                            editor.putString(APP_PREFERENCES_DELAY, ScanDelay.toString());
+                            editor.putString(APP_PREFERENCES_SCAN_CT, ScanRxCt.toString());
                             editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
-                            editor.putString(APP_PREFERENCES_GROUPS,Groups);
-                            editor.putString(APP_PREFERENCES_KEY_SOS,keySos.toString());
-                            editor.putString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString());
-                            editor.putString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString());
+                            editor.putString(APP_PREFERENCES_GROUPS, Groups);
+                            editor.putString(APP_PREFERENCES_KEY_SOS, keySos.toString());
+                            editor.putString(APP_PREFERENCES_KEY_BLOCK, keyBlock.toString());
+                            editor.putString(APP_PREFERENCES_KEY_SEARCH, keySearch.toString());
+                            editor.putString(APP_PREFERENCES_FULL_MODE, isFull.toString());
+                            editor.putString(APP_PREFERENCES_MIC_VOLUME, Mic.toString());
+                            editor.putString(APP_PREFERENCES_SCRAM_VOLUME, Scram.toString());
+                            editor.putString(APP_PREFERENCES_TOT, Tot.toString());
+                            editor.putString(APP_PREFERENCES_VOX, Vox.toString());
                             editor.commit();
                         }
                     })
