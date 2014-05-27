@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.6a</string>
+    <string name="version">0.7</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Freq</string>
     <string name="title_chan">Channel</string>
@@ -79,6 +79,7 @@
     <string name="scram_label">SCRAMLVL</string>
     <string name="tot">TOT</string>
     <string name="vox">VOX</string>
+    <string name="port">Port</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>

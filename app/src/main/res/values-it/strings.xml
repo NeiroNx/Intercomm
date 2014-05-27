@@ -77,4 +77,5 @@
     <string name="scram_label">SCRAMLVL</string>
     <string name="tot">TOT</string>
     <string name="vox">VOX</string>
+    <string name="port">Porto</string>
 </resources>

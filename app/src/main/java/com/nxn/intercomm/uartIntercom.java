@@ -7,8 +7,6 @@ package com.nxn.intercomm;
 import java.io.*;
 import java.util.Iterator;
 import java.util.Vector;
-
-import android.hardware.Intercom;
 import android.util.Log;
 /*
 Протокол последовательной связи
@@ -127,7 +125,7 @@ AT+DMOSETVOX=[0..8]
 
 
  */
-public class uartIntercom extends Intercom{
+public class uartIntercom{
     private final static String[] dev_list = {"/dev/intercom_A1840","/dev/SA808"};
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
@@ -143,64 +141,68 @@ public class uartIntercom extends Intercom{
     //private final static int INTERCOM_SPEAKER_MODE = 2;
     private final static int INTERCOM_HEADSET_MODE = 3;
     private final static int INTERCOM_SPEAKER_MODE = 4;
-    private SerialPortFinder serialPortFinder = new SerialPortFinder();
     private SerialPort uart = null;
-    private String port = "/dev/ttyMT1";
     private String ctl = "";
-    private Integer baud = 9600;
     private Integer Ver = 2014;
     private Integer Volume = 6;
-    private Integer Mic = 5;
+    private Integer Mic = 0;
     private Integer Scram = 0;
     private Integer Tot = 0;
     private Integer Vox = 0;
     private Integer SQ = 5;
-    private Integer RxFreq = 4460062;
-    private Integer TxFreq = 4460062;
+    private Integer RxFreq = 4500500;
+    private Integer TxFreq = 4500500;
     private Integer RxCTCSS = 0;
     private Integer TxCTCSS = 0;
+    private String[] ports = {};
+    private String port = "/dev/ttyMT1";
 
     public uartIntercom(){
-        //String[] ports = serialPortFinder.getAllDevices();
-        //String[] ports_path = serialPortFinder.getAllDevicesPath();
+        ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
-        /**
-         * TODO Find Intercom and get version
-         */
         for(String d:dev_list){
             File dev1 = new File(d);
             if(dev1.exists()) ctl = d;
         }
         Log.e("UART","Control: "+ctl);
     }
-    @Override
+
+    public String[] getPorts(){
+        return ports;
+    }
+
+    public void setPort(String str){
+        if(!port.equals(str))
+        try{
+            port = str;
+            uart = new SerialPort(new File(port),9600);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
     public int checkMessageBuffer()
     {
         return 10;
     }
-    @Override
-    public void closeCharDev()
-    {
-        //
-    }
-    @Override
+
     public int getIntercomVersion()
     {
-        /*if(uart != null){
+        if(uart != null){
             uart.write(AT+DMO+VERQ);
             try {
-                //String line = uart.readLine();
-                //if(line == null) return Ver;
-                //if(line.contains("80BK"))Ver=1;
-                //if(line.contains("81BK"))Ver=2;
-                //if(line.contains("D150"))Ver=3;
+                String line = uart.readLine();
+                if(line == null) return Ver;
+                if(line.contains("80BK"))Ver=1;
+                if(line.contains("81BK"))Ver=2;
+                if(line.contains("D150"))Ver=3;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }*/
+        }
         return Ver;
     }
-    @Override
+
     public String getMessage()
     {
         String line = uart.readLine();
@@ -212,14 +214,14 @@ public class uartIntercom extends Intercom{
             if(line.contains("81BK"))Ver=2;
             if(line.contains("D150"))Ver=3;
         }
-        return line.replace(DMO,"Config: ");
+        return null;
     }
-    @Override
+
     public void intercomHeadsetMode()
     {
         ioctl(ctl,INTERCOM_HEADSET_MODE);
     }
-    @Override
+
     public void intercomPowerOff()
     {
         try {
@@ -231,44 +233,39 @@ public class uartIntercom extends Intercom{
             e.printStackTrace();
         }
     }
-    @Override
+
     public void intercomPowerOn()
     {
         try {
             ioctl(ctl,INTERCOM_PULL_UP);
             Log.e("UART","Powered ONN");
             Thread.sleep(500L);
-            uart = new SerialPort(new File(port),baud,0);
-            uart.write(AT+DMO+VERQ);
-            sendMic();
+            uart = new SerialPort(new File(port), 9600);
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;
         }
     }
-    @Override
+
     public void intercomSpeakerMode()
     {
         ioctl(ctl,INTERCOM_SPEAKER_MODE);
     }
-    @Override
-    public void openCharDev()
-    {
-        //
-    }
-    @Override
+
     public void resumeIntercomSetting()
     {
-        sendFreq();
-        //JNI_resumeIntercomSetting();
+        if(Mic != 0)sendMic();
+        if(RxFreq != 4500500 || TxFreq != 4500500)sendFreq();
+        if(Volume != 0)sendVol();
+        if(Vox != 0)sendVox();
     }
-    @Override
+
     public int sendMessage(String paramString)
     {
         uart.write(AT+DMO+MES+paramString);
         return 0;
     }
-    @Override
+
     public void setCtcss(int paramInt)
     {
         if(RxCTCSS != paramInt){
@@ -276,7 +273,7 @@ public class uartIntercom extends Intercom{
             sendFreq();
         }
     }
-    @Override
+
     public void setRXFrequency(int paramInt)
     {
         if(RxFreq != paramInt){
@@ -284,7 +281,7 @@ public class uartIntercom extends Intercom{
             sendFreq();
         }
     }
-    @Override
+
     public void setRadioFrequency(int paramInt)
     {
         if(RxFreq != paramInt){
@@ -292,7 +289,7 @@ public class uartIntercom extends Intercom{
             sendFreq();
         }
     }
-    @Override
+
     public void setSq(int paramInt)
     {
         if(SQ != paramInt){
@@ -300,7 +297,7 @@ public class uartIntercom extends Intercom{
             sendFreq();
         }
     }
-    @Override
+
     public void setTXFrequency(int paramInt)
     {
         if(TxFreq != paramInt){
@@ -308,7 +305,7 @@ public class uartIntercom extends Intercom{
             sendFreq();
         }
     }
-    @Override
+
     public void setTxCtcss(int paramInt)
     {
         if(TxCTCSS != paramInt){
@@ -316,13 +313,44 @@ public class uartIntercom extends Intercom{
             sendFreq();
         }
     }
-    @Override
+
     public void setVolume(int paramInt)
     {
         if(Volume != paramInt){
             Volume = paramInt;
             sendVol();
         }
+    }
+    public void init(int rx, int tx, int rxt, int txt, int sq,int mic, int scram, int tot, int vox, int volume){
+        RxFreq = rx;
+        TxFreq = tx;
+        RxCTCSS = rxt;
+        TxCTCSS = txt;
+        SQ = sq;
+        Mic = mic;
+        Scram = scram;
+        Tot = tot;
+        Vox = vox;
+        Volume = volume;
+    }
+
+    public void setFreq(int rx, int tx, int rxt, int txt, int sq){
+        Boolean set = false;
+        if(RxFreq != rx || TxFreq != tx || RxCTCSS != rxt || TxCTCSS != txt || SQ != sq)set = true;
+        RxFreq = rx;
+        TxFreq = tx;
+        RxCTCSS = rxt;
+        TxCTCSS = txt;
+        SQ = sq;
+        if(set)sendFreq();
+    }
+    public void setMic_e(int mic, int scram, int tot){
+        Boolean set = false;
+        if(Mic != mic || Scram != scram || Tot != tot)set = true;
+        Mic = mic;
+        Scram = scram;
+        Tot = tot;
+        if(set)sendMic();
     }
     public void setMic(int paramInt)
     {
@@ -361,7 +389,6 @@ public class uartIntercom extends Intercom{
                 su.getOutputStream().write(cmd.getBytes());
         } catch (Exception e) {
                 e.printStackTrace();
-                throw new SecurityException();
         }
     }
 
@@ -374,31 +401,33 @@ public class uartIntercom extends Intercom{
             uart.write(str);
         }
     }
+
     private void sendVol(){
         if(uart != null){
             uart.write(AT+DMO+VOLUME+Volume.toString());
         }
     }
+
     private void sendMic(){
         if(uart != null){
             uart.write(AT+DMO+MIC+String.format("%d,%d,%d",Mic,Scram,Tot));
         }
     }
+
     private void sendVox(){
         if(uart != null){
             uart.write(AT+DMO+VOX+Vox.toString());
         }
     }
+
     public static class SerialPort {
 
         private static final String TAG = "SerialPort";
-
         private File mFd;
-        private Process sin;
-        private Process sout;
-        private BufferedReader br;
+        private Process mInput;
+        private BufferedReader mReader;
 
-        public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+        public SerialPort(File device, int baudrate) throws SecurityException, IOException {
                 /* Check access permission */
             if (!device.canRead() || !device.canWrite()) {
                 try {
@@ -417,10 +446,10 @@ public class uartIntercom extends Intercom{
                     throw new SecurityException();
                 }
             }
-            sin = Runtime.getRuntime().exec("/system/bin/sh");
+            mInput = Runtime.getRuntime().exec("/system/bin/sh");
             try {
                 String cmd = "stty -F " + device.getAbsolutePath() +" "+ Integer.toString(baudrate) + " sane\n";
-                sin.getOutputStream().write(cmd.getBytes());
+                mInput.getOutputStream().write(cmd.getBytes());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new SecurityException();
@@ -430,21 +459,26 @@ public class uartIntercom extends Intercom{
                 Log.e(TAG, "native open returns null");
                 throw new IOException();
             }
-            sout = Runtime.getRuntime().exec("/system/bin/cat "+device.getAbsolutePath());
-            br = new BufferedReader(new InputStreamReader(sout.getInputStream()));
+            mReader = new BufferedReader(new InputStreamReader(new FileInputStream(mFd)));
         }
         public void close(){
-            sin.destroy();
-            sout.destroy();
+            try {
+                mInput.destroy();
+                mReader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         // Getters and setters
         public String readLine() {
             try {
                 String line = null;
-                if(br.ready())
-                    line = br.readLine();
-                if(line != null && line.contains(DMO))
+                if(mReader.ready())
+                    line = mReader.readLine();
+                if(line != null && line.contains(DMO)){
+                    Log.e(TAG,line);
                     return line;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -452,10 +486,10 @@ public class uartIntercom extends Intercom{
         }
         public void write(String line){
             try {
-                String cmd = "echo \""+ line +"\" >> " + mFd.getAbsolutePath() +"\n";
-                Log.e(TAG, cmd);
-                sin.getOutputStream().write(cmd.getBytes());
-                Thread.sleep(200L);
+                Log.e(TAG,line);
+                String cmd = "echo \""+ line +"\" > " + mFd.getAbsolutePath() +"\n";
+                mInput.getOutputStream().write(cmd.getBytes());
+                Thread.sleep(100L);
             } catch (Exception e) {
                 e.printStackTrace();
             }

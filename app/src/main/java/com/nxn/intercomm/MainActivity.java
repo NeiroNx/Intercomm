@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -75,7 +76,6 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.hardware.Intercom;
 
 import org.xml.sax.XMLReader;
 
@@ -140,6 +140,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_KEY_BLOCK = "keyBlock";
     public static final String APP_PREFERENCES_KEY_SEARCH = "keySearch";
     public static final String APP_PREFERENCES_FULL_MODE = "full_mode";
+    public static final String APP_PREFERENCES_PORT = "port";
     public static final String FORMAT = "###.####";
 
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
@@ -189,8 +190,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean isChat = true;
     public Boolean isBusy = false;
     public Boolean isBlocked = false;
-    public Intercom mIntercom = new Intercom();
-    public uartIntercom uIntercom = null;
+    public uartIntercom mIntercom = new uartIntercom();
     public NotificationManager mNotificationManager;
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
@@ -201,6 +201,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean Vibrato = false;
     public Integer TabPos = 0;
     public String Search = "";
+    public String Port = "/dev/ttyMT1";
     public String FileName = Environment.getExternalStorageDirectory().getPath()+"/Channels.csv";
     public String ActionInput = "";
     public Integer keySos = 300;
@@ -223,10 +224,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         ChannelList = mSettings.getString(APP_PREFERENCES_CHANNELS, getString(R.string.channels_std)).split("\\|");
         UpdateChannels();
         Groups = mSettings.getString(APP_PREFERENCES_GROUPS, getString(R.string.groups_list));
-        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP,curGroup.toString()));
+        curGroup = Integer.parseInt(mSettings.getString(APP_PREFERENCES_GROUP, curGroup.toString()));
         curChannelList = getChannelList(curGroup);
-        curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL,curChannel.toString()));
-        curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString()));
+        curChannel = Integer.parseInt(mSettings.getString(APP_PREFERENCES_CHANNEL, curChannel.toString()));
+        curRxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_RX_FREQ, curRxFreq.toString()));
         curTxFreq = Double.parseDouble(mSettings.getString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString()));
         curRxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_RX_CTCSS, curRxCt.toString()));
         curTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS, curTxCt.toString()));
@@ -236,27 +237,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         sosTxCt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TX_CTCSS_SOS, sosTxCt.toString()));
         Step = Double.parseDouble(mSettings.getString(APP_PREFERENCES_STEP, Step.toString()));
         Offset = Double.parseDouble(mSettings.getString(APP_PREFERENCES_OFFSET, Offset.toString()));
-        Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME,Volume.toString()));
+        Volume = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOLUME, Volume.toString()));
         Mic = Integer.parseInt(mSettings.getString(APP_PREFERENCES_MIC_VOLUME,Mic.toString()));
         Scram = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString()));
         Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT,Tot.toString()));
         Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX,Vox.toString()));
-        isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE,isFull.toString()));
+        isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isFull.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
-        Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ,Sq.toString()));
-        ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY,ScanDelay.toString()));
-        ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
-        Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
-        getTheme().applyStyle(Theme.equals("Black")?R.style.Black:R.style.Light,true);
+        Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ, Sq.toString()));
+        ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY, ScanDelay.toString()));
+        ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT, ScanRxCt.toString()));
+        Port = mSettings.getString(APP_PREFERENCES_PORT, Port);
+        Theme = mSettings.getString(APP_PREFERENCES_THEME, Theme);
+        Resources.Theme mTheme = getTheme();
+        if(mTheme != null)mTheme.applyStyle(Theme.equals("Black") ? R.style.Black : R.style.Light, true);
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
-        //Full mode driver activate
-        if(isFull){
-            uIntercom = new uartIntercom();
-            mIntercom = uIntercom;
-        }
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
@@ -267,27 +265,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         if(Nick.equals(""))isChat = false;
 
-        try{
-            mIntercom.openCharDev();
-        }catch (NoSuchMethodError e){
-            Log.w("Intercom","openCharDev()");
-        }catch(UnsatisfiedLinkError e){
-            Log.w("INIT",getString(R.string.non_runbo));
-            uIntercom = new uartIntercom();
-            mIntercom = uIntercom;
-            isFull = true;
-        }
-        if(isChat)
-            try{
-                int m = mIntercom.checkMessageBuffer();
-            }catch(NoSuchMethodError e){
-                isChat = false;
-            }catch (NullPointerException e){
-                // Just check method existence
-                isChat = false;
-            }catch (UnsatisfiedLinkError e){
-                isChat = false;
-            }
         if(Power){
             Toast.makeText(this, R.string.power_enabling, Toast.LENGTH_SHORT).show();
             mIntercom.intercomPowerOn();
@@ -296,26 +273,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            try{
-                Ver = mIntercom.getIntercomVersion();
-            }catch(NoSuchMethodError e){
-                //
-            }catch (UnsatisfiedLinkError e){
-                //
-            }
-            setRxFreq();
-            setTxFreq();
-            mIntercom.setCtcss(curRxCt);
-            try{
-                mIntercom.setTxCtcss(curTxCt);
-            }catch(NoSuchMethodError e){
-                Log.w("Hardware","is too old hardware lib version");
-                isTxCt = false;
-            }catch (UnsatisfiedLinkError e){
-                isTxCt = false;
-            }
-            mIntercom.setSq(Sq);
-            mIntercom.setVolume(Volume);
+            Ver = mIntercom.getIntercomVersion();
+            Double rx = curRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+            Double tx = curTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+            mIntercom.init(rx.intValue(),tx.intValue(),curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
+            mIntercom.resumeIntercomSetting();
             if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
             Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
 
@@ -374,19 +336,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          * State listener - off intercomm when calling or alarm
          */
         mState = new IntentFilter();
-        mState.addAction("android.intent.action.PHONE_STATE");
+        mState.addAction("android.intent." +
+                "action.PHONE_STATE");
         mState.addAction("android.intent.action.NEW_OUTGOING_CALL");
         mState.addAction("com.android.deskclock.ALARM_ALERT");
         mState.addAction("com.android.deskclock.ALARM_DONE");
         mStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(!Power)return;
+                if(!Power || intent.getAction() == null)return;
                 if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
                     mIntercom.intercomPowerOff();
                     isBusy = true;
                 } else if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
                     String phone_state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                    if(phone_state == null )return;
                     if (phone_state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
                         mIntercom.intercomPowerOff();
                         isBusy = true;
@@ -395,13 +359,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         isBusy = true;
                     } else if (phone_state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
                         mIntercom.intercomPowerOn();
-                        try{
-                            Ver = mIntercom.getIntercomVersion();
-                        }catch(NoSuchMethodError e){
-                            //
-                        }catch (UnsatisfiedLinkError e){
-                            //
-                        }
+                        Ver = mIntercom.getIntercomVersion();
                         mIntercom.resumeIntercomSetting();
                         isBusy = false;
                     }
@@ -410,13 +368,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     isBusy = true;
                 }else if(intent.getAction().equals("com.android.deskclock.ALARM_DONE")){
                     mIntercom.intercomPowerOn();
-                    try{
-                        Ver = mIntercom.getIntercomVersion();
-                    }catch(NoSuchMethodError e){
-                        //
-                    }catch (UnsatisfiedLinkError e){
-                        //
-                    }
+                    Ver = mIntercom.getIntercomVersion();
                     mIntercom.resumeIntercomSetting();
                     isBusy = false;
                 }
@@ -501,7 +453,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(!source.contains("/")){//Get it from resource
                 int resId = getResources().getIdentifier(source, "drawable", getPackageName());
                 ret = MainActivity.this.getResources().getDrawable(resId);
-                ret.setBounds(0, 0, ret.getIntrinsicWidth()*8/6, ret.getIntrinsicHeight()*8/6);
+                if(ret != null)ret.setBounds(0, 0, ret.getIntrinsicWidth()*8/6, ret.getIntrinsicHeight()*8/6);
             }else{
                 try {//try to get from url
                     ret = Drawable.createFromStream(new URL(source).openStream(), "src name");
@@ -707,22 +659,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void setMic(){
-        if(uIntercom == null)return;
-        try{
-            uIntercom.setMic(Mic);
-            uIntercom.setScram(Scram);
-            uIntercom.setTot(Tot);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+         mIntercom.setMic_e(Mic, Scram, Tot);
     }
     public void setVox(){
-        if(uIntercom == null)return;
-        try{
-            uIntercom.setVox(Vox);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+         mIntercom.setVox(Vox);
     }
 
     public String setCh(Boolean set){
@@ -751,21 +691,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 setTitle(ChannelName);
                 Notify();
-                if(Power&&!isBusy){
-                    setRxFreq();
-                    setTxFreq();
-                    mIntercom.setCtcss(curRxCt);
-                    if(isTxCt)
-                        try{
-                            mIntercom.setTxCtcss(curTxCt);
-                        }catch (NoSuchMethodError e){
-                            Log.e("setTxCt","No method");
-                            isTxCt = false;
-                        }catch (UnsatisfiedLinkError e){
-                            isTxCt = false;
-                        }
-                    mIntercom.setSq(Sq);
-                }
+                if(Power&&!isBusy)
+                    setGrp();
                 TextView info = (TextView)mViewPager.findViewById(R.id.ch_info);
                 info.setText(Html.fromHtml(str));
                 selectList((ListView)mViewPager.findViewById(R.id.listView));
@@ -814,12 +741,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row;
-                if(convertView == null){
+                if(convertView == null && getApplicationContext() != null){
                     LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    row = (View)inflater.inflate(R.layout.list_row, null);
+                    row = inflater.inflate(R.layout.list_row, null);
                 }else{
-                    row = (View)convertView;
+                    row = convertView;
                 }
+                if(row == null)return null;
                 TextView text1 = (TextView)row.findViewById(R.id.textView);
                 TextView text2 = (TextView)row.findViewById(R.id.textView2);
                 CheckBox checkBox = (CheckBox)row.findViewById(R.id.checkBox);
@@ -829,7 +757,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 checkBox.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(isBlocked)return;
+                        if(isBlocked || view.getContentDescription() == null)return;
                         if(Vibrato)mVibrator.vibrate(75L);
                         int pos = Integer.parseInt(view.getContentDescription().toString());
                         String[] chh = curChannelList[pos].split(",");
@@ -846,7 +774,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 txt_layout.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(isBlocked)return;
+                        if(isBlocked || view.getContentDescription() == null)return;
                         if(Vibrato)mVibrator.vibrate(75L);
                         curChannel = Integer.parseInt(view.getContentDescription().toString());
                         setCh(true);
@@ -863,18 +791,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         };
     }
 
-    public void setTxFreq(){
-        if(curTxFreq > maxFreq || curTxFreq < minFreq)return;
-        Double f = curTxFreq * pow(10.0,Format.getMinimumFractionDigits());
-        Log.w("setTxFreq",Integer.toString(f.intValue()));
-        mIntercom.setTXFrequency(f.intValue());
-    }
-
-    public void setRxFreq(){
-        if(curRxFreq > maxFreq || curRxFreq < minFreq)return;
-        Double f = curRxFreq * pow(10.0,Format.getMinimumFractionDigits());
-        Log.w("setRxFreq",Integer.toString(f.intValue()));
-        mIntercom.setRXFrequency(f.intValue());
+    public void setGrp(){
+        Double rx = curRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+        Double tx = curTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+        Log.w("setRxFreq",Integer.toString(rx.intValue()));
+        Log.w("setTxFreq",Integer.toString(tx.intValue()));
+        mIntercom.setFreq(rx.intValue(),tx.intValue(),curRxCt,curTxCt,Sq);
     }
 
     public String setFreq(Double freq , Double delta){
@@ -886,10 +808,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(num > maxFreq-Offset) num = maxFreq;
         curRxFreq = num;
         curTxFreq = num+Offset;
-        if(Power&&!isBusy){
-           setRxFreq();
-           setTxFreq();
-        }
+        if(Power&&!isBusy)
+           setGrp();
         Notify();
         setTitle(R.string.app_name);
         return Format.format(num);
@@ -992,39 +912,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }catch (UnsatisfiedLinkError e){
                     //
                 }
-                mIntercom.setCtcss(sosRxCt);
-                if(isTxCt)
-                    try{
-                        mIntercom.setTxCtcss(sosTxCt);
-                    }catch(NoSuchMethodError e){
-                        isTxCt = false;
-                    }catch (UnsatisfiedLinkError e){
-                        isTxCt = false;
-                    }
-                Double f = sosRxFreq * pow(10.0,Format.getMinimumFractionDigits());
-                mIntercom.setRXFrequency(f.intValue());
-                f = sosTxFreq * pow(10.0,Format.getMinimumFractionDigits());
-                mIntercom.setTXFrequency(f.intValue());
-                mIntercom.setSq(1);
-                mIntercom.resumeIntercomSetting();
+                Double rx = sosRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                Double tx = sosTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                mIntercom.setFreq(rx.intValue(),tx.intValue(),sosRxCt,sosTxCt,1);
+                mIntercom.setMic_e(5,0,0);
+                mIntercom.setVox(0);
                 Toast.makeText(this, getString(R.string.freq)+" SOS", Toast.LENGTH_SHORT).show();
                 setTitle("SOS");
                 if(Vibrato)mVibrator.vibrate(250L);
             }else{
                 sosMode = false;
                 if(Power){
-                    mIntercom.setCtcss(curRxCt);
-                    if(isTxCt)
-                        try{
-                            mIntercom.setTxCtcss(curTxCt);
-                        }catch(NoSuchMethodError e){
-                            isTxCt = false;
-                        }catch (UnsatisfiedLinkError e){
-                            isTxCt = false;
-                        }
-                    mIntercom.setSq(Sq);
-                    setRxFreq();
-                    setTxFreq();
+                    Ver = mIntercom.getIntercomVersion();
+                    Double rx = curRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                    Double tx = curTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                    mIntercom.init(rx.intValue(),tx.intValue(),curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
+                    mIntercom.resumeIntercomSetting();
                 }else{
                     mIntercom.intercomPowerOff();
                 }
@@ -1082,6 +985,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ, Sq.toString()));
         ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY, ScanDelay.toString()));
         ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
+        Port = mSettings.getString(APP_PREFERENCES_PORT, Port);
         Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
@@ -1121,6 +1025,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_SQ,Sq.toString());
         editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
         editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
+        editor.putString(APP_PREFERENCES_PORT, Port);
         editor.putString(APP_PREFERENCES_THEME,Theme);
         editor.putString(APP_PREFERENCES_KEY_SOS,keySos.toString());
         editor.putString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString());
@@ -1349,11 +1254,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 settings.show(getSupportFragmentManager(),"settings");
                 return true;
             case R.id.action_quit:
-                try{
-                    mIntercom.closeCharDev();
-                }catch (NoSuchMethodError e){
-                    Log.w("Intercom","closeCharDev()");
-                }
                 mNotificationManager.cancel(R.id.pager);
                 ScanFreq = false;
                 ScanChannel = false;
@@ -1366,58 +1266,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case R.id.power:
                 if(Vibrato)mVibrator.vibrate(75L);
-                if(item.isChecked()){
+                if(Power){
+                    Power = false;
                     mIntercom.intercomPowerOff();
-                    try {
-                        Thread.sleep(200L);
-                    } catch (InterruptedException e) {
-                        //
-                    }
-                    try{
-                        mIntercom.closeCharDev();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","closeCharDev()");
-                    }
                     Toast.makeText(this, R.string.power_disabled, Toast.LENGTH_SHORT).show();
                     item.setIcon(android.R.drawable.ic_lock_power_off);
-                    item.setChecked(false);
                 }else{
-                    try{
-                        mIntercom.openCharDev();
-                    }catch (NoSuchMethodError e){
-                        Log.w("Intercom","openCharDev()");
-                    }
+                    Power = true;
                     mIntercom.intercomPowerOn();
-                    try {
-                        Thread.sleep(400L); //Boot-up wait
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    try{
-                        Ver = mIntercom.getIntercomVersion();
-                    }catch(NoSuchMethodError e){
-                        //
-                    }catch (UnsatisfiedLinkError e){
-                        //
-                    }
-                    setTxFreq();
-                    setRxFreq();
-                    //mIntercom.setRadioFrequency(getFreq());
-                    mIntercom.setSq(Sq);
-                    mIntercom.setCtcss(curRxCt);
-                    try{
-                        mIntercom.setTxCtcss(curTxCt);
-                    }catch(NoSuchMethodError e){
-                        Log.w("Intercom","getIntercomVersion()");
-                    }
-                    mIntercom.setVolume(Volume);
-                    if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
+                    Ver = mIntercom.getIntercomVersion();
+                    Double rx = curRxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                    Double tx = curTxFreq * pow(10.0,Format.getMinimumFractionDigits());
+                    mIntercom.init(rx.intValue(),tx.intValue(),curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
                     mIntercom.resumeIntercomSetting();
+                    if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
                     Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
                     item.setIcon(android.R.drawable.ic_lock_idle_charging);
-                    item.setChecked(true);
                 }
-                Power=item.isChecked();
+                item.setChecked(Power);
                 editor.putString(APP_PREFERENCES_POWER,Power.toString());
                 editor.commit();
                 Notify();
@@ -1590,13 +1456,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     break;
                 case R.id.txctcss:
                     main.curTxCt = position;
-                    if(main.Power&&!main.isBusy)try{
-                        main.mIntercom.setTxCtcss(main.curTxCt);
-                    }catch (NoSuchMethodError e){
-                        Log.e("setTxCt","No method");
-                    }catch (UnsatisfiedLinkError e){
-                        //
-                    }
+                    if(main.Power&&!main.isBusy)main.mIntercom.setTxCtcss(main.curTxCt);
                     break;
                 case R.id.sq:
                     main.Sq = position+1;
@@ -1712,7 +1572,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         private MainActivity main;
         private Boolean isLongTouch = false;
-        private String ch_name = "";
         public Channel(){
 
         }
@@ -1880,10 +1739,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 //add ch to list
+                                String c_name = "";
+                                String c_rx = "";
+                                String c_tx = "";
+                                if(name.getText() != null)c_name = name.getText().toString();
+                                if(rx.getText() != null)c_rx = rx.getText().toString();
+                                if(tx.getText() != null)c_tx = tx.getText().toString();
                                 String result =
-                                        name.getText().toString().replace(",",".").replace("|","/")+","+
-                                        rx.getText().toString()+","+
-                                        tx.getText().toString()+","+
+                                        c_name.replace(",",".").replace("|","/")+","+c_rx+","+c_tx+","+
                                         Integer.toString(rxct.getSelectedItemPosition())+","+
                                         Integer.toString(txct.getSelectedItemPosition())+","+
                                         Integer.toString(sq.getSelectedItemPosition()+1)+","+
@@ -2010,11 +1873,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         }else{//STD message
                             msg = main.Nick+"&nbsp;&gt;"+msg;
                         }
-                        try{
-                            if(main.Power)main.mIntercom.sendMessage(msg);
-                        }catch (NoSuchMethodError e){
-                            Log.w("Message", "can not be send");
-                        }
+                        if(main.Power)main.mIntercom.sendMessage(msg);
                         main.AppendMessage(msg);
                         message.setText("");
                         message.requestFocus();
@@ -2087,8 +1946,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Handler ChatHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
-            try{
-                if(Power&&!isBusy){
+            if(Power&&!isBusy){
                     String msg;
                     if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
@@ -2106,10 +1964,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     }
                 }
                 ChatHandler.sendEmptyMessageDelayed(0,1000L);//1 sec update
-            }catch(NoSuchMethodError e){
-                Log.w("Message","can not found function");
-            }
-
         }
     };
 
@@ -2133,6 +1987,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             for(int i=0;i<steps.length;i++)if(Step.equals(steps[i]))st.setSelection(i);
             final Spinner delay = (Spinner)Settings.findViewById(R.id.set_delay);
             for(int i=0;i<delays.length;i++)if(ScanDelay.equals(delays[i]))delay.setSelection(i);
+            final Spinner port = (Spinner)Settings.findViewById(R.id.port);
+            final String[] ports = mIntercom.getPorts();
+            port.setAdapter(new ArrayAdapter(getBaseContext(),android.R.layout.simple_spinner_dropdown_item,ports));
+            for(int i=0;i<ports.length;i++)if(Port.equals(ports[i]))port.setSelection(i);
             final Switch scan_ct = (Switch)Settings.findViewById(R.id.scan_ct);
             scan_ct.setChecked(ScanRxCt);
             final Switch vibro = (Switch)Settings.findViewById(R.id.vibro);
@@ -2175,25 +2033,28 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            minFreq = Double.parseDouble(min.getText().toString());
-                            maxFreq = Double.parseDouble(max.getText().toString());
+                            minFreq = (min.getText() == null)?minFreq:Double.parseDouble(min.getText().toString());
+                            maxFreq = (max.getText() == null)?maxFreq:Double.parseDouble(max.getText().toString());
                             Step = steps[st.getSelectedItemPosition()];
-                            Offset = Double.parseDouble(offset.getText().toString());
-                            Nick = nick.getText().toString();
+                            Port = ports[port.getSelectedItemPosition()];
+                            Offset = (offset.getText() == null)?Offset:Double.parseDouble(offset.getText().toString());
+                            Nick = (nick.getText() == null)?Nick:nick.getText().toString();
                             ScanDelay = delays[delay.getSelectedItemPosition()];
                             ScanRxCt = scan_ct.isChecked();
                             Vibrato = vibro.isChecked();
-                            Groups = groups.getText().toString();
-                            keySos = Integer.parseInt(set_sos.getText().toString());
-                            keyBlock = Integer.parseInt(set_block.getText().toString());
-                            keySearch = Integer.parseInt(set_search.getText().toString());
+                            Groups = (groups.getText() == null)?Groups:groups.getText().toString();
+                            keySos = (set_sos.getText() == null)?keySos:Integer.parseInt(set_sos.getText().toString());
+                            keyBlock = (set_block.getText() == null)?keyBlock:Integer.parseInt(set_block.getText().toString());
+                            keySearch = (set_search.getText() == null)?keySearch:Integer.parseInt(set_search.getText().toString());
                             isFull = full_mode.isChecked();
                             Mic = mic.getProgress() + 1;
                             Scram = scram.getProgress();
                             Tot = tot.getProgress();
                             Vox = vox.getProgress();
-                            setMic();
-                            setVox();
+                            mIntercom.setPort(Port);
+                            mIntercom.setMic_e(Mic,Scram,Tot);
+                            mIntercom.setVox(Vox);
+                            mIntercom.setPort(Port);
                             Spinner groups_list = (Spinner) mViewPager.findViewById(R.id.group_list);
                             groups_list.setAdapter(getGroups());
                             editor.putString(APP_PREFERENCES_NICK, Nick);
@@ -2213,6 +2074,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_SCRAM_VOLUME, Scram.toString());
                             editor.putString(APP_PREFERENCES_TOT, Tot.toString());
                             editor.putString(APP_PREFERENCES_VOX, Vox.toString());
+                            editor.putString(APP_PREFERENCES_PORT,Port);
                             editor.commit();
                         }
                     })

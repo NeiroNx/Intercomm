@@ -53,6 +53,7 @@
                 <Switch
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/vibro_label"
                     android:id="@+id/vibro"
                     android:layout_column="0"
@@ -147,11 +148,10 @@
 
                 <Spinner
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="35dp"
                     android:id="@+id/set_step"
                     android:layout_weight="1000"
-                    android:entries="@array/step"
-                    android:spinnerMode="dialog" />
+                    android:entries="@array/step" />
             </TableRow>
 
             <TableRow
@@ -169,7 +169,7 @@
 
                 <Spinner
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="35dp"
                     android:id="@+id/set_delay"
                     android:layout_column="1"
                     android:layout_weight="1000"
@@ -180,9 +180,32 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/port"
+                    android:id="@+id/port_label"
+                    android:layout_column="0"
+                    android:layout_weight=".1" />
+
+                <Spinner
+                    android:layout_width="fill_parent"
+                    android:layout_height="35dp"
+                    android:id="@+id/port"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:focusableInTouchMode="true" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
                 <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/scan_ct"
                     android:id="@+id/scan_ct"
                     android:layout_column="0"

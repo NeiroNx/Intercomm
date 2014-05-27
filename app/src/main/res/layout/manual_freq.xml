@@ -28,7 +28,7 @@
             android:id="@+id/freq"
             android:enabled="true"
             android:layout_marginTop="5dp"
-            android:textSize="34dp"
+            android:textSize="32sp"
             android:layout_weight="1"
             android:text="@string/freq_def"
             android:gravity="center_vertical|center_horizontal"
@@ -168,7 +168,7 @@
             android:layout_margin="10dp"
             android:layout_weight="5"
             android:layout_gravity="center_vertical"
-            android:max="8"
+            android:max="5"
             android:progress="0"
             android:paddingEnd="10dp"
             android:paddingStart="10dp" />
