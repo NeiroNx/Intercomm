@@ -293,7 +293,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mActionBar.setDisplayShowCustomEnabled(true);
         mActionBar.setDisplayShowHomeEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
-
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mPagerAdapter = new SampleAdapter(this, getSupportFragmentManager());
@@ -317,6 +316,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     TabPos = position;
                     mActionBar.setSelectedNavigationItem(position);
                     if(TabPos == 2 && isChat)mNotificationManager.cancel(R.id.chat);
+                    if(TabPos == 0){
+                        mActionBar.setDisplayHomeAsUpEnabled(false);
+                    }else{
+                        mActionBar.setDisplayHomeAsUpEnabled(true);
+                    }
                 }else{
                     mActionBar.setSelectedNavigationItem(TabPos);
                 }
@@ -402,6 +406,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(isChat)ChatHandler.sendEmptyMessageDelayed(0, 5000L);
         Notify();
         if(Vibrato)mVibrator.vibrate(75L);
+        String action = getIntent().getAction();
+        if(action != null) {
+            if (action.contains("FREQ")) mViewPager.setCurrentItem(0);
+            if (action.contains("CHANNEL")) mViewPager.setCurrentItem(1);
+            if (action.contains("CHAT")) mViewPager.setCurrentItem(2);
+        }
     }
 
     @Override
@@ -1177,6 +1187,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case android.R.id.home:
                 mViewPager.setCurrentItem(0);
+                mActionBar.setDisplayHomeAsUpEnabled(false);
                 return true;
             case R.id.imp_csv:
                 ActionInput = "import";
@@ -1300,6 +1311,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TabPos = tab.getPosition();
             mViewPager.setCurrentItem(tab.getPosition());
             if(TabPos == 2&& isChat)mNotificationManager.cancel(R.id.chat);
+            if(TabPos == 0){
+                mActionBar.setDisplayHomeAsUpEnabled(false);
+            }else{
+                mActionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }else{
             mViewPager.setCurrentItem(TabPos);
         }

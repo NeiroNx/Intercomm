@@ -126,7 +126,7 @@ AT+DMOSETVOX=[0..8]
 
  */
 public class uartIntercom{
-    private final static String[] dev_list = {"/dev/intercom_A1840","/dev/SA808"};
+    private final static String[] dev_list = {"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
     private final static String VERQ = "VERQ";
