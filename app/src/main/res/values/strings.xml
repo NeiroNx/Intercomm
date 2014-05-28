@@ -80,6 +80,18 @@
     <string name="tot">TOT</string>
     <string name="vox">VOX</string>
     <string name="port">Port</string>
+    <string name="num_1">1</string>
+    <string name="num_2">2</string>
+    <string name="num_3">3</string>
+    <string name="del">Delete</string>
+    <string name="num_4">4</string>
+    <string name="num_5">5</string>
+    <string name="num_6">6</string>
+    <string name="num_p">.</string>
+    <string name="num_7">7</string>
+    <string name="num_8">8</string>
+    <string name="num_9">9</string>
+    <string name="num_0">0</string>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>

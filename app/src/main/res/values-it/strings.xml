@@ -78,4 +78,5 @@
     <string name="tot">TOT</string>
     <string name="vox">VOX</string>
     <string name="port">Porto</string>
+    <string name="del">Delete</string>
 </resources>

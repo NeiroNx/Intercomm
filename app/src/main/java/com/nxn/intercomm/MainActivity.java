@@ -49,6 +49,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.GridLayout;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -1392,32 +1393,108 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public void onClick(View view){
             if(main.isBlocked)return;
             EditText e = (EditText)getView().findViewById(R.id.freq);
+            if(e.getEditableText() == null) return;
+            InputMethodManager imm = (InputMethodManager)main.getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(e.getWindowToken(), 0);
             ImageButton snd = (ImageButton)getView().findViewById(R.id.sound_src);
             if(main.Vibrato)main.mVibrator.vibrate(75L);
-            if(!isLongTouch)switch (view.getId()){
-                case R.id.freq:
-                    if(main.ScanFreq)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
-                    main.ScanFreq = false;
-                    break;
-                case R.id.freq_next:
-                    //Scan = false;
-                    e.setText(main.setFreq(0.0,main.Step));
-                    break;
-                case R.id.freq_prew:
-                    //Scan = false;
-                    e.setText(main.setFreq(0.0, -main.Step));
-                    break;
-                case R.id.sound_src:
-                    if(main.isSpeaker){
-                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode);
-                        main.isSpeaker = false;
-                        if(main.Power)main.mIntercom.intercomHeadsetMode();
-                    }else{
-                        snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);//stat_sys_headset
-                        main.isSpeaker = true;
-                        if(main.Power)main.mIntercom.intercomSpeakerMode();
-                    }
-                    break;
+            if(!isLongTouch){
+                switch (view.getId()){
+                    case R.id.freq:
+                        if(main.ScanFreq)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
+                        main.ScanFreq = false;
+                        break;
+                    case R.id.freq_next:
+                        //Scan = false;
+                        e.setText(main.setFreq(0.0,main.Step));
+                        break;
+                    case R.id.freq_prew:
+                        //Scan = false;
+                        e.setText(main.setFreq(0.0, -main.Step));
+                        break;
+                    case R.id.sound_src:
+                        if(main.isSpeaker){
+                            snd.setImageResource(android.R.drawable.ic_lock_silent_mode);
+                            main.isSpeaker = false;
+                            if(main.Power)main.mIntercom.intercomHeadsetMode();
+                        }else{
+                            snd.setImageResource(android.R.drawable.ic_lock_silent_mode_off);//stat_sys_headset
+                            main.isSpeaker = true;
+                            if(main.Power)main.mIntercom.intercomSpeakerMode();
+                        }
+                        break;
+                    case R.id.del:
+                        if(e.getSelectionStart() > 0)e.getEditableText().delete(e.getSelectionStart() - 1, e.getSelectionStart());
+                        break;
+                    case R.id.num_0:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_0));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_0));
+                        break;
+                    case R.id.num_1:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(), e.getSelectionEnd(), getString(R.string.num_1));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_1));
+                        break;
+                    case R.id.num_2:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_2));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_2));
+                        break;
+                    case R.id.num_3:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_3));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_3));
+                        break;
+                    case R.id.num_4:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_4));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_4));
+                        break;
+                    case R.id.num_5:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_5));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_5));
+                        break;
+                    case R.id.num_6:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_6));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_6));
+                        break;
+                    case R.id.num_7:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_7));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_7));
+                        break;
+                    case R.id.num_8:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_8));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_8));
+                        break;
+                    case R.id.num_9:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_9));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_9));
+                        break;
+                    case R.id.num_p:
+                        if(e.getSelectionStart() != e.getSelectionEnd())
+                            e.getEditableText().replace(e.getSelectionStart(),e.getSelectionEnd(),getString(R.string.num_p));
+                        else
+                            e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_p));
+                        break;
+                }
+                e.setSelection(e.getEditableText().length());
             } else isLongTouch = false;
         }
         @Override
@@ -1501,6 +1578,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             rootView.findViewById(R.id.freq_prew).setOnClickListener(this);
             rootView.findViewById(R.id.freq_next).setOnLongClickListener(this);
             rootView.findViewById(R.id.freq_prew).setOnLongClickListener(this);
+            rootView.findViewById(R.id.del).setOnClickListener(this);
+            rootView.findViewById(R.id.num_0).setOnClickListener(this);
+            rootView.findViewById(R.id.num_1).setOnClickListener(this);
+            rootView.findViewById(R.id.num_2).setOnClickListener(this);
+            rootView.findViewById(R.id.num_3).setOnClickListener(this);
+            rootView.findViewById(R.id.num_4).setOnClickListener(this);
+            rootView.findViewById(R.id.num_5).setOnClickListener(this);
+            rootView.findViewById(R.id.num_6).setOnClickListener(this);
+            rootView.findViewById(R.id.num_7).setOnClickListener(this);
+            rootView.findViewById(R.id.num_8).setOnClickListener(this);
+            rootView.findViewById(R.id.num_9).setOnClickListener(this);
+            rootView.findViewById(R.id.num_p).setOnClickListener(this);
             ImageButton snd = (ImageButton)rootView.findViewById(R.id.sound_src);
             EditText freq = (EditText)rootView.findViewById(R.id.freq);
             Spinner sq = (Spinner)rootView.findViewById(R.id.sq);
@@ -1530,8 +1619,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }else{
                     snd.setImageResource(android.R.drawable.ic_lock_silent_mode);//stat_sys_headset
                 }
-            }catch (NullPointerException e){
-                //
+                InputMethodManager imm = (InputMethodManager)main.getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(freq.getWindowToken(), 0);
+            }catch (Exception e){
+                e.printStackTrace();
             }
 
             return rootView;

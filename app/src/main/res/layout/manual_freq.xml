@@ -174,4 +174,142 @@
             android:paddingStart="10dp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_margin="2dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_1"
+                android:id="@+id/num_1"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_2"
+                android:id="@+id/num_2"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_3"
+                android:id="@+id/num_3"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/del"
+                android:src="@android:drawable/ic_input_delete"
+                android:layout_weight="1"
+                android:layout_margin="4dp"
+                android:contentDescription="@string/del" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_4"
+                android:id="@+id/num_4"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_5"
+                android:id="@+id/num_5"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_6"
+                android:id="@+id/num_6"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_p"
+                android:id="@+id/num_p"
+                android:textSize="30sp"
+                android:layout_weight="1"
+                android:layout_margin="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_7"
+                android:id="@+id/num_7"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_8"
+                android:id="@+id/num_8"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_9"
+                android:id="@+id/num_9"
+                android:textSize="30sp"
+                android:layout_margin="4dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/num_0"
+                android:id="@+id/num_0"
+                android:textSize="30sp"
+                android:layout_weight="1"
+                android:layout_margin="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </LinearLayout>
