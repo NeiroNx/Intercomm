@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">0.7</string>
+    <string name="help_dir">html</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Freq</string>
     <string name="title_chan">Channel</string>
@@ -76,10 +76,10 @@
     <string name="scan_ct">Scan tones</string>
     <string name="full_mode">Full mode</string>
     <string name="mic_volume">Mic Volume</string>
-    <string name="scram_label">SCRAMLVL</string>
+    <string name="scram_label">Scrambling Level</string>
     <string name="tot">TOT</string>
     <string name="vox">VOX</string>
-    <string name="port">Port</string>
+    <string name="port">COM Port</string>
     <string name="num_1">1</string>
     <string name="num_2">2</string>
     <string name="num_3">3</string>
@@ -92,6 +92,18 @@
     <string name="num_8">8</string>
     <string name="num_9">9</string>
     <string name="num_0">0</string>
+    <string name="help">Help</string>
+    <string-array name="scram">
+        <item>Off</item>
+        <item>1: 2725 Hz</item>
+        <item>2: 2825 Hz</item>
+        <item>3: 2925 Hz</item>
+        <item>4: 3025 Hz</item>
+        <item>5: 3125 Hz</item>
+        <item>6: 3225 Hz</item>
+        <item>7: 3325 Hz</item>
+        <item>8</item>
+    </string-array>
     <string-array name="ctcss">
         <item>Off</item>
         <item>1: 67.0 HZ</item>
@@ -137,7 +149,7 @@
         <item>D026N</item>
         <item>D031N</item>
         <item>D032N</item>
-        <!--<item>D036N</item>
+        <item>D036N</item>
         <item>D043N</item>
         <item>D047N</item>
         <item>D051N</item>
@@ -236,9 +248,10 @@
         <item>D732N</item>
         <item>D734N</item>
         <item>D743N</item>
-        <item>D754N</item>-->
+        <item>D754N</item>
     </string-array>
     <string-array name="sq">
+        <item>Off</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>

@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -50,6 +51,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.GridLayout;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -712,7 +714,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 Spinner txct = (Spinner)mViewPager.findViewById(R.id.txctcss);
                 txct.setSelection(curTxCt);
                 Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
-                sq.setSelection(Sq-1);
+                sq.setSelection(Sq);
                 editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
                 editor.commit();
             }catch (NullPointerException e){
@@ -1074,7 +1076,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Spinner txct = (Spinner)mViewPager.findViewById(R.id.txctcss);
             if(txct != null)txct.setSelection(curTxCt);
             Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
-            if(sq != null)sq.setSelection(Sq-1);
+            if(sq != null)sq.setSelection(Sq);
             Spinner group = (Spinner)mViewPager.findViewById(R.id.group_list);
             if(group != null)group.setSelection(curGroup);
             mViewPager.setCurrentItem(TabPos, true);
@@ -1251,6 +1253,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 DialogFragment about = new AboutDialog();
                 about.show(getSupportFragmentManager(),"about");
                 return true;
+            case R.id.help:
+                DialogFragment help = new HelpDialog();
+                help.show(getSupportFragmentManager(),"help");
+                return true;
             case R.id.action_settings:
                 DialogFragment settings = new SettingsDialog();
                 settings.show(getSupportFragmentManager(),"settings");
@@ -1413,7 +1419,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         }
                         break;
                     case R.id.del:
-                        if(e.getSelectionStart() > 0)e.getEditableText().delete(e.getSelectionStart() - 1, e.getSelectionStart());
+                        String s = e.getEditableText().toString();
+                        int len = 1;
+                        if(s != null && e.getSelectionStart() > 1 && s.charAt(e.getSelectionStart()-1) == '.' ) len = 2;//del 2 char when end with point
+                        if(e.getSelectionStart() > 0)
+                            e.getEditableText().delete(e.getSelectionStart() - len, e.getSelectionStart());
+                        else
+                            e.getEditableText().delete(e.getSelectionStart(),e.getSelectionEnd());
                         break;
                     case R.id.num_0:
                         if(e.getSelectionStart() != e.getSelectionEnd())
@@ -1482,7 +1494,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             e.getEditableText().insert(e.getSelectionStart(),getString(R.string.num_p));
                         break;
                 }
-                e.setSelection(e.getEditableText().length());
+                if(view.getId() != R.id.freq && e.getSelectionStart() == 0 )e.setSelection(e.getEditableText().length());
             } else isLongTouch = false;
         }
         @Override
@@ -1540,7 +1552,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     if(main.Power&&!main.isBusy)main.mIntercom.setTxCtcss(main.curTxCt);
                     break;
                 case R.id.sq:
-                    main.Sq = position+1;
+                    main.Sq = position;
                     if(main.Power&&!main.isBusy)main.mIntercom.setSq(main.Sq);
                     break;
             }
@@ -1598,7 +1610,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 rxct.setOnItemSelectedListener(this);
                 txct.setOnItemSelectedListener(this);
                 freq.setText(main.Format.format(main.curRxFreq));
-                sq.setSelection(main.Sq - 1);
+                sq.setSelection(main.Sq);
                 rxct.setSelection(main.curRxCt);
                 txct.setSelection(main.curTxCt);
                 vol.setProgress(main.Volume-1);
@@ -1821,7 +1833,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 txct.setEnabled(main.isTxCt);
                 txct.setSelection(Integer.parseInt(ch[4]));
                 final Spinner sq = (Spinner)Settings.findViewById(R.id.ch_sq);
-                sq.setSelection(Integer.parseInt(ch[5])-1);
+                sq.setSelection(Integer.parseInt(ch[5]));
                 final CheckBox scan = (CheckBox)Settings.findViewById(R.id.ch_scan);
                 scan.setChecked(Boolean.parseBoolean(ch[6]));
                 final Spinner group = (Spinner)Settings.findViewById(R.id.ch_group);
@@ -1845,7 +1857,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         c_name.replace(",",".").replace("|","/")+","+c_rx+","+c_tx+","+
                                         Integer.toString(rxct.getSelectedItemPosition())+","+
                                         Integer.toString(txct.getSelectedItemPosition())+","+
-                                        Integer.toString(sq.getSelectedItemPosition()+1)+","+
+                                        Integer.toString(sq.getSelectedItemPosition())+","+
                                         Boolean.toString(scan.isChecked())+ "," +
                                         Integer.toString(group.getSelectedItemPosition());
                                 Log.e("OnEdit",Integer.toString(main.getPosList(main.curChannel,main.curGroup)));
@@ -2095,8 +2107,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             full_mode.setChecked(isFull);
             final SeekBar mic = (SeekBar)Settings.findViewById(R.id.mic_volume);
             mic.setProgress(Mic-1);
-            final SeekBar scram = (SeekBar)Settings.findViewById(R.id.scram);
-            scram.setProgress(Scram);
+            final Spinner scram = (Spinner)Settings.findViewById(R.id.scram);
+            scram.setSelection(Scram);
             final SeekBar tot = (SeekBar)Settings.findViewById(R.id.tot);
             tot.setProgress(Tot);
             final SeekBar vox = (SeekBar)Settings.findViewById(R.id.vox);
@@ -2144,7 +2156,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             keySearch = (set_search.getText() == null)?keySearch:Integer.parseInt(set_search.getText().toString());
                             isFull = full_mode.isChecked();
                             Mic = mic.getProgress() + 1;
-                            Scram = scram.getProgress();
+                            Scram = scram.getSelectedItemPosition();
                             Tot = tot.getProgress();
                             Vox = vox.getProgress();
                             mIntercom.setPort(Port);
@@ -2189,8 +2201,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View About = inflater.inflate(R.layout.input, null);
-            final EditText input = (EditText)About.findViewById(R.id.input);
+            final View ed = inflater.inflate(R.layout.input, null);
+            final EditText input = (EditText)ed.findViewById(R.id.input);
             if(ActionInput.equals("import")||ActionInput.equals("export")){
                 input.setText(FileName);
                 input.setHint(R.string.file_label);
@@ -2200,7 +2212,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
-            builder.setView(About)
+            builder.setView(ed)
                     // Add action buttons
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
@@ -2256,6 +2268,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
             final View About = inflater.inflate(R.layout.about, null);
+            TextView version = (TextView)About.findViewById(R.id.version);
+            try {
+                version.setText(getApplicationContext().getPackageManager()
+                        .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             TextView text = (TextView)About.findViewById(R.id.about_txt);
             text.setText(Html.fromHtml(getString(R.string.about_text)));
             // Inflate and set the layout for the dialog
@@ -2266,6 +2285,51 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             AboutDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+
+        }
+    }
+
+    public class HelpDialog extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanseState){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View Help = inflater.inflate(R.layout.help, null);
+            final WebView helpText = (WebView)Help.findViewById(R.id.helpText);
+            helpText.loadUrl("file:///android_asset/"+getString(R.string.help_dir)+"/index.html");
+            ImageButton prew = (ImageButton)Help.findViewById(R.id.help_prew);
+            ImageButton next = (ImageButton)Help.findViewById(R.id.help_next);
+            ImageButton home = (ImageButton)Help.findViewById(R.id.help_home);
+            prew.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    helpText.goBack();
+                }
+            });
+            next.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    helpText.goForward();
+                }
+            });
+            home.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    helpText.loadUrl("file:///android_asset/"+getString(R.string.help_dir)+"/index.html");
+                }
+            });
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(Help)
+                    // Add action buttons
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            HelpDialog.this.getDialog().cancel();
                         }
                     });
             return builder.create();
@@ -2296,7 +2360,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 tx.setText(curTxFreq.toString());
                 rxct.setSelection(curRxCt);
                 txct.setSelection(curTxCt);
-                sq.setSelection(Sq-1);
+                sq.setSelection(Sq);
                 group.setAdapter(getGroups());
                 group.setSelection(curGroup);
             }else{
@@ -2323,7 +2387,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                                 tx.getText().toString() + "," +
                                                 Integer.toString(rxct.getSelectedItemPosition()) + "," +
                                                 Integer.toString(txct.getSelectedItemPosition()) + "," +
-                                                Integer.toString(sq.getSelectedItemPosition()+1) + "," +
+                                                Integer.toString(sq.getSelectedItemPosition()) + "," +
                                                 Boolean.toString(scan.isChecked())+ "," +
                                                 Integer.toString(group.getSelectedItemPosition());
                                 if(curChannel == -1)ChannelList = new String[]{result};else

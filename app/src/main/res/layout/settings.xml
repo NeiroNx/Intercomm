@@ -328,6 +328,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/scram_label"
+                    android:id="@+id/scram_label"
+                    android:layout_column="0"
+                    android:layout_weight=".1" />
+
+                <Spinner
+                    android:layout_width="fill_parent"
+                    android:layout_height="35dp"
+                    android:id="@+id/scram"
+                    android:entries="@array/scram"
+                    android:layout_column="1"
+                    android:layout_weight="1000" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/mic_volume"
                     android:id="@+id/mic_volume_label" />
 
@@ -340,29 +363,6 @@
                     android:layout_weight="1000"
                     android:max="7"
                     android:progress="5" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/scram_label"
-                    android:id="@+id/scram_label"
-                    android:layout_column="0"
-                    android:layout_weight=".1" />
-
-                <SeekBar
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/scram"
-                    android:layout_column="1"
-                    android:layout_weight="1000"
-                    android:clickable="false"
-                    android:max="8" />
             </TableRow>
 
             <TableRow

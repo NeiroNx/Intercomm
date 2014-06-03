@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="help_dir">html-it</string>
     <string name="app_name">Intercomm</string>
-    <string name="title_freq">Frequenza</string>
+    <string name="title_freq">Frequenza (VFO)</string>
     <string name="title_chan">Canale</string>
     <string name="title_chat">Chat</string>
     <string name="title_sets">Impostazioni</string>
@@ -17,23 +18,19 @@
     <string name="power_disabled">Modulo Spento</string>
     <string name="power_enabled">Modulo Acceso</string>
     <string name="nick_lable">Nick name per la chat</string>
-    <string name="set_min">Limite freq. inferiore</string>
-    <string name="set_max">Limite freq. superiore</string>
-    <string name="step_label">Passo</string>
+    <string name="set_min">Limite inferiore banda</string>
+    <string name="set_max">Limite superiore banda</string>
+    <string name="step_label">Passo di canalizzazione</string>
     <string name="clear_history">Cancella cronologia</string>
     <string name="share_gps">Condividi GPS</string>
     <string name="not_send">(Non inviato)</string>
-    <string name="sound" />
-    <string name="ctcss_label">CTCSS: </string>
-    <string name="sq_label">SQ</string>
-    <string name="freq_def">000.00000</string>
-    <string name="name">Nome canale</string>
-    <string name="rxfreq_label">Ricezione MHz</string>
-    <string name="txfreq_label">Trasmissione MHz</string>
+    <string name="name">Nome del canale</string>
+    <string name="rxfreq_label">Freq. RX MHz</string>
+    <string name="txfreq_label">Freq. TX MHz</string>
     <string name="txctcss_label">Tono TX</string>
     <string name="rxctcss_label">Tono RX</string>
     <string name="power_enabling">Per favore attendi l\'attivazione!!!</string>
-    <string name="non_runbo">Nessun telefono Runbo X5, provarne altri.</string>
+    <string name="non_runbo">Nessun telefono Runbo X5 trovato, provarne altri.</string>
     <string name="about_text"><![CDATA[Sviluppato da NeiroN<br/> link per i codici sorgenti LGPL<br/> https://github.com/NeiroNx/Intercomm <br/> Email: neiron.nxn@gmail.com <br/>Eventuali contributi volontari su https://money.yandex.ru/embed/shop.xml?account=410012273336245&quickpay=shop&payment-type-choice=on&writer=seller&targets=Donate&default-sum=30&button-text=04]]></string>
     <string name="about">Informazioni</string>
     <string name="scan">Scan</string>
@@ -59,7 +56,7 @@
     <string name="on">ON</string>
     <string name="off">OFF</string>
     <string name="sos_set">Imposta pulsante SOS</string>
-    <string name="offset_label">TX Offset</string>
+    <string name="offset_label">Shift TX</string>
     <string name="change_theme">Cambia tema</string>
     <string name="groups_list">Tutto,Preferiti,PMR,LPD</string>
     <string name="group_label">Gruppo</string>
@@ -72,11 +69,12 @@
     <string name="send">Invia</string>
     <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> è stato cambiato il nick in <b>%s</b></i>]]></string>
     <string name="scan_ct">Tono scan</string>
-    <string name="full_mode">Modalità full</string>
+    <string name="full_mode">Modalit full</string>
     <string name="mic_volume">Volume Mic</string>
-    <string name="scram_label">SCRAMLVL</string>
+    <string name="scram_label">Scrambler Level</string>
     <string name="tot">TOT</string>
     <string name="vox">VOX</string>
-    <string name="port">Porto</string>
-    <string name="del">Delete</string>
+    <string name="port">Porta COM</string>
+    <string name="del">Elimina</string>
+    <string name="help">Help</string>
 </resources>

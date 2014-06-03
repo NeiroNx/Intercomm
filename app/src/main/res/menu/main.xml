@@ -43,6 +43,12 @@
         android:orderInCategory="10"
         android:icon="@android:drawable/ic_menu_agenda"
         app:showAsAction="never" />
+    <item android:id="@+id/help"
+        android:title="@string/help"
+        android:orderInCategory="10"
+        android:icon="@android:drawable/ic_menu_help"
+        app:showAsAction="never"
+        />
     <item android:id="@+id/power"
         android:title="@string/power"
         android:checkable="true"
