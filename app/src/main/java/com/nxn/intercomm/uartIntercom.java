@@ -5,7 +5,10 @@ package com.nxn.intercomm;
  */
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Vector;
 import android.util.Log;
 /*
@@ -141,6 +144,8 @@ public class uartIntercom{
     //private final static int INTERCOM_SPEAKER_MODE = 2;
     private final static int INTERCOM_HEADSET_MODE = 3;
     private final static int INTERCOM_SPEAKER_MODE = 4;
+    public static final String FORMAT = "###.####";
+    public NumberFormat Format;
     private SerialPort uart = null;
     private String ctl = "";
     private Integer Ver = 2014;
@@ -150,8 +155,8 @@ public class uartIntercom{
     private Integer Tot = 0;
     private Integer Vox = 0;
     private Integer SQ = 5;
-    private Integer RxFreq = 4500500;
-    private Integer TxFreq = 4500500;
+    private Double RxFreq = 450.0500;
+    private Double TxFreq = 450.0500;
     private Integer RxCTCSS = 0;
     private Integer TxCTCSS = 0;
     private String[] ports = {};
@@ -165,6 +170,11 @@ public class uartIntercom{
             if(dev1.exists()) ctl = d;
         }
         Log.e("UART","Control: "+ctl);
+        //Create format
+        Format = NumberFormat.getInstance(Locale.ENGLISH);
+        ((DecimalFormat)Format).applyPattern(FORMAT);
+        Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
+        Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
     }
 
     public String[] getPorts(){
@@ -274,18 +284,10 @@ public class uartIntercom{
         }
     }
 
-    public void setRXFrequency(int paramInt)
+    public void setRXFrequency(Double param)
     {
-        if(RxFreq != paramInt){
-            RxFreq = paramInt;
-            sendFreq();
-        }
-    }
-
-    public void setRadioFrequency(int paramInt)
-    {
-        if(RxFreq != paramInt){
-            RxFreq = paramInt;
+        if(!RxFreq.equals(param)){
+            RxFreq = param;
             sendFreq();
         }
     }
@@ -298,10 +300,10 @@ public class uartIntercom{
         }
     }
 
-    public void setTXFrequency(int paramInt)
+    public void setTXFrequency(Double param)
     {
-        if(TxFreq != paramInt){
-            TxFreq = paramInt;
+        if(!TxFreq.equals(param)){
+            TxFreq = param;
             sendFreq();
         }
     }
@@ -321,7 +323,7 @@ public class uartIntercom{
             sendVol();
         }
     }
-    public void init(int rx, int tx, int rxt, int txt, int sq,int mic, int scram, int tot, int vox, int volume){
+    public void init(Double rx, Double tx, int rxt, int txt, int sq,int mic, int scram, int tot, int vox, int volume){
         RxFreq = rx;
         TxFreq = tx;
         RxCTCSS = rxt;
@@ -334,9 +336,9 @@ public class uartIntercom{
         Volume = volume;
     }
 
-    public void setFreq(int rx, int tx, int rxt, int txt, int sq){
+    public void setFreq(Double rx, Double tx, int rxt, int txt, int sq){
         Boolean set = false;
-        if(RxFreq != rx || TxFreq != tx || RxCTCSS != rxt || TxCTCSS != txt || SQ != sq)set = true;
+        if(!RxFreq.equals(rx) || !TxFreq.equals(tx) || RxCTCSS != rxt || TxCTCSS != txt || SQ != sq)set = true;
         RxFreq = rx;
         TxFreq = tx;
         RxCTCSS = rxt;
@@ -394,10 +396,7 @@ public class uartIntercom{
 
     private void sendFreq(){
         if(uart != null){
-            String str = AT+DMO+GRP+
-                    ((TxFreq<10000000)?Double.toString(Double.valueOf(TxFreq)/10000):Double.toString(Double.valueOf(TxFreq)/100000))+","+
-                    ((RxFreq<10000000)?Double.toString(Double.valueOf(RxFreq)/10000):Double.toString(Double.valueOf(RxFreq)/100000))+","+
-                    String.format("%02d,%d,%02d",RxCTCSS,SQ,TxCTCSS);
+            String str = AT+DMO+GRP+String.format("%s,%s,%02d,%d,%02d",Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ,TxCTCSS);
             uart.write(str);
         }
     }
