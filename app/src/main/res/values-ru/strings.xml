@@ -224,28 +224,6 @@
         <item>119: D506N</item>
         <item>120: D516N</item>
         <item>121: D523N</item>
-        <item>122: D526N</item>
-        <item>123: D532N</item>
-        <item>124: D546N</item>
-        <item>125: D565N</item>
-        <item>126: D606N</item>
-        <item>127: D612N</item>
-        <item>128: D624N</item>
-        <item>129: D627N</item>
-        <item>130: D631N</item>
-        <item>131: D632N</item>
-        <item>132: D645N</item>
-        <item>133: D654N</item>
-        <item>134: D662N</item>
-        <item>135: D664N</item>
-        <item>136: D703N</item>
-        <item>137: D712N</item>
-        <item>138: D723N</item>
-        <item>139: D731N</item>
-        <item>140: D732N</item>
-        <item>141: D734N</item>
-        <item>142: D743N</item>
-        <item>143: D754N</item>
     </string-array>
     <string-array name="step">
         <item>5.00 КГц</item>

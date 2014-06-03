@@ -144,111 +144,89 @@
         <item>36: 233.6HZ</item>
         <item>37: 241.8HZ</item>
         <item>38: 250.3HZ</item>
-        <item>D023N</item>
-        <item>D025N</item>
-        <item>D026N</item>
-        <item>D031N</item>
-        <item>D032N</item>
-        <item>D036N</item>
-        <item>D043N</item>
-        <item>D047N</item>
-        <item>D051N</item>
-        <item>D053N</item>
-        <item>D054N</item>
-        <item>D065N</item>
-        <item>D071N</item>
-        <item>D072N</item>
-        <item>D073N</item>
-        <item>D074N</item>
-        <item>D114N</item>
-        <item>D115N</item>
-        <item>D116N</item>
-        <item>D122N</item>
-        <item>D125N</item>
-        <item>D131N</item>
-        <item>D132N</item>
-        <item>D134N</item>
-        <item>D143N</item>
-        <item>D145N</item>
-        <item>D152N</item>
-        <item>D155N</item>
-        <item>D156N</item>
-        <item>D162N</item>
-        <item>D165N</item>
-        <item>D172N</item>
-        <item>D174N</item>
-        <item>D205N</item>
-        <item>D212N</item>
-        <item>D223N</item>
-        <item>D225N</item>
-        <item>D226N</item>
-        <item>D243N</item>
-        <item>D244N</item>
-        <item>D245N</item>
-        <item>D246N</item>
-        <item>D251N</item>
-        <item>D252N</item>
-        <item>D255N</item>
-        <item>D261N</item>
-        <item>D263N</item>
-        <item>D265N</item>
-        <item>D266N</item>
-        <item>D271N</item>
-        <item>D274N</item>
-        <item>D306N</item>
-        <item>D311N</item>
-        <item>D315N</item>
-        <item>D325N</item>
-        <item>D331N</item>
-        <item>D332N</item>
-        <item>D343N</item>
-        <item>D346N</item>
-        <item>D351N</item>
-        <item>D356N</item>
-        <item>D364N</item>
-        <item>D365N</item>
-        <item>D371N</item>
-        <item>D411N</item>
-        <item>D412N</item>
-        <item>D413N</item>
-        <item>D423N</item>
-        <item>D431N</item>
-        <item>D432N</item>
-        <item>D445N</item>
-        <item>D446N</item>
-        <item>D452N</item>
-        <item>D454N</item>
-        <item>D455N</item>
-        <item>D462N</item>
-        <item>D464N</item>
-        <item>D465N</item>
-        <item>D466N</item>
-        <item>D503N</item>
-        <item>D506N</item>
-        <item>D516N</item>
-        <item>D523N</item>
-        <item>D526N</item>
-        <item>D532N</item>
-        <item>D546N</item>
-        <item>D565N</item>
-        <item>D606N</item>
-        <item>D612N</item>
-        <item>D624N</item>
-        <item>D627N</item>
-        <item>D631N</item>
-        <item>D632N</item>
-        <item>D645N</item>
-        <item>D654N</item>
-        <item>D662N</item>
-        <item>D664N</item>
-        <item>D703N</item>
-        <item>D712N</item>
-        <item>D723N</item>
-        <item>D731N</item>
-        <item>D732N</item>
-        <item>D734N</item>
-        <item>D743N</item>
-        <item>D754N</item>
+        <item>39: D023N</item>
+        <item>40: D025N</item>
+        <item>41: D026N</item>
+        <item>42: D031N</item>
+        <item>43: D032N</item>
+        <item>44: D036N</item>
+        <item>45: D043N</item>
+        <item>46: D047N</item>
+        <item>47: D051N</item>
+        <item>48: D053N</item>
+        <item>49: D054N</item>
+        <item>50: D065N</item>
+        <item>51: D071N</item>
+        <item>52: D072N</item>
+        <item>53: D073N</item>
+        <item>54: D074N</item>
+        <item>55: D114N</item>
+        <item>56: D115N</item>
+        <item>57: D116N</item>
+        <item>58: D122N</item>
+        <item>59: D125N</item>
+        <item>60: D131N</item>
+        <item>61: D132N</item>
+        <item>62: D134N</item>
+        <item>63: D143N</item>
+        <item>64: D145N</item>
+        <item>65: D152N</item>
+        <item>66: D155N</item>
+        <item>67: D156N</item>
+        <item>68: D162N</item>
+        <item>69: D165N</item>
+        <item>70: D172N</item>
+        <item>71: D174N</item>
+        <item>72: D205N</item>
+        <item>73: D212N</item>
+        <item>74: D223N</item>
+        <item>75: D225N</item>
+        <item>76: D226N</item>
+        <item>77: D243N</item>
+        <item>78: D244N</item>
+        <item>79: D245N</item>
+        <item>80: D246N</item>
+        <item>81: D251N</item>
+        <item>82: D252N</item>
+        <item>83: D255N</item>
+        <item>84: D261N</item>
+        <item>85: D263N</item>
+        <item>86: D265N</item>
+        <item>87: D266N</item>
+        <item>88: D271N</item>
+        <item>89: D274N</item>
+        <item>90: D306N</item>
+        <item>91: D311N</item>
+        <item>92: D315N</item>
+        <item>93: D325N</item>
+        <item>94: D331N</item>
+        <item>95: D332N</item>
+        <item>96: D343N</item>
+        <item>97: D346N</item>
+        <item>98: D351N</item>
+        <item>99: D356N</item>
+        <item>100: D364N</item>
+        <item>101: D365N</item>
+        <item>102: D371N</item>
+        <item>103: D411N</item>
+        <item>104: D412N</item>
+        <item>105: D413N</item>
+        <item>106: D423N</item>
+        <item>107: D431N</item>
+        <item>108: D432N</item>
+        <item>109: D445N</item>
+        <item>110: D446N</item>
+        <item>111: D452N</item>
+        <item>112: D454N</item>
+        <item>113: D455N</item>
+        <item>114: D462N</item>
+        <item>115: D464N</item>
+        <item>116: D465N</item>
+        <item>117: D466N</item>
+        <item>118: D503N</item>
+        <item>119: D506N</item>
+        <item>120: D516N</item>
+        <item>121: D523N</item>
     </string-array>
     <string-array name="sq">
         <item>Off</item>
