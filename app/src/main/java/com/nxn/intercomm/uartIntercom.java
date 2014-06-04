@@ -276,7 +276,13 @@ public class uartIntercom{
 
     public int sendMessage(String paramString)
     {
-        uart.write(AT+DMO+MES+String.format("\\x%d%s",paramString.length(),paramString));
+        if(paramString.length()<100){
+            uart.write(AT + DMO + MES + String.format("\\x%d%s", paramString.length(), paramString));
+        }else{//Split Messages by 100 byte
+            for(int i=0;paramString.length()<i+100;i+=100){
+                uart.write(AT+DMO+MES+String.format("\\x%d%s",100,paramString.substring(i,(paramString.length()-i>100)?100:paramString.length()-i)));
+            }
+        }
         return 0;
     }
 
