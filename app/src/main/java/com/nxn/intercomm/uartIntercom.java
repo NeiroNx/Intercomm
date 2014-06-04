@@ -276,7 +276,7 @@ public class uartIntercom{
 
     public int sendMessage(String paramString)
     {
-        uart.write(AT+DMO+MES+paramString);
+        uart.write(AT+DMO+MES+String.format("\\x%d%s",paramString.length(),paramString));
         return 0;
     }
 

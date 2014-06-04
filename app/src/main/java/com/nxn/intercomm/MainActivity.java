@@ -146,8 +146,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_PORT = "port";
     public static final String FORMAT = "###.####";
 
+    public static final int TONES = 121;
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public static final Double[] tones = {0.0,67.0,71.9,74.4,77.0,79.7,82.5,85.4,88.5,91.5,94.8,97.4,100.0,103.5,107.2,110.9,114.8,118.8,123.0,127.3,131.8,136.5,141.3,146.2,151.4,156.7,162.2,167.9,173.8,179.9,186.2,192.8,203.5,210.7,218.1,225.7,233.6,241.8,250.3};
+    public static final String[] dtones = {};
+    public static final String[] dpolar = {};
     public static final Long[] delays = {100L,200L,500L,1000L,2000L,3000L,5000L,10000L,60000L,300000L};
     public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YES*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*";
     public Integer Ver = -1;
@@ -653,12 +656,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    public static Double pow(Double base, int up){
-        Double result = base;
-        for(int i=1;i<up;i++)result*=base;
-        return result;
-    }
-
     @TargetApi(Build.VERSION_CODES.FROYO)
     public void selectList(ListView list){
         list.smoothScrollToPosition(curChannel);
@@ -667,13 +664,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void applyTheme(){
         recreate();
-    }
-
-    public void setMic(){
-         mIntercom.setMic_e(Mic, Scram, Tot);
-    }
-    public void setVox(){
-         mIntercom.setVox(Vox);
     }
 
     public String setCh(Boolean set){
@@ -899,7 +889,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int i = 1;
         for(String line:ChannelList){
             String[] get = line.split(",");
-            writer.write(i+","+get[0]+","+get[1]+",split,"+get[2]+((get[3].equals("0"))?",,":",Cross,")+Double.toString(tones[Integer.parseInt(get[3])])+","+Double.toString(tones[Integer.parseInt(get[3])])+",023,NN,FM,5.00,,,,,,\n");
+            int rxct = Integer.parseInt(get[3]);
+            int txct = Integer.parseInt(get[3]);
+            writer.write(i+","+get[0]+","+get[1]+",split,"+get[2]+((get[3].equals("0"))?",,":",Cross,")+((rxct<tones.length)?Double.toString(tones[rxct]):"")+","+((rxct<tones.length)?Double.toString(tones[txct]):"")+",023,NN,FM,5.00,,,,,,\n");
             i++;
         }
         writer.close();
@@ -1892,33 +1884,29 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(ScanFreq){
                 EditText freq = (EditText)mViewPager.findViewById(R.id.freq);
                 Spinner rx = (Spinner)mViewPager.findViewById(R.id.rxctcss);
-                if(ScanForward){
-                    if(ScanRxCt&&curRxCt<tones.length-1){
-                        curRxCt++;
-                        if(rx != null)rx.setSelection(curRxCt);
-                    } else {
-                        if(curRxFreq+Step > maxFreq-Offset) curRxFreq = minFreq-Step;
-                        if(curRxCt == tones.length-1)curRxCt=-1;
-                        if(freq != null)freq.setText(setFreq(curRxFreq,Step));
+                if(ScanRxCt){
+                    if(ScanForward)curRxCt++;else curRxCt--;
+                    if(curRxCt>TONES){
+                        curRxCt=0;
+                        curRxFreq += Step;
                     }
+                    if(curRxCt<0){
+                        curRxCt=TONES;
+                        curRxFreq -= Step;
+                    }
+                    Toast.makeText(MainActivity.this, Format.format(curRxFreq)+" MHz, "+getString(R.string.rxctcss_label)+" "+getResources().getStringArray(R.array.ctcss)[curRxCt], Toast.LENGTH_SHORT).show();
                 }else{
-                    if(ScanRxCt&&curRxCt>0){
-                        curRxCt--;
-                        if(rx != null)rx.setSelection(curRxCt);
-                    } else {
-                        if(curRxFreq-Step < minFreq+Offset) curRxFreq = maxFreq+Step;
-                        if(curRxCt == 0)curRxCt=tones.length;
-                        if(freq != null)freq.setText(setFreq(curRxFreq,-Step));
-                    }
+                    if(ScanForward)curRxFreq += Step;else curRxFreq -= Step;
+                    Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
                 }
-                if(Power&&!isBusy){
-                    if(ScanRxCt&&curRxCt>-1&&curRxCt<tones.length){
-                        mIntercom.setCtcss(curRxCt);
-                        Toast.makeText(MainActivity.this, Format.format(curRxFreq)+" MHz "+getString(R.string.rxctcss_label) + "  "+tones[curRxCt] + " Hz ["+curRxCt+"]", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                if(curRxFreq > maxFreq-Offset) curRxFreq = minFreq;
+                if(curRxFreq < minFreq+Offset) curRxFreq = maxFreq;
+                curTxFreq = curRxFreq+Offset;
+                if(freq != null)freq.setText(Format.format(curRxFreq));
+                if(rx != null)rx.setSelection(curRxCt);
+                Notify();
+                if(Power&&!isBusy)
+                    mIntercom.setFreq(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq);
                 ScanHandler.sendMessageDelayed(new Message(),ScanDelay);
             }
             if(ScanChannel){

@@ -3,7 +3,7 @@
     <string name="help_dir">html-it</string>
     <string name="app_name">Intercomm</string>
     <string name="title_freq">Frequenza (VFO)</string>
-    <string name="title_chan">Canale</string>
+    <string name="title_chan">Canale (MR)</string>
     <string name="title_chat">Chat</string>
     <string name="title_sets">Impostazioni</string>
     <string name="action_settings">Impostazioni</string>
@@ -69,11 +69,11 @@
     <string name="send">Invia</string>
     <string name="change_name_to" formatted="false"><![CDATA[<i><b>%s</b> è stato cambiato il nick in <b>%s</b></i>]]></string>
     <string name="scan_ct">Tono scan</string>
-    <string name="full_mode">Modalit full</string>
-    <string name="mic_volume">Volume Mic</string>
-    <string name="scram_label">Scrambler Level</string>
-    <string name="tot">TOT</string>
-    <string name="vox">VOX</string>
+    <string name="full_mode">Modalità "Full"</string>
+    <string name="mic_volume">Volume Microfono</string>
+    <string name="scram_label">Livello Scrambler</string>
+    <string name="tot">Livello TOT</string>
+    <string name="vox">Livello VOX</string>
     <string name="port">Porta COM</string>
     <string name="del">Elimina</string>
     <string name="help">Help</string>
