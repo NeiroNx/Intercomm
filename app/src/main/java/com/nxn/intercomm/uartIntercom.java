@@ -152,7 +152,7 @@ public class uartIntercom{
     public NumberFormat Format;
     private SerialPort uart = null;
     private String ctl = "";
-    private Integer Ver = 2014;
+    private String Ver = "No Detected";
     private Integer Volume = 6;
     private Integer Mic = 0;
     private Integer Scram = 0;
@@ -166,7 +166,7 @@ public class uartIntercom{
     private String[] ports = {};
     private String port = "/dev/ttyMT1";
 
-    public uartIntercom(){
+    public uartIntercom(String _port){
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
         for(String d:dev_list){
@@ -179,6 +179,7 @@ public class uartIntercom{
         ((DecimalFormat)Format).applyPattern(FORMAT);
         Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
         Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
+        port = _port;
     }
 
     public String[] getPorts(){
@@ -200,16 +201,17 @@ public class uartIntercom{
         return 10;
     }
 
-    public int getIntercomVersion()
+    public String getIntercomVersion()
     {
         if(uart != null){
             uart.write(AT+DMO+VERQ);
             try {
                 String line = uart.readLine();
                 if(line == null) return Ver;
-                if(line.contains("80BK"))Ver=1;
-                if(line.contains("81BK"))Ver=2;
-                if(line.contains("D150"))Ver=3;
+                if(line.length()>5)Ver=line.replace(DMO+VERQ+":","");
+                if(line.contains("80BK"))Ver="HKT-80BK";
+                if(line.contains("81BK"))Ver="HKT-81BK";
+                if(line.contains("D150"))Ver="HKT-D150";
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -224,9 +226,10 @@ public class uartIntercom{
         if(line.contains(DMO+MES))
             return line.replace(DMO+MES,"");
         else if(line.contains(VERQ)){
-            if(line.contains("80BK"))Ver=1;
-            if(line.contains("81BK"))Ver=2;
-            if(line.contains("D150"))Ver=3;
+            Ver=line.replace(DMO+VERQ+":","");
+            if(line.contains("80BK"))Ver="HKT-80BK";
+            if(line.contains("81BK"))Ver="HKT-81BK";
+            if(line.contains("D150"))Ver="HKT-D150";
         }
         return null;
     }
@@ -251,10 +254,10 @@ public class uartIntercom{
     public void intercomPowerOn()
     {
         try {
+            uart = new SerialPort(new File(port), 9600);
             ioctl(ctl,INTERCOM_PULL_UP);
             Log.e("UART","Powered ONN");
             Thread.sleep(500L);
-            uart = new SerialPort(new File(port), 9600);
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;

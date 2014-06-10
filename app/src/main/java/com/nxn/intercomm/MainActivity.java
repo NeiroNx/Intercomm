@@ -153,7 +153,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String[] dpolar = {};
     public static final Long[] delays = {100L,200L,500L,1000L,2000L,3000L,5000L,10000L,60000L,300000L};
     public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YES*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*";
-    public Integer Ver = -1;
+    public String Ver = "No Detected";
     public String Nick = "MyNick";
     public String History = "";
     public Double Longitude = 0.0;
@@ -196,7 +196,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Boolean isChat = true;
     public Boolean isBusy = false;
     public Boolean isBlocked = false;
-    public uartIntercom mIntercom = new uartIntercom();
+    public uartIntercom mIntercom;
     public NotificationManager mNotificationManager;
     public NumberFormat Format;
     public Long ScanDelay = 3000L;
@@ -261,6 +261,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
+
+        mIntercom = new uartIntercom(Port);
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
@@ -283,7 +285,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             mIntercom.init(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
             mIntercom.resumeIntercomSetting();
             if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver, Toast.LENGTH_SHORT).show();
 
         }
         super.onCreate(savedInstanceState);
