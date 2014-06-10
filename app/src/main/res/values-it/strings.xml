@@ -77,4 +77,5 @@
     <string name="port">Porta COM</string>
     <string name="del">Elimina</string>
     <string name="help">Help</string>
+    <string name="no_ver">No Detected</string>
 </resources>

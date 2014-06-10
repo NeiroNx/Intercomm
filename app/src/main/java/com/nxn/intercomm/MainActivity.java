@@ -153,7 +153,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String[] dpolar = {};
     public static final Long[] delays = {100L,200L,500L,1000L,2000L,3000L,5000L,10000L,60000L,300000L};
     public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YES*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*";
-    public String Ver = "No Detected";
+    public String Ver = getString(R.string.no_ver);
     public String Nick = "MyNick";
     public String History = "";
     public Double Longitude = 0.0;
@@ -262,7 +262,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
 
-        mIntercom = new uartIntercom(Port);
+        mIntercom = new uartIntercom(Port, Ver);
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);

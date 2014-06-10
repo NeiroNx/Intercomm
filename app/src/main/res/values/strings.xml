@@ -93,6 +93,7 @@
     <string name="num_9">9</string>
     <string name="num_0">0</string>
     <string name="help">Help</string>
+    <string name="no_ver">No Detected</string>
     <string-array name="scram">
         <item>Off</item>
         <item>1: 2725 Hz</item>

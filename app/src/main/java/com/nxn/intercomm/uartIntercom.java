@@ -152,7 +152,7 @@ public class uartIntercom{
     public NumberFormat Format;
     private SerialPort uart = null;
     private String ctl = "";
-    private String Ver = "No Detected";
+    private String Ver = "";
     private Integer Volume = 6;
     private Integer Mic = 0;
     private Integer Scram = 0;
@@ -166,7 +166,8 @@ public class uartIntercom{
     private String[] ports = {};
     private String port = "/dev/ttyMT1";
 
-    public uartIntercom(String _port){
+    public uartIntercom(String _port, String _def_ver){
+        Ver = _def_ver;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
         for(String d:dev_list){
