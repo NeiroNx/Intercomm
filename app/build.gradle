@@ -10,14 +10,20 @@ android {
         versionCode 14
         versionName "0.7b"
     }
-    /*signingConfigs {
+    signingConfigs {
         debug {
-
+            storeFile file("debug.jks")
+            storePassword "12345678"
+            keyAlias "debug"
+            keyPassword "12345678"
         }
         release {
-
+            storeFile file("android.jks")
+            //storePassword "12345678"
+            keyAlias "android"
+            //keyPassword "12345678"
         }
-    }*/
+    }
     buildTypes {
         debug {
             runProguard false
