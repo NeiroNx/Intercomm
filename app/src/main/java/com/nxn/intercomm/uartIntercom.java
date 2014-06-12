@@ -10,6 +10,8 @@ import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
+
+import android.os.Build;
 import android.util.Log;
 /*
 Протокол последовательной связи
@@ -133,7 +135,75 @@ AT+DMOSETVOX=[0..8]
 
  */
 public class uartIntercom{
-    private final static String[] dev_list = {"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
+    private final static String[][] dev = {
+            {
+                    "DevName",
+                    "/dev/port",
+                    "/dev/Special_dev",
+                    "echo \"Power ON commandas\"",
+                    "echo \"Power OFF commandas\"",
+                    "echo \"Speaker MODE\"",
+                    "echo \"HeadSet MODE\""
+            },{
+            "RunboX5-W",
+            "/dev/ttyMT1",
+            "/dev/intercom_A1840",
+            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
+    },{
+            "RunboX5-King",
+            "/dev/ttyMT1",
+            "/dev/intercom_A1840",
+            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
+    },{
+            "RunboX6",
+            "/dev/ttyMT3",
+            "/dev/intercom_A1840",
+            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
+    },{
+            "RunboQ5",
+            "/dev/ttyMT3",
+            "/dev/intercom_A1840",
+            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
+    }//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
+    };
+    private final static String[][] module = {
+            {"Name","ID","minFreq","MaxFreq","maxVol","micVol","maxCt","txCt"},
+            {"HKT-80BK","80BK","400.0","480.0","8","5","120","true"},
+            {"HKT-81BK","81BK","400.0","480.0","8","5","120","true"},
+            {"HKT-D150","D150","400.0","480.0","8","5","120","true"}
+    };
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
     private final static String VERQ = "VERQ";
@@ -148,10 +218,15 @@ public class uartIntercom{
     //private final static int INTERCOM_SPEAKER_MODE = 2;
     private final static int INTERCOM_HEADSET_MODE = 3;
     private final static int INTERCOM_SPEAKER_MODE = 4;
-    public static final String FORMAT = "###.####";
-    public NumberFormat Format;
+    private static final String FORMAT = "###.####";
+    private NumberFormat Format;
+    private String modelName = "";
+    private String devPath = "";
+    private String powerOn = "";
+    private String powerOff = "";
+    private String speakerMode = "";
+    private String headsetMode = "";
     private SerialPort uart = null;
-    private String ctl = "";
     private String Ver = "";
     private Integer Volume = 6;
     private Integer Mic = 0;
@@ -159,32 +234,66 @@ public class uartIntercom{
     private Integer Tot = 0;
     private Integer Vox = 0;
     private Integer SQ = 5;
+    private Double maxFreq = 400.0;
+    private Double minFreq = 480.0;
+    private Integer maxVol = 8;
+    private Integer maxCt = 120;
+    private Boolean txCt = true;
     private Double RxFreq = 450.0500;
     private Double TxFreq = 450.0500;
     private Integer RxCTCSS = 0;
     private Integer TxCTCSS = 0;
     private String[] ports = {};
-    private String port = "/dev/ttyMT1";
+    private String port = "/dev/null";
 
-    public uartIntercom(String _port, String _def_ver){
+    public uartIntercom(String config, String _def_ver){
         Ver = _def_ver;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
-        for(String d:dev_list){
-            File dev1 = new File(d);
-            if(dev1.exists()) ctl = d;
-        }
-        Log.e("UART","Control: "+ctl);
+        if(config != "" && config.split("|").length == 7){
+            String[] d = config.split("|");
+            modelName = d[0];
+            port = d[1];
+            devPath = d[2];
+            powerOn = d[3];
+            powerOff = d[4];
+            speakerMode = d[5];
+            headsetMode = d[6];
+        }else
+        for(String[] d:dev)
+            if(d[0].contains(Build.MODEL)){
+                modelName = d[0];
+                port = d[1];
+                devPath = d[2];
+                powerOn = d[3];
+                powerOff = d[4];
+                speakerMode = d[5];
+                headsetMode = d[6];
+            }
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
         Format.setMinimumFractionDigits(FORMAT.length() - FORMAT.indexOf(".")-1);
         Format.setMinimumIntegerDigits(FORMAT.indexOf("."));
-        port = _port;
+    }
+
+    public Double getMaxFreq(){
+        return maxFreq;
+    }
+
+    public Double getMinFreq(){
+        return minFreq;
+    }
+
+    public Integer getMaxCt(){
+        return maxCt;
     }
 
     public String[] getPorts(){
         return ports;
+    }
+    public String getModel(){
+        return modelName;
     }
 
     public void setPort(String str){
@@ -201,6 +310,28 @@ public class uartIntercom{
     {
         return 10;
     }
+    private Double checkFreq(Double param){
+        if(param > maxFreq) param = maxFreq;
+        if(param < minFreq) param = minFreq;
+        return param;
+    }
+    private Integer checkCt(Integer param){
+        if(param > maxCt)param = maxCt;
+        return param;
+    }
+    private String getModule(String param){
+        for(String[] m:module){
+            if(param.contains(m[1])){
+                minFreq = Double.parseDouble(m[2]);
+                maxFreq = Double.parseDouble(m[3]);
+                maxVol = Integer.parseInt(m[4]);
+                maxCt = Integer.parseInt(m[6]);
+                txCt = Boolean.parseBoolean(m[7]);
+                return m[0];
+            }
+        }
+        return param.replace(DMO+VERQ+":","");
+    }
 
     public String getIntercomVersion()
     {
@@ -209,10 +340,7 @@ public class uartIntercom{
             try {
                 String line = uart.readLine();
                 if(line == null) return Ver;
-                if(line.length()>5)Ver=line.replace(DMO+VERQ+":","");
-                if(line.contains("80BK"))Ver="HKT-80BK";
-                if(line.contains("81BK"))Ver="HKT-81BK";
-                if(line.contains("D150"))Ver="HKT-D150";
+                Ver=getModule(line);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -226,24 +354,21 @@ public class uartIntercom{
         if(line == null)return null;
         if(line.contains(DMO+MES))
             return line.replace(DMO+MES,"");
-        else if(line.contains(VERQ)){
-            Ver=line.replace(DMO+VERQ+":","");
-            if(line.contains("80BK"))Ver="HKT-80BK";
-            if(line.contains("81BK"))Ver="HKT-81BK";
-            if(line.contains("D150"))Ver="HKT-D150";
-        }
+        else if(line.contains(VERQ))Ver=getModule(line);
         return null;
     }
 
     public void intercomHeadsetMode()
     {
-        ioctl(ctl,INTERCOM_HEADSET_MODE);
+        ioctl(devPath,INTERCOM_HEADSET_MODE);
+        //cmd(headsetMode);
     }
 
     public void intercomPowerOff()
     {
         try {
-            ioctl(ctl,INTERCOM_PULL_DOWN);
+            ioctl(devPath,INTERCOM_PULL_DOWN);
+            //cmd(powerOff);
             Log.e("UART","Powered OFF");
             uart.close();
             uart = null;
@@ -256,7 +381,8 @@ public class uartIntercom{
     {
         try {
             uart = new SerialPort(new File(port), 9600);
-            ioctl(ctl,INTERCOM_PULL_UP);
+            ioctl(devPath,INTERCOM_PULL_UP);
+            //cmd(powerOn);
             Log.e("UART","Powered ONN");
             Thread.sleep(500L);
         } catch (Exception e) {
@@ -267,7 +393,8 @@ public class uartIntercom{
 
     public void intercomSpeakerMode()
     {
-        ioctl(ctl,INTERCOM_SPEAKER_MODE);
+        ioctl(devPath,INTERCOM_SPEAKER_MODE);
+        //cmd(speakerMode);
     }
 
     public void resumeIntercomSetting()
@@ -293,7 +420,7 @@ public class uartIntercom{
     public void setCtcss(int paramInt)
     {
         if(RxCTCSS != paramInt){
-            RxCTCSS = paramInt;
+            RxCTCSS = checkCt(paramInt);
             sendFreq();
         }
     }
@@ -301,7 +428,7 @@ public class uartIntercom{
     public void setRXFrequency(Double param)
     {
         if(!RxFreq.equals(param)){
-            RxFreq = param;
+            RxFreq = checkFreq(param);
             sendFreq();
         }
     }
@@ -317,15 +444,15 @@ public class uartIntercom{
     public void setTXFrequency(Double param)
     {
         if(!TxFreq.equals(param)){
-            TxFreq = param;
+            TxFreq = checkFreq(param);
             sendFreq();
         }
     }
 
     public void setTxCtcss(int paramInt)
     {
-        if(TxCTCSS != paramInt){
-            TxCTCSS = paramInt;
+        if(TxCTCSS != paramInt && txCt){
+            TxCTCSS = checkCt(paramInt);
             sendFreq();
         }
     }
@@ -338,10 +465,10 @@ public class uartIntercom{
         }
     }
     public void init(Double rx, Double tx, int rxt, int txt, int sq,int mic, int scram, int tot, int vox, int volume){
-        RxFreq = rx;
-        TxFreq = tx;
-        RxCTCSS = rxt;
-        TxCTCSS = txt;
+        RxFreq = checkFreq(rx);
+        TxFreq = checkFreq(tx);
+        RxCTCSS = checkCt(rxt);
+        TxCTCSS = checkCt(txt);
         SQ = sq;
         Mic = mic;
         Scram = scram;
@@ -353,10 +480,10 @@ public class uartIntercom{
     public void setFreq(Double rx, Double tx, int rxt, int txt, int sq){
         Boolean set = false;
         if(!RxFreq.equals(rx) || !TxFreq.equals(tx) || RxCTCSS != rxt || TxCTCSS != txt || SQ != sq)set = true;
-        RxFreq = rx;
-        TxFreq = tx;
-        RxCTCSS = rxt;
-        TxCTCSS = txt;
+        RxFreq = checkFreq(rx);
+        TxFreq = checkFreq(tx);
+        RxCTCSS = checkCt(rxt);
+        TxCTCSS = checkCt(txt);
         SQ = sq;
         if(set)sendFreq();
     }
@@ -407,10 +534,22 @@ public class uartIntercom{
                 e.printStackTrace();
         }
     }
+    private void cmd(String cmd){
+        try {
+            Process su;
+            su = Runtime.getRuntime().exec("/system/bin/sh");
+            su.getOutputStream().write(cmd.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void sendFreq(){
         if(uart != null){
-            String str = AT+DMO+GRP+String.format("%s,%s,%02d,%d,%02d",Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ,TxCTCSS);
+            String str = AT+DMO+GRP+(
+                    (txCt)?
+                            String.format("%s,%s,%02d,%d,%02d",Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ,TxCTCSS)
+                            :String.format("%s,%s,%02d,%d",Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ));
             uart.write(str);
         }
     }
