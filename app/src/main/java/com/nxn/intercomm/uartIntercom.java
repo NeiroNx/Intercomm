@@ -198,7 +198,7 @@ public class uartIntercom{
             {"Name","superID","minFreq","MaxFreq","maxVol","micVol","maxCt","txCt"},
             {"HKT-80BK","80BK","400.0","480.0","8","5","120","true"},
             {"HKT-81BK","81BK","400.0","480.0","8","5","120","true"},
-            {"HKT-D150","D150","400.0","480.0","8","5","120","true"}
+            {"HKT-D150","D150","130.0","180.0","8","5","120","true"}
     };
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
