@@ -137,69 +137,65 @@ AT+DMOSETVOX=[0..8]
 public class uartIntercom{
     private final static String[][] dev = {
             {
-                    "DevName",
+                    "DevName",// /system/build.prop  ro.product.device
                     "/dev/port",
                     "/dev/Special_dev",
-                    "echo \"Power ON commandas\"",
-                    "echo \"Power OFF commandas\"",
-                    "echo \"Speaker MODE\"",
-                    "echo \"HeadSet MODE\""
+                    "echo \"Power ON command\"\n",
+                    "echo \"Power OFF command\"\n",
+                    "echo \"Speaker MODE\"\n",
+                    "echo \"HeadSet MODE\"\n",
+                    "echo \"TX Button ON\"\n",
+                    "echo \"TX Button OFF\"\n"
             },{
-            "RunboX5-W",
+            "RunboX5",
             "/dev/ttyMT1",
             "/dev/intercom_A1840",
             "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
                     "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
                     "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
+                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
+                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"No Button\"\n",
+            "echo \"No Button\"\n"
     },{
-            "RunboX5-King",
+            "hexing89_we_jb2",
+            "/dev/ttyMT3",
+            "/dev/intercom_A1840",
+            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"No Button\"\n",
+            "echo \"No Button\"\n"
+    },{
+            "F043",
             "/dev/ttyMT1",
-            "/dev/intercom_A1840",
-            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
-    },{
-            "RunboX6",
-            "/dev/ttyMT3",
-            "/dev/intercom_A1840",
-            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
-    },{
-            "RunboQ5",
-            "/dev/ttyMT3",
-            "/dev/intercom_A1840",
-            "echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin"
+            "/dev/a1852",
+            "echo \"-w=73: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=116: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=126: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=73: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=116: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n"+
+                    "echo \"-w=126: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=125: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=125: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+                    "echo \"-w=182: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"No Button\"\n",
+            "echo \"No Button\"\n"
     }//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
     };
     private final static String[][] module = {
-            {"Name","ID","minFreq","MaxFreq","maxVol","micVol","maxCt","txCt"},
+            {"Name","superID","minFreq","MaxFreq","maxVol","micVol","maxCt","txCt"},
             {"HKT-80BK","80BK","400.0","480.0","8","5","120","true"},
             {"HKT-81BK","81BK","400.0","480.0","8","5","120","true"},
             {"HKT-D150","D150","400.0","480.0","8","5","120","true"}
@@ -226,6 +222,8 @@ public class uartIntercom{
     private String powerOff = "";
     private String speakerMode = "";
     private String headsetMode = "";
+    private String txOn = "";
+    private String txOff = "";
     private SerialPort uart = null;
     private String Ver = "";
     private Integer Volume = 6;
@@ -234,8 +232,8 @@ public class uartIntercom{
     private Integer Tot = 0;
     private Integer Vox = 0;
     private Integer SQ = 5;
-    private Double maxFreq = 400.0;
-    private Double minFreq = 480.0;
+    private Double maxFreq = 480.0;
+    private Double minFreq = 400.0;
     private Integer maxVol = 8;
     private Integer maxCt = 120;
     private Boolean txCt = true;
@@ -245,12 +243,18 @@ public class uartIntercom{
     private Integer TxCTCSS = 0;
     private String[] ports = {};
     private String port = "/dev/null";
+    private Process su = null;
 
     public uartIntercom(String config, String _def_ver){
+        try {
+            su = Runtime.getRuntime().exec("/system/bin/su");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Ver = _def_ver;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
-        if(config != "" && config.split("|").length == 7){
+        if(config != "" && config.split("|").length == 9){
             String[] d = config.split("|");
             modelName = d[0];
             port = d[1];
@@ -259,9 +263,11 @@ public class uartIntercom{
             powerOff = d[4];
             speakerMode = d[5];
             headsetMode = d[6];
+            txOn = d[7];
+            txOff = d[8];
         }else
         for(String[] d:dev)
-            if(d[0].contains(Build.MODEL)){
+            if(Build.DEVICE.contains(d[0])){
                 modelName = d[0];
                 port = d[1];
                 devPath = d[2];
@@ -269,6 +275,8 @@ public class uartIntercom{
                 powerOff = d[4];
                 speakerMode = d[5];
                 headsetMode = d[6];
+                txOn = d[7];
+                txOff = d[8];
             }
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
@@ -306,9 +314,13 @@ public class uartIntercom{
         }
     }
 
-    public int checkMessageBuffer()
+    public Boolean checkMessageBuffer()
     {
-        return 10;
+        if(uart != null){
+            return uart.checkBuffer();
+        }else{
+            return false;
+        }
     }
     private Double checkFreq(Double param){
         if(param > maxFreq) param = maxFreq;
@@ -358,17 +370,26 @@ public class uartIntercom{
         return null;
     }
 
+    public void intercomTxOn()
+    {
+        cmd(txOn);
+    }
+    public void intercomTxOff()
+    {
+        cmd(txOff);
+    }
+
     public void intercomHeadsetMode()
     {
-        ioctl(devPath,INTERCOM_HEADSET_MODE);
-        //cmd(headsetMode);
+        //ioctl(devPath,INTERCOM_HEADSET_MODE);
+        cmd(headsetMode);
     }
 
     public void intercomPowerOff()
     {
         try {
-            ioctl(devPath,INTERCOM_PULL_DOWN);
-            //cmd(powerOff);
+            //ioctl(devPath,INTERCOM_PULL_DOWN);
+            cmd(powerOff);
             Log.e("UART","Powered OFF");
             uart.close();
             uart = null;
@@ -381,8 +402,8 @@ public class uartIntercom{
     {
         try {
             uart = new SerialPort(new File(port), 9600);
-            ioctl(devPath,INTERCOM_PULL_UP);
-            //cmd(powerOn);
+            //ioctl(devPath,INTERCOM_PULL_UP);
+            cmd(powerOn);
             Log.e("UART","Powered ONN");
             Thread.sleep(500L);
         } catch (Exception e) {
@@ -393,8 +414,8 @@ public class uartIntercom{
 
     public void intercomSpeakerMode()
     {
-        ioctl(devPath,INTERCOM_SPEAKER_MODE);
-        //cmd(speakerMode);
+        //ioctl(devPath,INTERCOM_SPEAKER_MODE);
+        cmd(speakerMode);
     }
 
     public void resumeIntercomSetting()
@@ -534,10 +555,12 @@ public class uartIntercom{
                 e.printStackTrace();
         }
     }
-    private void cmd(String cmd){
+    public void cmd(String cmd){
         try {
-            Process su;
-            su = Runtime.getRuntime().exec("/system/bin/sh");
+            //try {
+            //    if (su.exitValue() >= 0) su = Runtime.getRuntime().exec("/system/bin/su");
+            //}catch(IllegalThreadStateException e){
+            //}
             su.getOutputStream().write(cmd.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
@@ -556,6 +579,7 @@ public class uartIntercom{
 
     private void sendVol(){
         if(uart != null){
+            if(Volume > maxVol)Volume=maxVol;
             uart.write(AT+DMO+VOLUME+Volume.toString());
         }
     }
@@ -646,7 +670,14 @@ public class uartIntercom{
                 e.printStackTrace();
             }
         }
-
+        public Boolean checkBuffer(){
+            try {
+                return mReader.ready();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
    }
 
     public class SerialPortFinder {

@@ -146,7 +146,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_PORT = "port";
     public static final String FORMAT = "###.####";
 
-    public static final int TONES = 121;
+    public int TONES = 121;
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public static final Double[] tones = {0.0,67.0,71.9,74.4,77.0,79.7,82.5,85.4,88.5,91.5,94.8,97.4,100.0,103.5,107.2,110.9,114.8,118.8,123.0,127.3,131.8,136.5,141.3,146.2,151.4,156.7,162.2,167.9,173.8,179.9,186.2,192.8,203.5,210.7,218.1,225.7,233.6,241.8,250.3};
     public static final String[] dtones = {};
@@ -282,10 +282,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 e.printStackTrace();
             }
             Ver = mIntercom.getIntercomVersion();
+            maxFreq = mIntercom.getMaxFreq();
+            minFreq = mIntercom.getMinFreq();
+            TONES = mIntercom.getMaxCt();
             mIntercom.init(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
             mIntercom.resumeIntercomSetting();
             if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver+"\n"+getString(R.string.device)+": "+mIntercom.getModel(), Toast.LENGTH_SHORT).show();
 
         }
         super.onCreate(savedInstanceState);
@@ -1263,6 +1266,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ScanHandler.removeMessages(0);
                 unregisterReceiver(mStateReceiver);
                 mLocationManager.removeUpdates(mLocationListener);
+                mIntercom.cmd("\nexit\n");
                 if(Vibrato)mVibrator.vibrate(75L);
                 finish();
                 return true;
@@ -1277,10 +1281,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     Power = true;
                     mIntercom.intercomPowerOn();
                     Ver = mIntercom.getIntercomVersion();
+                    maxFreq = mIntercom.getMaxFreq();
+                    minFreq = mIntercom.getMinFreq();
+                    TONES = mIntercom.getMaxCt();
                     mIntercom.init(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
                     mIntercom.resumeIntercomSetting();
                     if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-                    Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver+"\n"+getString(R.string.device)+": "+mIntercom.getModel(), Toast.LENGTH_SHORT).show();
                     item.setIcon(android.R.drawable.ic_lock_idle_charging);
                 }
                 item.setChecked(Power);
@@ -2046,7 +2053,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public void handleMessage(Message message) {
             if(Power&&!isBusy){
                     String msg;
-                    if( mIntercom.checkMessageBuffer() > 0&&(msg = mIntercom.getMessage())!= null ){//Get any text
+                    if( mIntercom.checkMessageBuffer() &&(msg = mIntercom.getMessage())!= null ){//Get any text
                         Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
                         mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
                                 .setSmallIcon(android.R.drawable.ic_dialog_email)

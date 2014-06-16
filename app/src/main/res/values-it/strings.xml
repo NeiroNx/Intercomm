@@ -78,4 +78,5 @@
     <string name="del">Elimina</string>
     <string name="help">Help</string>
     <string name="no_ver">No Detected</string>
+    <string name="device">Device</string>
 </resources>
