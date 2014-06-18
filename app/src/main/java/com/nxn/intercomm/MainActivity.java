@@ -2073,6 +2073,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     };
 
     public class SettingsDialog extends DialogFragment{
+        @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
