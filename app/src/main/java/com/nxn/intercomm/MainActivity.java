@@ -288,7 +288,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             mIntercom.init(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
             mIntercom.resumeIntercomSetting();
             if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver+"\n"+getString(R.string.device)+": "+mIntercom.getModel(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver+"\n"+getString(R.string.device)+": "+mIntercom.getModel() + "\nBuild dev:" + Build.DEVICE, Toast.LENGTH_SHORT).show();
 
         }
         super.onCreate(savedInstanceState);
@@ -1287,7 +1287,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     mIntercom.init(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Mic,Scram,Tot,Vox,Volume);
                     mIntercom.resumeIntercomSetting();
                     if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();
-                    Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver+"\n"+getString(R.string.device)+": "+mIntercom.getModel(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.power_enabled)+"\n"+getString(R.string.ver_label)+" "+Ver+"\n"+getString(R.string.device)+": "+mIntercom.getModel() + "\nBuild dev: "+Build.DEVICE, Toast.LENGTH_SHORT).show();
                     item.setIcon(android.R.drawable.ic_lock_idle_charging);
                 }
                 item.setChecked(Power);

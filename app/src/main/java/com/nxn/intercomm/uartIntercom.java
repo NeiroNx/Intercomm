@@ -251,14 +251,14 @@ public class uartIntercom{
     private Integer TxCTCSS = 0;
     private String[] ports = {};
     private String port = "/dev/null";
-    private Process su = null;
+//    private Process su = null;
 
     public uartIntercom(String config, String _def_ver){
-        try {
+        /*try {
             su = Runtime.getRuntime().exec("/system/bin/su");
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         Ver = _def_ver;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
@@ -389,15 +389,15 @@ public class uartIntercom{
 
     public void intercomHeadsetMode()
     {
-        //ioctl(devPath,INTERCOM_HEADSET_MODE);
-        cmd(headsetMode);
+        ioctl(devPath,INTERCOM_HEADSET_MODE);
+        //cmd(headsetMode);
     }
 
     public void intercomPowerOff()
     {
         try {
-            //ioctl(devPath,INTERCOM_PULL_DOWN);
-            cmd(powerOff);
+            ioctl(devPath,INTERCOM_PULL_DOWN);
+            //cmd(powerOff);
             Log.e("UART","Powered OFF");
             uart.close();
             uart = null;
@@ -410,8 +410,8 @@ public class uartIntercom{
     {
         try {
             uart = new SerialPort(new File(port), 9600);
-            //ioctl(devPath,INTERCOM_PULL_UP);
-            cmd(powerOn);
+            ioctl(devPath,INTERCOM_PULL_UP);
+            //cmd(powerOn);
             Log.e("UART","Powered ONN");
             Thread.sleep(500L);
         } catch (Exception e) {
@@ -422,8 +422,8 @@ public class uartIntercom{
 
     public void intercomSpeakerMode()
     {
-        //ioctl(devPath,INTERCOM_SPEAKER_MODE);
-        cmd(speakerMode);
+        ioctl(devPath,INTERCOM_SPEAKER_MODE);
+        //cmd(speakerMode);
     }
 
     public void resumeIntercomSetting()
@@ -569,7 +569,7 @@ public class uartIntercom{
             //    if (su.exitValue() >= 0) su = Runtime.getRuntime().exec("/system/bin/su");
             //}catch(IllegalThreadStateException e){
             //}
-            su.getOutputStream().write(cmd.getBytes());
+            //su.getOutputStream().write(cmd.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
