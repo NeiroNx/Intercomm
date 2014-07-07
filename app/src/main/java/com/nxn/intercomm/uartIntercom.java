@@ -166,7 +166,7 @@ public class uartIntercom{
             "echo \"No Button\"\n",
             "echo \"No Button\"\n"
     },{
-            "hexing89_we_jb2",
+            "exing89",//Hexing89_we_jb2
             "/dev/ttyMT3",
             "/dev/intercom_A1840",
             "ioctl /dev/intercom_A1840 1\n",

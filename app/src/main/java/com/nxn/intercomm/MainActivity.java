@@ -1903,10 +1903,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         curRxCt=TONES;
                         curRxFreq -= Step;
                     }
-                    Toast.makeText(MainActivity.this, Format.format(curRxFreq)+" MHz, "+getString(R.string.rxctcss_label)+" "+getResources().getStringArray(R.array.ctcss)[curRxCt], Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, Format.format(curRxFreq)+" MHz, "+getString(R.string.rxctcss_label)+" "+getResources().getStringArray(R.array.ctcss)[curRxCt], Toast.LENGTH_SHORT).show();
                 }else{
                     if(ScanForward)curRxFreq += Step;else curRxFreq -= Step;
-                    Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, getString(R.string.title_freq) + "  "+Format.format(curRxFreq)+" MHz", Toast.LENGTH_SHORT).show();
                 }
                 if(curRxFreq > maxFreq-Offset) curRxFreq = minFreq;
                 if(curRxFreq < minFreq+Offset) curRxFreq = maxFreq;
