@@ -1273,7 +1273,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ChatHandler.removeMessages(0);
                 ScanHandler.removeMessages(0);
                 unregisterReceiver(mStateReceiver);
-                mLocationManager.removeUpdates(mLocationListener);
+                if(isGps)mLocationManager.removeUpdates(mLocationListener);
                 mIntercom.cmd("\nexit\n");
                 if(Vibrato)mVibrator.vibrate(75L);
                 finish();
