@@ -426,7 +426,6 @@ public class uartIntercom{
     public void intercomPowerOff()
     {
         try {
-            //ioctl(devPath,INTERCOM_PULL_DOWN);
             cmd(powerOff);
             Log.e("UART","Powered OFF");
             uart.close();
