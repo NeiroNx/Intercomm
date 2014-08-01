@@ -166,6 +166,25 @@ public class uartIntercom{
             "echo \"No Button\"\n",
             "echo \"No Button\"\n"
     },{
+            "G26",
+            "/dev/ttyMT1",
+            "/dev/intercom_A1840",
+            "ioctl /dev/intercom_A1840 1\n",
+            //"echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "ioctl /dev/intercom_A1840 0\n",
+            //"echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "ioctl /dev/intercom_A1840 4\n",
+            //"echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "ioctl /dev/intercom_A1840 3\n",
+            //"echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"No Button\"\n",
+            "echo \"No Button\"\n"
+    },{
             "hexing89_we_jb2",
             "/dev/ttyMT3",
             "/dev/intercom_A1840",
@@ -198,6 +217,16 @@ public class uartIntercom{
                     "echo \"-w=182: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
             "echo \"-w=125: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
                     "echo \"-w=182: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"No Button\"\n",
+            "echo \"No Button\"\n"
+    },{
+            "mbk89_wet_jb2",
+            "/dev/ttyMT1",
+            "/dev/null",
+            "echo \"-w=75: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"-w=75: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "echo \"None\" \n",
+            "echo \"None\" \n",
             "echo \"No Button\"\n",
             "echo \"No Button\"\n"
     }//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
@@ -251,14 +280,14 @@ public class uartIntercom{
     private Integer TxCTCSS = 0;
     private String[] ports = {};
     private String port = "/dev/null";
-//    private Process su = null;
+    private Process su;
 
     public uartIntercom(String config, String _def_ver){
-        /*try {
+        try {
             su = Runtime.getRuntime().exec("/system/bin/su");
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
         Ver = _def_ver;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
@@ -358,9 +387,11 @@ public class uartIntercom{
         if(uart != null){
             uart.write(AT+DMO+VERQ);
             try {
-                String line = uart.readLine();
-                if(line == null) return Ver;
+                String line = null;
+                while ((line = uart.readLine())==null){}
+                if(line == null || !line.contains(DMO+VERQ)) return Ver;
                 Ver=getModule(line);
+                Log.d(VERQ,line);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -389,15 +420,14 @@ public class uartIntercom{
 
     public void intercomHeadsetMode()
     {
-        ioctl(devPath,INTERCOM_HEADSET_MODE);
-        //cmd(headsetMode);
+        cmd(headsetMode);
     }
 
     public void intercomPowerOff()
     {
         try {
-            ioctl(devPath,INTERCOM_PULL_DOWN);
-            //cmd(powerOff);
+            //ioctl(devPath,INTERCOM_PULL_DOWN);
+            cmd(powerOff);
             Log.e("UART","Powered OFF");
             uart.close();
             uart = null;
@@ -410,10 +440,13 @@ public class uartIntercom{
     {
         try {
             uart = new SerialPort(new File(port), 9600);
-            ioctl(devPath,INTERCOM_PULL_UP);
-            //cmd(powerOn);
-            Log.e("UART","Powered ONN");
+            cmd(powerOn);
             Thread.sleep(500L);
+            uart.write(AT + DMO + CONNECT);
+            String line = null;
+            while ((line = uart.readLine())==null){}
+            if(line.contains(CONNECT+":0"))
+                Log.d("UART","Powered ONN");
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;
@@ -422,8 +455,7 @@ public class uartIntercom{
 
     public void intercomSpeakerMode()
     {
-        ioctl(devPath,INTERCOM_SPEAKER_MODE);
-        //cmd(speakerMode);
+        cmd(speakerMode);
     }
 
     public void resumeIntercomSetting()
@@ -552,24 +584,13 @@ public class uartIntercom{
             sendVox();
         }
     }
-    private void ioctl(String dev, int param){
-        try {
-                Process su;
-                su = Runtime.getRuntime().exec("/system/bin/sh");
-                String cmd = "ioctl " + dev +" "+ Integer.toString(param) + "\n"
-                        + "exit\n";
-                su.getOutputStream().write(cmd.getBytes());
-        } catch (Exception e) {
-                e.printStackTrace();
-        }
-    }
     public void cmd(String cmd){
         try {
-            //try {
-            //    if (su.exitValue() >= 0) su = Runtime.getRuntime().exec("/system/bin/su");
-            //}catch(IllegalThreadStateException e){
-            //}
-            //su.getOutputStream().write(cmd.getBytes());
+            try {
+                if (su.exitValue() >= 0) su = Runtime.getRuntime().exec("/system/bin/su");
+            }catch(IllegalThreadStateException e){
+            }
+            su.getOutputStream().write(cmd.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -660,7 +681,7 @@ public class uartIntercom{
                 if(mReader.ready())
                     line = mReader.readLine();
                 if(line != null && line.contains(DMO)){
-                    Log.e(TAG,line);
+                    Log.d(TAG,line);
                     return line;
                 }
             } catch (Exception e) {
@@ -670,7 +691,7 @@ public class uartIntercom{
         }
         public void write(String line){
             try {
-                Log.e(TAG,line);
+                Log.d(TAG,line);
                 String cmd = "echo \""+ line +"\" > " + mFd.getAbsolutePath() +"\n";
                 mInput.getOutputStream().write(cmd.getBytes());
                 Thread.sleep(100L);
