@@ -441,11 +441,11 @@ public class uartIntercom{
             uart = new SerialPort(new File(port), 9600);
             cmd(powerOn);
             Thread.sleep(500L);
-            uart.write(AT + DMO + CONNECT);
-            String line = null;
-            while ((line = uart.readLine())==null){}
-            if(line.contains(CONNECT+":0"))
-                Log.d("UART","Powered ONN");
+            //uart.write(AT + DMO + CONNECT);
+            //String line = null;
+            //while ((line = uart.readLine())==null){}
+            //if(line.contains(CONNECT+":0"))
+            Log.d("UART","Powered ONN");
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;

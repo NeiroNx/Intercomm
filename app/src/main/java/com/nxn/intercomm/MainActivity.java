@@ -143,6 +143,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_KEY_BLOCK = "keyBlock";
     public static final String APP_PREFERENCES_KEY_SEARCH = "keySearch";
     public static final String APP_PREFERENCES_FULL_MODE = "full_mode";
+    public static final String APP_PREFERENCES_GPS_MODE = "gps_mode";
     public static final String APP_PREFERENCES_PORT = "port";
     public static final String FORMAT = "###.####";
 
@@ -184,6 +185,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer Vox = 0;
     public Boolean isFull = false;
     public Boolean isSpeaker = true;
+    public Boolean isGps = true;
     public Boolean Power = false;
     public Boolean setSOS = false;
     public Boolean sosMode = false;
@@ -248,6 +250,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Scram = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString()));
         Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT,Tot.toString()));
         Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX,Vox.toString()));
+        isGps = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_GPS_MODE, isGps.toString()));
         isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isFull.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
@@ -389,7 +392,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         };
         registerReceiver(mStateReceiver, mState);
 
+        if(isGps)InitGps();
+        /**
+         * Start timed msg buffer pol
+         */
+        if(isChat)ChatHandler.sendEmptyMessageDelayed(0, 5000L);
+        Notify();
+        if(Vibrato)mVibrator.vibrate(75L);
+        String action = getIntent().getAction();
+        if(action != null) {
+            if (action.contains("FREQ")) mViewPager.setCurrentItem(0);
+            if (action.contains("CHANNEL")) mViewPager.setCurrentItem(1);
+            if (action.contains("CHAT")) mViewPager.setCurrentItem(2);
+        }
+    }
 
+    private void InitGps(){
         // Acquire a reference to the system Location Manager
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = new LocationListener() {
@@ -409,18 +427,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Register the listener with the Location Manager to receive location updates
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-        /**
-         * Start timed msg buffer pol
-         */
-        if(isChat)ChatHandler.sendEmptyMessageDelayed(0, 5000L);
-        Notify();
-        if(Vibrato)mVibrator.vibrate(75L);
-        String action = getIntent().getAction();
-        if(action != null) {
-            if (action.contains("FREQ")) mViewPager.setCurrentItem(0);
-            if (action.contains("CHANNEL")) mViewPager.setCurrentItem(1);
-            if (action.contains("CHAT")) mViewPager.setCurrentItem(2);
-        }
     }
 
     @Override
@@ -979,6 +985,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Scram = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString()));
         Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT, Tot.toString()));
         Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX, Vox.toString()));
+        isGps = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_GPS_MODE, isGps.toString()));
         isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isFull.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER, isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
@@ -1019,6 +1026,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString());
         editor.putString(APP_PREFERENCES_TOT,Tot.toString());
         editor.putString(APP_PREFERENCES_VOX,Vox.toString());
+        editor.putString(APP_PREFERENCES_GPS_MODE,isGps.toString());
         editor.putString(APP_PREFERENCES_FULL_MODE,isFull.toString());
         editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
         editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
@@ -1118,12 +1126,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(!isBlocked)
         switch (item.getItemId()){
             case R.id.share_gps:
-                if(isChat&&!Longitude.equals(0.0)&&!Latitude.equals(0.0)){
+                if(isChat&&!Longitude.equals(0.0)&&!Latitude.equals(0.0)&&isGps){
                     String msg = String.format(getString(R.string.gpsmsg), Nick, Latitude, Longitude, Latitude, Longitude);
                     if(Power)mIntercom.sendMessage(msg);
                     AppendMessage(msg);
                 }
-                if(!isChat)item.setEnabled(false);
+                if(!isChat||!isGps)item.setEnabled(false);
                 return true;
             case R.id.change_theme:
                 if(Theme.equals("Black")){
@@ -2103,6 +2111,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             vibro.setChecked(Vibrato);
             final Switch full_mode = (Switch)Settings.findViewById(R.id.full_mode);
             full_mode.setChecked(isFull);
+            final Switch gps_mode = (Switch)Settings.findViewById(R.id.gps_mode);
+            gps_mode.setChecked(isGps);
             final SeekBar mic = (SeekBar)Settings.findViewById(R.id.mic_volume);
             mic.setProgress(Mic-1);
             final Spinner scram = (Spinner)Settings.findViewById(R.id.scram);
@@ -2153,6 +2163,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             keyBlock = (set_block.getText() == null)?keyBlock:Integer.parseInt(set_block.getText().toString());
                             keySearch = (set_search.getText() == null)?keySearch:Integer.parseInt(set_search.getText().toString());
                             isFull = full_mode.isChecked();
+                            isGps = gps_mode.isChecked();
                             Mic = mic.getProgress() + 1;
                             Scram = scram.getSelectedItemPosition();
                             Tot = tot.getProgress();
@@ -2175,6 +2186,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_KEY_SOS, keySos.toString());
                             editor.putString(APP_PREFERENCES_KEY_BLOCK, keyBlock.toString());
                             editor.putString(APP_PREFERENCES_KEY_SEARCH, keySearch.toString());
+                            editor.putString(APP_PREFERENCES_GPS_MODE, isGps.toString());
                             editor.putString(APP_PREFERENCES_FULL_MODE, isFull.toString());
                             editor.putString(APP_PREFERENCES_MIC_VOLUME, Mic.toString());
                             editor.putString(APP_PREFERENCES_SCRAM_VOLUME, Scram.toString());

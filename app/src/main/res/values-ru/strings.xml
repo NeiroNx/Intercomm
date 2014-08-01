@@ -81,6 +81,7 @@
     <string name="help">Справка</string>
     <string name="no_ver">Не обнаружен</string>
     <string name="device">Устройство</string>
+    <string name="gps_mode">Использовать GPS</string>
     <string-array name="scram">
         <item>Выкл</item>
         <item>1: 2725 Гц</item>

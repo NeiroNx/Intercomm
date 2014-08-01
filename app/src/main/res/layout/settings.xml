@@ -407,6 +407,20 @@
                     android:max="8" />
             </TableRow>
 
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <Switch
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gps_mode"
+                    android:id="@+id/gps_mode"
+                    android:layout_column="0"
+                    android:layout_span="2"
+                    android:layout_weight=".1" />
+            </TableRow>
+
         </TableLayout>
     </ScrollView>
 
