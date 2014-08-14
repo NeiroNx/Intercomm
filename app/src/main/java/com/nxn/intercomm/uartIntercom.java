@@ -7,6 +7,7 @@ package com.nxn.intercomm;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
@@ -138,6 +139,7 @@ public class uartIntercom{
     private final static String[][] dev = {
             {
                     "DevName",// /system/build.prop  ro.product.device
+                    "Human readable name",
                     "/dev/port",
                     "/dev/Special_dev",
                     "echo \"Power ON command\"\n",
@@ -148,6 +150,7 @@ public class uartIntercom{
                     "echo \"TX Button OFF\"\n"
             },{
             "RunboX5",
+            "Runbo X5-W UHF",
             "/dev/ttyMT1",
             "/dev/intercom_A1840",
             "ioctl /dev/intercom_A1840 1\n",
@@ -167,60 +170,52 @@ public class uartIntercom{
             "echo \"No Button\"\n"
     },{
             "G26",
+            "Runbo X5-W VHF",
             "/dev/ttyMT1",
             "/dev/intercom_A1840",
             "ioctl /dev/intercom_A1840 1\n",
-            //"echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "ioctl /dev/intercom_A1840 0\n",
-            //"echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "ioctl /dev/intercom_A1840 4\n",
-            //"echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "ioctl /dev/intercom_A1840 3\n",
-            //"echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "echo \"No Button\"\n",
             "echo \"No Button\"\n"
     },{
             "hexing89_we_jb2",
+            "Runbo Q5(X6)",
             "/dev/ttyMT3",
             "/dev/intercom_A1840",
             "ioctl /dev/intercom_A1840 1\n",
-            //"echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "ioctl /dev/intercom_A1840 0\n",
-            //"echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "ioctl /dev/intercom_A1840 4\n",
-            //"echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "ioctl /dev/intercom_A1840 3\n",
-            //"echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "echo \"No Button\"\n",
             "echo \"No Button\"\n"
     },{
             "F043",
+            "Snowpow M8",
             "/dev/ttyMT1",
             "/dev/a1852",
-            "echo \"-w=73: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=116: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=126: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"-w=73: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=116: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n"+
-                    "echo \"-w=126: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"-w=125: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=125: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-                    "echo \"-w=182: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"No Button\"\n",
-            "echo \"No Button\"\n"
+            "ioctl /dev/a1852 3221507329\n" +
+                    "ioctl /dev/a1852 3221507333\n",
+            //"echo \"-w=73: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=116: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=126: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "ioctl /dev/a1852 3221507330\n" +
+                    "ioctl /dev/a1852 3221507334\n",
+            //"echo \"-w=73: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=116: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n"+
+            //        "echo \"-w=126: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "ioctl /dev/a1852 3221507333\n",
+            //"echo \"-w=125: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=182: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
+            "ioctl /dev/a1852 3221507334\n",
+            //"echo \"-w=125: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
+            //        "echo \"-w=182: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
+            "ioctl /dev/a1852 3221507331\n",
+            "ioctl /dev/a1852 3221507332\n"
     },{
             "mbk89_wet_jb2",
+            "Batl S19",
             "/dev/ttyMT1",
             "/dev/null",
             "echo \"-w=75: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
@@ -294,6 +289,7 @@ public class uartIntercom{
         if(config != "" && config.split("|").length == 9){
             String[] d = config.split("|");
             modelName = d[0];
+            //Arrays.asList(ports).contains(d[1]);
             port = d[1];
             devPath = d[2];
             powerOn = d[3];
@@ -305,15 +301,15 @@ public class uartIntercom{
         }else
         for(String[] d:dev)
             if(Build.DEVICE.contains(d[0])){
-                modelName = d[0];
-                port = d[1];
-                devPath = d[2];
-                powerOn = d[3];
-                powerOff = d[4];
-                speakerMode = d[5];
-                headsetMode = d[6];
-                txOn = d[7];
-                txOff = d[8];
+                modelName = d[1];
+                port = d[2];
+                devPath = d[3];
+                powerOn = d[4];
+                powerOff = d[5];
+                speakerMode = d[6];
+                headsetMode = d[7];
+                txOn = d[8];
+                txOff = d[9];
             }
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
