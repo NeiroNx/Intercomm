@@ -191,7 +191,7 @@ public class uartIntercom{
             "echo \"No Button\"",
             "echo \"No Button\""
     },{
-            "F043",
+            "M8",
             "Snowpow M8",
             "/dev/ttyMT1",
             "/dev/a1852",
