@@ -96,6 +96,7 @@
     <string name="no_ver">No Detected</string>
     <string name="device">Device</string>
     <string name="gps_mode">Use GPS</string>
+    <string name="hw_conf_lable">HW Config</string>
     <string-array name="scram">
         <item>Off</item>
         <item>1: 2725 Hz</item>

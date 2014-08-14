@@ -142,88 +142,86 @@ public class uartIntercom{
                     "Human readable name",
                     "/dev/port",
                     "/dev/Special_dev",
-                    "echo \"Power ON command\"\n",
-                    "echo \"Power OFF command\"\n",
-                    "echo \"Speaker MODE\"\n",
-                    "echo \"HeadSet MODE\"\n",
-                    "echo \"TX Button ON\"\n",
-                    "echo \"TX Button OFF\"\n"
+                    "echo \"Power ON command\"",
+                    "echo \"Power OFF command\"",
+                    "echo \"Speaker MODE\"",
+                    "echo \"HeadSet MODE\"",
+                    "echo \"TX Button ON\"",
+                    "echo \"TX Button OFF\""
             },{
             "RunboX5",
             "Runbo X5-W UHF",
             "/dev/ttyMT1",
             "/dev/intercom_A1840",
-            "ioctl /dev/intercom_A1840 1\n",
+            "ioctl /dev/intercom_A1840 1",
             //"echo \"-w=119: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=182: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/intercom_A1840 0\n",
+            "ioctl /dev/intercom_A1840 0",
             //"echo \"-w=119: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=182: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/intercom_A1840 4\n",
+            "ioctl /dev/intercom_A1840 4",
             //"echo \"-w=122: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=125: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/intercom_A1840 3\n",
+            "ioctl /dev/intercom_A1840 3",
             //"echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"No Button\"\n",
-            "echo \"No Button\"\n"
+            "echo \"No Button\"",
+            "echo \"No Button\""
     },{
             "G26",
             "Runbo X5-W VHF",
             "/dev/ttyMT1",
             "/dev/intercom_A1840",
-            "ioctl /dev/intercom_A1840 1\n",
-            "ioctl /dev/intercom_A1840 0\n",
-            "ioctl /dev/intercom_A1840 4\n",
-            "ioctl /dev/intercom_A1840 3\n",
-            "echo \"No Button\"\n",
-            "echo \"No Button\"\n"
+            "ioctl /dev/intercom_A1840 1",
+            "ioctl /dev/intercom_A1840 0",
+            "ioctl /dev/intercom_A1840 4",
+            "ioctl /dev/intercom_A1840 3",
+            "echo \"No Button\"",
+            "echo \"No Button\""
     },{
             "hexing89_we_jb2",
             "Runbo Q5(X6)",
             "/dev/ttyMT3",
             "/dev/intercom_A1840",
-            "ioctl /dev/intercom_A1840 1\n",
-            "ioctl /dev/intercom_A1840 0\n",
-            "ioctl /dev/intercom_A1840 4\n",
-            "ioctl /dev/intercom_A1840 3\n",
-            "echo \"No Button\"\n",
-            "echo \"No Button\"\n"
+            "ioctl /dev/intercom_A1840 1",
+            "ioctl /dev/intercom_A1840 0",
+            "ioctl /dev/intercom_A1840 4",
+            "ioctl /dev/intercom_A1840 3",
+            "echo \"No Button\"",
+            "echo \"No Button\""
     },{
             "F043",
             "Snowpow M8",
             "/dev/ttyMT1",
             "/dev/a1852",
-            "ioctl /dev/a1852 3221507329\n" +
-                    "ioctl /dev/a1852 3221507333\n",
+            "ioctl /dev/a1852 3221507329 && ioctl /dev/a1852 3221507333",
             //"echo \"-w=73: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=116: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=126: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/a1852 3221507330\n" +
-                    "ioctl /dev/a1852 3221507334\n",
+            "ioctl /dev/a1852 3221507330 && ioctl /dev/a1852 3221507334",
             //"echo \"-w=73: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=116: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n"+
             //        "echo \"-w=126: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/a1852 3221507333\n",
+            "ioctl /dev/a1852 3221507333",
             //"echo \"-w=125: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=182: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
-            "ioctl /dev/a1852 3221507334\n",
+            "ioctl /dev/a1852 3221507334",
             //"echo \"-w=125: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=182: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/a1852 3221507331\n",
-            "ioctl /dev/a1852 3221507332\n"
+            "ioctl /dev/a1852 3221507331",
+            "ioctl /dev/a1852 3221507332"
     },{
             "mbk89_wet_jb2",
             "Batl S19",
             "/dev/ttyMT1",
             "/dev/null",
-            "echo \"-w=75: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"-w=75: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"None\" \n",
-            "echo \"None\" \n",
-            "echo \"No Button\"\n",
-            "echo \"No Button\"\n"
+            "echo \"-w=75: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"-w=75: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
+            "echo \"None\" ",
+            "echo \"None\" ",
+            "echo \"No Button\"",
+            "echo \"No Button\""
     }//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
     };
     private final static String[][] module = {
@@ -277,17 +275,18 @@ public class uartIntercom{
     private String port = "/dev/null";
     private Process su;
 
-    public uartIntercom(String config, String _def_ver){
+    public uartIntercom(String config, String _port, String _def_ver){
         try {
             su = Runtime.getRuntime().exec("/system/bin/su");
         } catch (IOException e) {
             e.printStackTrace();
         }
         Ver = _def_ver;
+        port = _port;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
-        if(config != "" && config.split("|").length == 9){
-            String[] d = config.split("|");
+        if(config != "" && config.split(";").length == 15){
+            String[] d = config.split(";");
             modelName = d[0];
             //Arrays.asList(ports).contains(d[1]);
             port = d[1];
@@ -298,6 +297,12 @@ public class uartIntercom{
             headsetMode = d[6];
             txOn = d[7];
             txOff = d[8];
+            Ver = d[9];
+            minFreq = Double.parseDouble(d[10]);
+            maxFreq = Double.parseDouble(d[11]);
+            maxVol = Integer.parseInt(d[12]);
+            maxCt = Integer.parseInt(d[13]);
+            txCt = Boolean.parseBoolean(d[14]);
         }else
         for(String[] d:dev)
             if(Build.DEVICE.contains(d[0])){
@@ -335,6 +340,25 @@ public class uartIntercom{
     }
     public String getModel(){
         return modelName;
+    }
+    public String getConfig(){
+        String out = "";
+        out += modelName + "\n";
+        out += port + "\n";
+        out += devPath + "\n";
+        out += powerOn + "\n";
+        out += powerOff + "\n";
+        out += speakerMode + "\n";
+        out += headsetMode + "\n";
+        out += txOn + "\n";
+        out += txOff + "\n";
+        out += Ver + "\n";
+        out += Double.toString(minFreq) + "\n";
+        out += Double.toString(maxFreq) + "\n";
+        out += Integer.toString(maxVol) + "\n";
+        out += Integer.toString(maxCt) + "\n";
+        out += Boolean.toString(txCt) + "\n(auto)";
+        return out;
     }
 
     public void setPort(String str){
@@ -585,7 +609,7 @@ public class uartIntercom{
                 if (su.exitValue() >= 0) su = Runtime.getRuntime().exec("/system/bin/su");
             }catch(IllegalThreadStateException e){
             }
-            su.getOutputStream().write(cmd.getBytes());
+            su.getOutputStream().write((cmd + "\n").getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }

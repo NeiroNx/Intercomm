@@ -47,6 +47,26 @@ Motorola GP-380 e unità Scrambler VS-1000)</p>
 <p class=MsoNormal>Livello 8 Frequenza: 2625 Hz </p>
 
 <p class=MsoNormal>&nbsp;</p>
+<strong>HW Config:</strong> <br />
+It section contains all parameters needs to operate with hardware - for get work undefined phones directly without apk modification(line numbers):
+<ol>
+    <li>Device name - text shown when power is on</li>
+    <li>port device e.g. /dev/ttyMT1</li>
+    <li>special device for ioctl(reserved and not used yet) e.g. /dev/null</li>
+    <li>Power ON command(may be echo or ioctl) e.g. echo "-w=75: 0 0 1 1 0 1 0" > /sys/class/misc/mtgpio/pin</li>
+    <li>Power OFF command(may be echo or ioctl) e.g. echo "-w=75: 0 0 0 0 0 1 0" > /sys/class/misc/mtgpio/pin</li>
+    <li>Speaker mode set command</li>
+    <li>Headphone mode set command</li>
+    <li>TX Button down command(Enable transmit)</li>
+    <li>TX Button up command(Disable transmit)</li>
+    <li>Intercom module version text</li>
+    <li>Minimal freq to set(with decimal ceil point) e.g. 400.0</li>
+    <li>Maximal freq to set(with decimal ceil point) e.g. 480.0</li>
+    <li>Maximal volume to set(integer) e.g. 8</li>
+    <li>Maximal num of Tones(integer) e.g. 39</li>
+    <li>Use tx tones (boolean) "true" of "false" without quotes</li>
+    <li>It line sets to "(auto)" to prevent reset automatic config and must be deleted fo custom configuration uses</li>
+</ol>
 <p class=MsoNormal><span style='font-family:"Arial Black","sans-serif";
 mso-bidi-font-family:"Adobe Arabic";color:#17365D'>Traduzione in italiano a
 cura di Vincenzo Stampa</span></p>

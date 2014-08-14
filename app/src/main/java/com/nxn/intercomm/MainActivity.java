@@ -145,6 +145,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_FULL_MODE = "full_mode";
     public static final String APP_PREFERENCES_GPS_MODE = "gps_mode";
     public static final String APP_PREFERENCES_PORT = "port";
+    public static final String APP_PREFERENCES_HW_CONFIG = "hw_config";
     public static final String FORMAT = "###.####";
 
     public int TONES = 121;
@@ -210,6 +211,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer TabPos = 0;
     public String Search = "";
     public String Port = "/dev/ttyMT1";
+    public String HWConfig = "";
     public String FileName = Environment.getExternalStorageDirectory().getPath()+"/Channels.csv";
     public String ActionInput = "";
     public Integer keySos = 300;
@@ -258,6 +260,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         ScanDelay = Long.parseLong(mSettings.getString(APP_PREFERENCES_DELAY, ScanDelay.toString()));
         ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT, ScanRxCt.toString()));
         Port = mSettings.getString(APP_PREFERENCES_PORT, Port);
+        HWConfig = mSettings.getString(APP_PREFERENCES_HW_CONFIG, HWConfig);
         Theme = mSettings.getString(APP_PREFERENCES_THEME, Theme);
         Resources.Theme mTheme = getTheme();
         if(mTheme != null)mTheme.applyStyle(Theme.equals("Black") ? R.style.Black : R.style.Light, true);
@@ -265,7 +268,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
         Ver = getString(R.string.no_ver);
-        mIntercom = new uartIntercom(Port, Ver);
+        mIntercom = new uartIntercom(HWConfig, Port, Ver);
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
@@ -2142,6 +2145,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             final EditText set_search = (EditText)Settings.findViewById(R.id.set_search);
             set_search.setOnKeyListener(keyListener);
             set_search.setText(keySearch.toString());
+            final EditText hwconf = (EditText)Settings.findViewById(R.id.hw_conf);
+            hwconf.setText((!HWConfig.equals(""))?HWConfig.replace(";","\n"):mIntercom.getConfig());
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(Settings)
@@ -2153,6 +2158,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             maxFreq = (max.getText() == null)?maxFreq:Double.parseDouble(max.getText().toString());
                             Step = steps[st.getSelectedItemPosition()];
                             Port = ports[port.getSelectedItemPosition()];
+                            HWConfig = (hwconf.getText() == null)?HWConfig:hwconf.getText().toString().replace("\n",";");
+                            if(HWConfig.contains("(auto)"))HWConfig = "";
                             Offset = (offset.getText() == null)?Offset:Double.parseDouble(offset.getText().toString());
                             Nick = (nick.getText() == null)?Nick:nick.getText().toString();
                             ScanDelay = delays[delay.getSelectedItemPosition()];
@@ -2193,6 +2200,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_TOT, Tot.toString());
                             editor.putString(APP_PREFERENCES_VOX, Vox.toString());
                             editor.putString(APP_PREFERENCES_PORT,Port);
+                            editor.putString(APP_PREFERENCES_HW_CONFIG,HWConfig);
                             editor.commit();
                         }
                     })
