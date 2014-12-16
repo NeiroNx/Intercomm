@@ -373,38 +373,39 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/tot"
-                    android:id="@+id/tot_label"
-                    android:layout_column="0"
-                    android:layout_weight=".1"/>
+                    android:text="@string/vox"
+                    android:id="@+id/vox_label" />
 
                 <SeekBar
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/tot"
-                    android:layout_column="1"
+                    android:id="@+id/vox"
+                    android:clickable="false"
                     android:layout_weight="1000"
-                    android:indeterminate="false"
                     android:max="8" />
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="wrap_content">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/vox"
-                    android:id="@+id/vox_label" />
+                    android:text="@string/tot"
+                    android:id="@+id/tot_label"
+                    android:layout_column="0"
+                    android:layout_weight=".1"/>
 
-                <SeekBar
-                    android:layout_width="wrap_content"
+                <EditText
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/vox"
-                    android:clickable="false"
-                    android:max="8" />
+                    android:id="@+id/tot"
+                    android:layout_column="1"
+                    android:layout_weight="1000"
+                    android:singleLine="true"
+                    android:inputType="textNoSuggestions" />
             </TableRow>
 
             <TableRow

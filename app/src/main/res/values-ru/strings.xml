@@ -74,7 +74,7 @@
     <string name="full_mode">Полный контроль</string>
     <string name="mic_volume">Микрофон</string>
     <string name="scram_label">Скремблер</string>
-    <string name="tot">Макс врмя TX</string>
+    <string name="tot">Макс время\nпередачи</string>
     <string name="vox">VOX</string>
     <string name="port">Порт</string>
     <string name="del">Удалить</string>

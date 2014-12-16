@@ -328,6 +328,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             @Override
             public void onPageSelected(int position) {
                 if(!isBlocked){
+
                     TabPos = position;
                     mActionBar.setSelectedNavigationItem(position);
                     if(TabPos == 2 && isChat)mNotificationManager.cancel(R.id.chat);
@@ -335,6 +336,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         mActionBar.setDisplayHomeAsUpEnabled(false);
                     }else{
                         mActionBar.setDisplayHomeAsUpEnabled(true);
+                    }
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    if(TabPos == 1 || TabPos == 0){
+                        imm.hideSoftInputFromWindow(mViewPager.getWindowToken(), 0);
+                    }else{
+                        imm.showSoftInput(mViewPager.getRootView(),0);
                     }
                 }else{
                     mActionBar.setSelectedNavigationItem(TabPos);
@@ -450,6 +458,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             setIsBlocked(true);
         }else if(intent.getAction().equals("com.nxn.intercomm.UNBLOCK")){
             setIsBlocked(false);
+        }else if(intent.getAction().equals("com.nxn.intercomm.RESTORE")){
+            ScanFreq = false;
+            ScanChannel = false;
+            ScanHandler.removeMessages(0);
         }
     }
 
@@ -460,7 +472,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 .setContentTitle(String.format("%s %s [%s]", getString(R.string.app_name), ChannelName, ((Power) ? getString(R.string.on) : getString(R.string.off))))
                 .setContentText(String.format("RX: %s[%s]  TX: %s[%s]", Format.format(curRxFreq), Integer.toString(curRxCt), Format.format(curTxFreq), Integer.toString(curTxCt)))
                 .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class)
-                        .setAction(Intent.ACTION_MAIN)
+                        .setAction("com.nxn.intercomm.RESTORE")
                         .addCategory(Intent.CATEGORY_LAUNCHER), 0))
                 .build());
     }
@@ -1145,6 +1157,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 editor.putString(APP_PREFERENCES_THEME,Theme);
                 editor.commit();
                 //getTheme().applyStyle(Theme.equals("Black") ? R.style.Black : R.style.Light, true);
+                this.unregisterReceiver(mStateReceiver);
                 applyTheme();
                 return true;
             case R.id.clear_history_action:
@@ -1323,6 +1336,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }else{
                 mActionBar.setDisplayHomeAsUpEnabled(true);
             }
+            InputMethodManager imm = (InputMethodManager)getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            if(TabPos == 1 || TabPos == 0){
+                imm.hideSoftInputFromWindow(mViewPager.getWindowToken(), 0);
+            }else{
+                imm.showSoftInput(mViewPager.getRootView().findViewById(R.id.message),0);
+            }
         }else{
             mViewPager.setCurrentItem(TabPos);
         }
@@ -1408,16 +1428,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(!isLongTouch){
                 switch (view.getId()){
                     case R.id.freq:
-                        if(main.ScanFreq)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
-                        main.ScanFreq = false;
-                        break;
                     case R.id.freq_next:
-                        //Scan = false;
-                        e.setText(main.setFreq(0.0,main.Step));
-                        break;
                     case R.id.freq_prew:
-                        //Scan = false;
-                        e.setText(main.setFreq(0.0, -main.Step));
+                        if(main.ScanFreq){
+                            main.ScanFreq = false;
+                            main.ScanHandler.removeMessages(0);
+                            Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
+                        }else{
+                            switch(view.getId()){
+                                case R.id.freq_next:
+                                    e.setText(main.setFreq(0.0,main.Step));
+                                    break;
+                                case R.id.freq_prew:
+                                    e.setText(main.setFreq(0.0,-main.Step));
+                                    break;
+                            }
+                        }
                         break;
                     case R.id.sound_src:
                         if(main.isSpeaker){
@@ -1521,6 +1547,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     main.ScanChannel = false;
                     main.ScanHandler.sendEmptyMessageDelayed(0,main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.freq_next), Toast.LENGTH_SHORT).show();
+                    isLongTouch = false;
                     return true;
                 case R.id.freq_prew:
                     main.ScanFreq = true;
@@ -1528,6 +1555,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     main.ScanChannel = false;
                     main.ScanHandler.sendEmptyMessageDelayed(0,main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.freq_prew), Toast.LENGTH_SHORT).show();
+                    isLongTouch = false;
                     return true;
             }
             return false;
@@ -1708,22 +1736,28 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(!isLongTouch)
             switch (view.getId()){
                 case R.id.ch_next:
-                    if(main.curChannel<main.curChannelList.length-1)main.curChannel++;
-                    if(main.ScanChannel)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
-                    main.setCh(true);
-                    main.ScanChannel = false;
-                    break;
                 case R.id.ch_prew:
-                    if(main.curChannel>0)main.curChannel--;
-                    if(main.ScanChannel)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
-                    main.setCh(true);
-                    main.ScanChannel = false;
-                    break;
                 case R.id.ch_info:
-                    DialogFragment editor = new ChannelEditDialog();
-                    if(!main.ScanChannel)editor.show(super.getFragmentManager(),"channel_edit");
-                    if(main.ScanChannel)Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
-                    main.ScanChannel = false;
+                    if(main.ScanChannel){
+                        main.ScanChannel = false;
+                        main.ScanHandler.removeMessages(0);
+                        Toast.makeText(main, getString(R.string.scan_stopped), Toast.LENGTH_SHORT).show();
+                    }else{
+                        switch(view.getId()){
+                            case R.id.ch_next:
+                                if(main.curChannel<main.curChannelList.length-1)main.curChannel++;
+                                main.setCh(true);
+                                break;
+                            case R.id.ch_prew:
+                                if(main.curChannel>0)main.curChannel--;
+                                main.setCh(true);
+                                break;
+                            case R.id.ch_info:
+                                DialogFragment editor = new ChannelEditDialog();
+                                editor.show(super.getFragmentManager(),"channel_edit");
+                                break;
+                        }
+                    }
                     break;
                 case R.id.invert:
                     main.setScanInvert(main.curGroup);
@@ -1791,6 +1825,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     main.ScanFreq = false;
                     main.ScanHandler.sendEmptyMessageDelayed(0,main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.ch_next_help), Toast.LENGTH_SHORT).show();
+                    isLongTouch = false;
                     return true;
                 case R.id.ch_prew:
                     main.ScanChannel = true;
@@ -1798,9 +1833,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     main.ScanFreq = false;
                     main.ScanHandler.sendEmptyMessageDelayed(0,main.ScanDelay);
                     Toast.makeText(super.getActivity(), getString(R.string.scan)+" "+getString(R.string.ch_prew_help), Toast.LENGTH_SHORT).show();
+                    isLongTouch = false;
                     return true;
                 case R.id.ch_info:
                     Toast.makeText(super.getActivity(), getString(R.string.group_label), Toast.LENGTH_SHORT).show();
+                    isLongTouch = false;
                     return true;
             }
             return false;
@@ -2120,8 +2157,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             mic.setProgress(Mic-1);
             final Spinner scram = (Spinner)Settings.findViewById(R.id.scram);
             scram.setSelection(Scram);
-            final SeekBar tot = (SeekBar)Settings.findViewById(R.id.tot);
-            tot.setProgress(Tot);
+            final EditText tot = (EditText)Settings.findViewById(R.id.tot);
+            tot.setText(Tot.toString());
             final SeekBar vox = (SeekBar)Settings.findViewById(R.id.vox);
             vox.setProgress(Vox);
             final EditText groups = (EditText)Settings.findViewById(R.id.set_groups);
@@ -2173,7 +2210,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             isGps = gps_mode.isChecked();
                             Mic = mic.getProgress() + 1;
                             Scram = scram.getSelectedItemPosition();
-                            Tot = tot.getProgress();
+                            Tot = (tot.getText() == null)?Tot:Integer.parseInt(tot.getText().toString());
                             Vox = vox.getProgress();
                             mIntercom.setPort(Port);
                             mIntercom.setMic_e(Mic,Scram,Tot);
@@ -2344,7 +2381,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(Help)
                     // Add action buttons
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.action_quit, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             HelpDialog.this.getDialog().cancel();
