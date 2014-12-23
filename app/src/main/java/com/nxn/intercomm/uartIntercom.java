@@ -4,16 +4,21 @@ package com.nxn.intercomm;
  * Created by NeiroN on 20.12.13.
  */
 
-import java.io.*;
+import android.os.Build;
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
-
-import android.os.Build;
-import android.util.Log;
 /*
 Протокол последовательной связи
 1 Контур
@@ -273,19 +278,20 @@ public class uartIntercom{
     private Integer TxCTCSS = 0;
     private String[] ports = {};
     private String port = "/dev/null";
-    private Process su;
+    private Process shell;
 
     public uartIntercom(String config, String _port, String _def_ver){
         try {
-            su = Runtime.getRuntime().exec("/system/bin/su");
+            shell = Runtime.getRuntime().exec("/system/bin/sh");
         } catch (IOException e) {
             e.printStackTrace();
+            _def_ver = "no root!";
         }
         Ver = _def_ver;
         port = _port;
         ports = new SerialPortFinder().getAllDevicesPath();
         Log.e("UART","Init");
-        if(config != "" && config.split(";").length == 15){
+        if(!config.equals("") && config.split(";").length == 15){
             String[] d = config.split(";");
             modelName = d[0];
             //Arrays.asList(ports).contains(d[1]);
@@ -407,11 +413,10 @@ public class uartIntercom{
         if(uart != null){
             uart.write(AT+DMO+VERQ);
             try {
-                String line = null;
-                while ((line = uart.readLine())==null){}
-                if(line == null || !line.contains(DMO+VERQ)) return Ver;
+                String line;
+                while ((line = uart.readLine())==null){wait(200);} //wait for module respond
+                if(!line.contains(DMO+VERQ)) return Ver;
                 Ver=getModule(line);
-                Log.d(VERQ,line);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -465,7 +470,7 @@ public class uartIntercom{
             //String line = null;
             //while ((line = uart.readLine())==null){}
             //if(line.contains(CONNECT+":0"))
-            Log.d("UART","Powered ONN");
+            Log.w("UART","Powered ONN");
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;
@@ -606,10 +611,10 @@ public class uartIntercom{
     public void cmd(String cmd){
         try {
             try {
-                if (su.exitValue() >= 0) su = Runtime.getRuntime().exec("/system/bin/su");
+                if (shell.exitValue() >= 0) shell = Runtime.getRuntime().exec("/system/bin/sh");
             }catch(IllegalThreadStateException e){
             }
-            su.getOutputStream().write((cmd + "\n").getBytes());
+            shell.getOutputStream().write((cmd + "\n").getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -652,24 +657,6 @@ public class uartIntercom{
         private BufferedReader mReader;
 
         public SerialPort(File device, int baudrate) throws SecurityException, IOException {
-                /* Check access permission */
-            if (!device.canRead() || !device.canWrite()) {
-                try {
-                                /* Missing read/write permission, trying to chmod the file */
-                    Process su;
-                    su = Runtime.getRuntime().exec("/system/bin/su");
-                    String cmd = "chmod 777 " + device.getAbsolutePath() + "\n"
-                            + "exit\n";
-                    su.getOutputStream().write(cmd.getBytes());
-                    if ((su.waitFor() != 0) || !device.canRead()
-                            || !device.canWrite()) {
-                        throw new SecurityException();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new SecurityException();
-                }
-            }
             mInput = Runtime.getRuntime().exec("/system/bin/sh");
             try {
                 String cmd = "stty -F " + device.getAbsolutePath() +" "+ Integer.toString(baudrate) + " sane\n";
@@ -684,6 +671,7 @@ public class uartIntercom{
                 throw new IOException();
             }
             mReader = new BufferedReader(new InputStreamReader(new FileInputStream(mFd)));
+            Log.d(TAG, "Opened port: " + device.getAbsolutePath());
         }
         public void close(){
             try {
@@ -700,7 +688,7 @@ public class uartIntercom{
                 if(mReader.ready())
                     line = mReader.readLine();
                 if(line != null && line.contains(DMO)){
-                    Log.d(TAG,line);
+                    Log.d(TAG,"<<< "+line);
                     return line;
                 }
             } catch (Exception e) {
@@ -710,7 +698,7 @@ public class uartIntercom{
         }
         public void write(String line){
             try {
-                Log.d(TAG,line);
+                Log.d(TAG,">>> "+line);
                 String cmd = "echo \""+ line +"\" > " + mFd.getAbsolutePath() +"\n";
                 mInput.getOutputStream().write(cmd.getBytes());
                 Thread.sleep(100L);
@@ -823,7 +811,4 @@ public class uartIntercom{
             return devices.toArray(new String[devices.size()]);
         }
     }
-
-
-
 }

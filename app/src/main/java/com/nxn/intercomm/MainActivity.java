@@ -1,5 +1,70 @@
 package com.nxn.intercomm;
 
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Vibrator;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
+import android.text.Editable;
+import android.text.Html;
+import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.ImageButton;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.xml.sax.XMLReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,72 +80,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Vibrator;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
-import android.widget.GridLayout;
-import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.text.TextWatcher;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import org.xml.sax.XMLReader;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,OnClickListener {
     /**
@@ -458,7 +457,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             setIsBlocked(true);
         }else if(intent.getAction().equals("com.nxn.intercomm.UNBLOCK")){
             setIsBlocked(false);
-        }else if(intent.getAction().equals("com.nxn.intercomm.RESTORE")){
+        }else if(intent.getAction().equals("com.nxn.intercomm.RESTORE")&&
+                 intent.getAction().equals("com.nxn.intercomm.STOP_SCAN")){
             ScanFreq = false;
             ScanChannel = false;
             ScanHandler.removeMessages(0);
@@ -962,12 +962,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(isBlocked)Toast.makeText(this, getString(R.string.block), Toast.LENGTH_SHORT).show();
             return true;
         }
-        if(KeyCode == keySearch){
+        if(KeyCode == keySearch && !isBlocked){
             ActionInput = "search";
             mViewPager.setCurrentItem(1);
             DialogFragment srh = new InputDialog();
             srh.show(getSupportFragmentManager(),ActionInput);
             return true;
+        }
+        if(KeyCode == KeyEvent.KEYCODE_BACK && !isBlocked){
+            if(TabPos > 0){
+                TabPos--;
+                mActionBar.getTabAt(TabPos).select();
+                mViewPager.setCurrentItem(TabPos);
+            }else{
+                this.moveTaskToBack(true);
+            }
         }
         return false;
     }
@@ -1690,7 +1699,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(main.isBlocked)return;
             Double freq;
             if(main.Vibrato)main.mVibrator.vibrate(75L);
-            if(string.length()>0){
+            if(string.length()>2){
                 freq = Double.parseDouble(string.toString());
                 //If valid number
                 if(freq != 0.0){
@@ -2215,7 +2224,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             mIntercom.setPort(Port);
                             mIntercom.setMic_e(Mic,Scram,Tot);
                             mIntercom.setVox(Vox);
-                            mIntercom.setPort(Port);
                             Spinner groups_list = (Spinner) mViewPager.findViewById(R.id.group_list);
                             groups_list.setAdapter(getGroups());
                             editor.putString(APP_PREFERENCES_NICK, Nick);

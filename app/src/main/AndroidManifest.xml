@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-sdk
-        android:minSdkVersion="7"
+        android:minSdkVersion="15"
         android:targetSdkVersion="15" />
 
     <application
@@ -32,6 +32,7 @@
                 <action android:name="com.nxn.intercomm.BLOCK" />
                 <action android:name="com.nxn.intercomm.UNBLOCK" />
                 <action android:name="com.nxn.intercomm.RESTORE" />
+                <action android:name="com.nxn.intercomm.STOP_SCAN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
