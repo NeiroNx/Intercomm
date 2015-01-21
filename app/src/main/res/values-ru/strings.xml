@@ -83,6 +83,7 @@
     <string name="device">Устройство</string>
     <string name="gps_mode">Использовать GPS</string>
     <string name="hw_conf_lable">Аппаратная конфигурация</string>
+    <string name="ptt_set">Кнопка PTT</string>
     <string-array name="scram">
         <item>Выкл</item>
         <item>1: 2725 Гц</item>

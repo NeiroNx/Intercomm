@@ -171,8 +171,8 @@ public class uartIntercom{
             "ioctl /dev/intercom_A1840 3",
             //"echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "echo \"No Button\"",
-            "echo \"No Button\""
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 1\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'"
     },{
             "G26",
             "Runbo X5-W VHF",
@@ -182,8 +182,8 @@ public class uartIntercom{
             "ioctl /dev/intercom_A1840 0",
             "ioctl /dev/intercom_A1840 4",
             "ioctl /dev/intercom_A1840 3",
-            "echo \"No Button\"",
-            "echo \"No Button\""
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 1\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'"
     },{
             "hexing89_we_jb2",
             "Runbo Q5(X6)",
@@ -193,8 +193,8 @@ public class uartIntercom{
             "ioctl /dev/intercom_A1840 0",
             "ioctl /dev/intercom_A1840 4",
             "ioctl /dev/intercom_A1840 3",
-            "echo \"No Button\"",
-            "echo \"No Button\""
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 1\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'"
     },{
             "M8",
             "Snowpow M8",
@@ -215,10 +215,10 @@ public class uartIntercom{
             "Batl S19",
             "/dev/ttyMT1",
             "/dev/null",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 1\" > $g; echo \"-wdout179 1\" > $g; echo \"-wdout174 1\" > $g;'",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g; echo \"-wdout174 0\" > $g; echo \"-wdout178 0\" > $g; echo \"-wdout179 0\" > $g;'",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g; echo \"-wdout179 1\" > $g;'",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 1\" > $g; echo \"-wdout179 0\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 1\" > $g; echo \"-wdout179 1\" > $g; echo \"-wdout177 1\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g;echo \"-wdout76 0\" > $g; echo \"-wdout174 0\" > $g; echo \"-wdout173 0\" > $g; echo \"-wdout179 0\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 1\" > $g; echo \"-wdout174 1\" > $g; echo \"-wdout173 0\" > $g; echo \"-wdout76 0\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g; echo \"-wdout174 0\" > $g; echo \"-wdout173 1\" > $g; echo \"-wdout76 1\" > $g;'",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 0\" > $g;'",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 1\" > $g;'",
     },{
@@ -259,6 +259,9 @@ public class uartIntercom{
     private String headsetMode = "";
     private String txOn = "";
     private String txOff = "";
+    private String dBuf =  "";
+    private Boolean Debug = false;
+    private Boolean isPtt = false;
     private SerialPort uart = null;
     private String Ver = "";
     private Integer Volume = 6;
@@ -281,17 +284,18 @@ public class uartIntercom{
     private String port = "/dev/null";
     private Process shell;
 
-    public uartIntercom(String config, String _port, String _def_ver){
+    public uartIntercom(String config, String _port, String _def_ver, Boolean debug){
         try {
             shell = Runtime.getRuntime().exec("/system/bin/sh");
         } catch (IOException e) {
             e.printStackTrace();
             _def_ver = "no shell!";
         }
+        Debug = debug;
         Ver = _def_ver;
         port = _port;
         ports = new SerialPortFinder().getAllDevicesPath();
-        Log.e("UART","Init");
+        Log.d("UART","Init");
         if(!config.equals("") && config.split(";").length == 15){
             String[] d = config.split(";");
             modelName = d[0];
@@ -416,6 +420,7 @@ public class uartIntercom{
             try {
                 String line;
                 while ((line = uart.readLine())==null){Thread.sleep(200L);Log.w("UART","sleep(200L)");} //wait for module respond
+                if(line.contains("ERR")) return "SA808";
                 if(!line.contains(DMO+VERQ)) return Ver;
                 Ver=getModule(line);
             } catch (Exception e) {
@@ -433,6 +438,17 @@ public class uartIntercom{
             return line.replace(DMO+MES,"");
         else if(line.contains(VERQ))Ver=getModule(line);
         return null;
+    }
+
+    public void intercomPttTogle()
+    {
+        if(isPtt){
+            cmd(txOff);
+            isPtt = false;
+        }else{
+            cmd(txOn);
+            isPtt = true;
+        }
     }
 
     public void intercomTxOn()
@@ -464,6 +480,7 @@ public class uartIntercom{
     public void intercomPowerOn()
     {
         try {
+            if(uart != null)uart.close();
             uart = new SerialPort(new File(port), 9600);
             cmd(powerOn);
             Log.w("UART","Powered ONN");

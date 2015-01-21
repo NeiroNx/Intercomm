@@ -138,6 +138,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static final String APP_PREFERENCES_THEME = "theme";
     public static final String APP_PREFERENCES_GROUPS = "groups";
     public static final String APP_PREFERENCES_GROUP = "group";
+    public static final String APP_PREFERENCES_KEY_PTT = "keyPtt";
     public static final String APP_PREFERENCES_KEY_SOS = "keySos";
     public static final String APP_PREFERENCES_KEY_BLOCK = "keyBlock";
     public static final String APP_PREFERENCES_KEY_SEARCH = "keySearch";
@@ -184,7 +185,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer Scram = 0;
     public Integer Tot = 0;
     public Integer Vox = 0;
-    public Boolean isFull = false;
+    public Boolean isDebug = false;
     public Boolean isSpeaker = true;
     public Boolean isGps = true;
     public Boolean Power = false;
@@ -214,6 +215,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public String HWConfig = "";
     public String FileName = Environment.getExternalStorageDirectory().getPath()+"/Channels.csv";
     public String ActionInput = "";
+    public Integer keyPtt = 249;
     public Integer keySos = 300;
     public Integer keyBlock = 301;
     public Integer keySearch = 84;
@@ -253,7 +255,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT,Tot.toString()));
         Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX,Vox.toString()));
         isGps = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_GPS_MODE, isGps.toString()));
-        isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isFull.toString()));
+        isDebug = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isDebug.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER,isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ, Sq.toString()));
@@ -264,11 +266,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Theme = mSettings.getString(APP_PREFERENCES_THEME, Theme);
         Resources.Theme mTheme = getTheme();
         if(mTheme != null)mTheme.applyStyle(Theme.equals("Black") ? R.style.Black : R.style.Light, true);
+        keyPtt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_PTT,keyPtt.toString()));
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
         Ver = getString(R.string.no_ver);
-        mIntercom = new uartIntercom(HWConfig, Port, Ver);
+        mIntercom = new uartIntercom(HWConfig, Port, Ver,isDebug);
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
         ((DecimalFormat)Format).applyPattern(FORMAT);
@@ -925,7 +928,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
+    public boolean onKeyDown(int KeyCode,KeyEvent event){
+        if(KeyCode == keyPtt){
+            mIntercom.intercomTxOn();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean onKeyUp(int KeyCode,KeyEvent event){
+        if(KeyCode == keyPtt){
+            mIntercom.intercomTxOff();
+            return true;
+        }
         if(Vibrato&&!isBlocked)mVibrator.vibrate(75L);
         if(KeyCode == keySos){
             if(!sosMode){
@@ -1011,7 +1027,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Tot = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TOT, Tot.toString()));
         Vox = Integer.parseInt(mSettings.getString(APP_PREFERENCES_VOX, Vox.toString()));
         isGps = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_GPS_MODE, isGps.toString()));
-        isFull = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isFull.toString()));
+        isDebug = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_FULL_MODE, isDebug.toString()));
         isSpeaker = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SPEAKER, isSpeaker.toString()));
         Vibrato = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_VIBRO, Vibrato.toString()));
         Sq = Integer.parseInt(mSettings.getString(APP_PREFERENCES_SQ, Sq.toString()));
@@ -1019,6 +1035,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         ScanRxCt = Boolean.parseBoolean(mSettings.getString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString()));
         Port = mSettings.getString(APP_PREFERENCES_PORT, Port);
         Theme = mSettings.getString(APP_PREFERENCES_THEME,Theme);
+        keyPtt = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_PTT,keyPtt.toString()));
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
@@ -1053,7 +1070,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_TOT,Tot.toString());
         editor.putString(APP_PREFERENCES_VOX,Vox.toString());
         editor.putString(APP_PREFERENCES_GPS_MODE,isGps.toString());
-        editor.putString(APP_PREFERENCES_FULL_MODE,isFull.toString());
+        editor.putString(APP_PREFERENCES_FULL_MODE,isDebug.toString());
         editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
         editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
         editor.putString(APP_PREFERENCES_SQ,Sq.toString());
@@ -1061,6 +1078,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
         editor.putString(APP_PREFERENCES_PORT, Port);
         editor.putString(APP_PREFERENCES_THEME,Theme);
+        editor.putString(APP_PREFERENCES_KEY_PTT,keyPtt.toString());
         editor.putString(APP_PREFERENCES_KEY_SOS,keySos.toString());
         editor.putString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString());
         editor.putString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString());
@@ -2113,8 +2131,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(Power&&!isBusy){
                     String msg;
                     if( mIntercom.checkMessageBuffer() &&(msg = mIntercom.getMessage())!= null ){//Get any text
-                        Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
-                        mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
+                        if(!isDebug){
+                            Toast.makeText(MainActivity.this, getString(R.string.message) + ":\n  "+msg, Toast.LENGTH_LONG).show();
+                            mNotificationManager.notify(R.id.chat, new NotificationCompat.Builder(MainActivity.this)
                                 .setSmallIcon(android.R.drawable.ic_dialog_email)
                                 .setContentTitle(String.format("%s %s", getString(R.string.message), ChannelName))
                                 .setContentText(msg)
@@ -2122,8 +2141,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         .setAction("com.nxn.intercomm.CHAT")
                                         .addCategory(Intent.CATEGORY_LAUNCHER), 0))
                                 .build());
-                        mViewPager.setCurrentItem(2);
-                        mActionBar.setSelectedNavigationItem(2);
+                            mViewPager.setCurrentItem(2);
+                            mActionBar.setSelectedNavigationItem(2);
+                        }
                         AppendMessage(msg);
                     }
                 }
@@ -2161,7 +2181,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             final Switch vibro = (Switch)Settings.findViewById(R.id.vibro);
             vibro.setChecked(Vibrato);
             final Switch full_mode = (Switch)Settings.findViewById(R.id.full_mode);
-            full_mode.setChecked(isFull);
+            full_mode.setChecked(isDebug);
             final Switch gps_mode = (Switch)Settings.findViewById(R.id.gps_mode);
             gps_mode.setChecked(isGps);
             final SeekBar mic = (SeekBar)Settings.findViewById(R.id.mic_volume);
@@ -2184,6 +2204,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     }else return false;
                 }
             };
+            final EditText set_ptt = (EditText)Settings.findViewById(R.id.set_ptt);
+            set_ptt.setOnKeyListener(keyListener);
+            set_ptt.setText(keyPtt.toString());
             final EditText set_sos = (EditText)Settings.findViewById(R.id.set_sos);
             set_sos.setOnKeyListener(keyListener);
             set_sos.setText(keySos.toString());
@@ -2214,10 +2237,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             ScanRxCt = scan_ct.isChecked();
                             Vibrato = vibro.isChecked();
                             Groups = (groups.getText() == null)?Groups:groups.getText().toString();
+                            keyPtt = (set_ptt.getText() == null)?keyPtt:Integer.parseInt(set_ptt.getText().toString());
                             keySos = (set_sos.getText() == null)?keySos:Integer.parseInt(set_sos.getText().toString());
                             keyBlock = (set_block.getText() == null)?keyBlock:Integer.parseInt(set_block.getText().toString());
                             keySearch = (set_search.getText() == null)?keySearch:Integer.parseInt(set_search.getText().toString());
-                            isFull = full_mode.isChecked();
+                            isDebug = full_mode.isChecked();
                             isGps = gps_mode.isChecked();
                             Mic = mic.getProgress() + 1;
                             Scram = scram.getSelectedItemPosition();
@@ -2237,11 +2261,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             editor.putString(APP_PREFERENCES_SCAN_CT, ScanRxCt.toString());
                             editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
                             editor.putString(APP_PREFERENCES_GROUPS, Groups);
+                            editor.putString(APP_PREFERENCES_KEY_PTT, keyPtt.toString());
                             editor.putString(APP_PREFERENCES_KEY_SOS, keySos.toString());
                             editor.putString(APP_PREFERENCES_KEY_BLOCK, keyBlock.toString());
                             editor.putString(APP_PREFERENCES_KEY_SEARCH, keySearch.toString());
                             editor.putString(APP_PREFERENCES_GPS_MODE, isGps.toString());
-                            editor.putString(APP_PREFERENCES_FULL_MODE, isFull.toString());
+                            editor.putString(APP_PREFERENCES_FULL_MODE, isDebug.toString());
                             editor.putString(APP_PREFERENCES_MIC_VOLUME, Mic.toString());
                             editor.putString(APP_PREFERENCES_SCRAM_VOLUME, Scram.toString());
                             editor.putString(APP_PREFERENCES_TOT, Tot.toString());

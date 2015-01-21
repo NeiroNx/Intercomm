@@ -81,4 +81,5 @@
     <string name="device">Device</string>
     <string name="gps_mode">Use GPS</string>
     <string name="hw_conf_lable">HW Config</string>
+    <string name="ptt_set">Imposta pulsante PTT</string>
 </resources>
