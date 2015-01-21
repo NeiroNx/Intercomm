@@ -171,7 +171,7 @@
             android:layout_margin="10dp"
             android:layout_weight="5"
             android:layout_gravity="center_vertical"
-            android:max="5"
+            android:max="7"
             android:progress="0"
             android:paddingEnd="10dp"
             android:paddingStart="10dp" />

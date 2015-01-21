@@ -50,7 +50,7 @@ AT + DMOCONNECT
 Параметр Описание 0 нормальном рабочем состоянии
 2.2.3 AT + DMOSETGROUP Набор команд
 Описание Эта команда указывает параметры информационных установки модуля. Формат AT +DMOSETGROUP= GBW, TFV, RFV, RXCTCSS, SQ, TXCTCSS
-Пример AT +DMOSETGROUP= 0,415.1250,415.1250,12,4
+Пример AT +DMOSETGROUP= 0,415.1250,415.1250,12,4,12
 +DMOSETGROUP: 0 Параметры сказал Ясно
 GBW: параметры полосы пропускания.
      0: 6.5K
@@ -200,29 +200,34 @@ public class uartIntercom{
             "Snowpow M8",
             "/dev/ttyMT1",
             "/dev/a1852",
-            "ioctl /dev/a1852 3221507329 && ioctl /dev/a1852 3221507333",
-            //"echo \"-w=73: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=116: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=126: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/a1852 3221507330 && ioctl /dev/a1852 3221507334",
-            //"echo \"-w=73: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=116: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n"+
-            //        "echo \"-w=126: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/a1852 3221507333",
-            //"echo \"-w=125: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=182: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
-            "ioctl /dev/a1852 3221507334",
-            //"echo \"-w=125: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin\n" +
-            //        "echo \"-w=182: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin\n",
-            "ioctl /dev/a1852 3221507331",
-            "ioctl /dev/a1852 3221507332"
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout73 1\" > $g; echo \"-wdout116 1\" > $g; echo \"-wdout126 1\" > $g;'",
+            //"ioctl /dev/a1852 0xc0044d01 && ioctl /dev/a1852 0xc0044d05",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout73 0\" > $g; echo \"-wdout116 0\" > $g; echo \"-wdout126 0\" > $g;'",
+            //"ioctl /dev/a1852 0xc0044d02 && ioctl /dev/a1852 0xc0044d06",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 1\" > $g; echo \"-wdout182 0\" > $g;'",
+            //"ioctl /dev/a1852 0xc0044d05",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 0\" > $g; echo \"-wdout182 1\" > $g;'",
+            //"ioctl /dev/a1852 0xc0044d06",
+            "ioctl /dev/a1852 0xc0044d03",
+            "ioctl /dev/a1852 0xc0044d04"
     },{
             "mbk89_wet_jb2",
             "Batl S19",
             "/dev/ttyMT1",
             "/dev/null",
-            "echo \"-w=75: 0 0 1 1 0 1 0\" > /sys/class/misc/mtgpio/pin",
-            "echo \"-w=75: 0 0 0 0 0 1 0\" > /sys/class/misc/mtgpio/pin",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 1\" > $g; echo \"-wdout179 1\" > $g; echo \"-wdout174 1\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g; echo \"-wdout174 0\" > $g; echo \"-wdout178 0\" > $g; echo \"-wdout179 0\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g; echo \"-wdout179 1\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 1\" > $g; echo \"-wdout179 0\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 0\" > $g;'",
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 1\" > $g;'",
+    },{
+            "bd79_89_w_emmc_sxtd_w63",
+            "Batl S09/W63",
+            "/dev/ttyMT1",
+            "/dev/SA808",
+            "echo \"A\" > /dev/SA808",
+            "echo \"B\" > /dev/SA808",
             "echo \"None\" ",
             "echo \"None\" ",
             "echo \"No Button\"",
@@ -243,12 +248,7 @@ public class uartIntercom{
     private final static String VOLUME = "SETVOLUME=";
     private final static String MIC = "SETMIC=";
     private final static String VOX = "SETVOX=";
-    private final static String GRP = "SETGROUP=0,";
-    private final static int INTERCOM_PULL_DOWN = 0;
-    private final static int INTERCOM_PULL_UP =  1;
-    //private final static int INTERCOM_SPEAKER_MODE = 2;
-    private final static int INTERCOM_HEADSET_MODE = 3;
-    private final static int INTERCOM_SPEAKER_MODE = 4;
+    private final static String GRP = "SETGROUP=";
     private static final String FORMAT = "###.####";
     private NumberFormat Format;
     private String modelName = "";
@@ -272,6 +272,7 @@ public class uartIntercom{
     private Integer maxVol = 8;
     private Integer maxCt = 120;
     private Boolean txCt = true;
+    private Integer Gwb = 0;
     private Double RxFreq = 450.0500;
     private Double TxFreq = 450.0500;
     private Integer RxCTCSS = 0;
@@ -285,7 +286,7 @@ public class uartIntercom{
             shell = Runtime.getRuntime().exec("/system/bin/sh");
         } catch (IOException e) {
             e.printStackTrace();
-            _def_ver = "no root!";
+            _def_ver = "no shell!";
         }
         Ver = _def_ver;
         port = _port;
@@ -414,7 +415,7 @@ public class uartIntercom{
             uart.write(AT+DMO+VERQ);
             try {
                 String line;
-                while ((line = uart.readLine())==null){wait(200);} //wait for module respond
+                while ((line = uart.readLine())==null){Thread.sleep(200L);Log.w("UART","sleep(200L)");} //wait for module respond
                 if(!line.contains(DMO+VERQ)) return Ver;
                 Ver=getModule(line);
             } catch (Exception e) {
@@ -465,12 +466,12 @@ public class uartIntercom{
         try {
             uart = new SerialPort(new File(port), 9600);
             cmd(powerOn);
-            Thread.sleep(500L);
-            //uart.write(AT + DMO + CONNECT);
-            //String line = null;
-            //while ((line = uart.readLine())==null){}
-            //if(line.contains(CONNECT+":0"))
             Log.w("UART","Powered ONN");
+            Thread.sleep(500L);
+            uart.write(AT + DMO + CONNECT);
+            Thread.sleep(200L);
+            String line = uart.readLine();
+            if(line.contains(CONNECT))Log.w("UART","Connected OK");
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;
@@ -492,10 +493,10 @@ public class uartIntercom{
 
     public int sendMessage(String paramString)
     {
-        if(paramString.length()<100){
+        if(paramString.length() < 100){
             uart.write(AT + DMO + MES + String.format("\\x%d%s", paramString.length(), paramString));
         }else{//Split Messages by 100 byte
-            for(int i=0;paramString.length()<i+100;i+=100){
+            for(int i=0;i < paramString.length();i+=100){
                 uart.write(AT+DMO+MES+String.format("\\x%d%s",100,paramString.substring(i,(paramString.length()-i>100)?100:paramString.length()-i)));
             }
         }
@@ -562,14 +563,15 @@ public class uartIntercom{
         Volume = volume;
     }
 
-    public void setFreq(Double rx, Double tx, int rxt, int txt, int sq){
+    public void setFreq(Double rx, Double tx, int rxt, int txt, int sq, int gwb){
         Boolean set = false;
-        if(!RxFreq.equals(rx) || !TxFreq.equals(tx) || RxCTCSS != rxt || TxCTCSS != txt || SQ != sq)set = true;
+        if(!RxFreq.equals(rx) || !TxFreq.equals(tx) || RxCTCSS != rxt || TxCTCSS != txt || SQ != sq || Gwb != gwb)set = true;
         RxFreq = checkFreq(rx);
         TxFreq = checkFreq(tx);
         RxCTCSS = checkCt(rxt);
         TxCTCSS = checkCt(txt);
         SQ = sq;
+        Gwb = gwb;
         if(set)sendFreq();
     }
     public void setMic_e(int mic, int scram, int tot){
@@ -624,8 +626,8 @@ public class uartIntercom{
         if(uart != null){
             String str = AT+DMO+GRP+(
                     (txCt)?
-                            String.format("%s,%s,%02d,%d,%02d",Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ,TxCTCSS)
-                            :String.format("%s,%s,%02d,%d",Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ));
+                            String.format("%d,%s,%s,%02d,%d,%02d",Gwb,Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ,TxCTCSS)
+                            :String.format("%d,%s,%s,%02d,%d",Gwb,Format.format(TxFreq),Format.format(RxFreq),RxCTCSS,SQ));
             uart.write(str);
         }
     }
@@ -699,7 +701,7 @@ public class uartIntercom{
         public void write(String line){
             try {
                 Log.d(TAG,">>> "+line);
-                String cmd = "echo \""+ line +"\" > " + mFd.getAbsolutePath() +"\n";
+                String cmd = "echo \""+ line +"\\x0A\" > " + mFd.getAbsolutePath() +"\n";// \x0A for send <CR>. <LF> sended by echo
                 mInput.getOutputStream().write(cmd.getBytes());
                 Thread.sleep(100L);
             } catch (Exception e) {

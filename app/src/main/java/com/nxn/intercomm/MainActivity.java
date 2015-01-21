@@ -175,6 +175,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public Integer sosRxCt = 0;
     public Integer sosTxCt = 0;
     public Double Step = steps[1];
+    public Integer Gwb = 0;
     public Double minFreq = 400.0;
     public Double maxFreq = 480.0;
     public Integer Sq = 1;
@@ -819,7 +820,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void setGrp(){
-        mIntercom.setFreq(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq);
+        mIntercom.setFreq(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Gwb);
     }
 
     public String setFreq(Double freq , Double delta){
@@ -937,7 +938,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }catch (UnsatisfiedLinkError e){
                     //
                 }
-                mIntercom.setFreq(sosRxFreq,sosTxFreq,sosRxCt,sosTxCt,1);
+                mIntercom.setFreq(sosRxFreq,sosTxFreq,sosRxCt,sosTxCt,1,Gwb);
                 mIntercom.setMic_e(5,0,0);
                 mIntercom.setVox(0);
                 Toast.makeText(this, getString(R.string.freq)+" SOS", Toast.LENGTH_SHORT).show();
@@ -1021,6 +1022,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         keySos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SOS,keySos.toString()));
         keyBlock = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString()));
         keySearch = Integer.parseInt(mSettings.getString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString()));
+        if(isSpeaker)mIntercom.intercomSpeakerMode();else mIntercom.intercomHeadsetMode();//Resume set mode if reseted.
         super.onPostResume();
     }
     @Override
@@ -1972,7 +1974,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if(rx != null)rx.setSelection(curRxCt);
                 Notify();
                 if(Power&&!isBusy)
-                    mIntercom.setFreq(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq);
+                    mIntercom.setFreq(curRxFreq,curTxFreq,curRxCt,curTxCt,Sq,Gwb);
                 ScanHandler.sendMessageDelayed(new Message(),ScanDelay);
             }
             if(ScanChannel){
