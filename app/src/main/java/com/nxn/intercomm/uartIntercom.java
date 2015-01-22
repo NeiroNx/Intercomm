@@ -152,7 +152,9 @@ public class uartIntercom{
                     "echo \"Speaker MODE\"",
                     "echo \"HeadSet MODE\"",
                     "echo \"TX Button ON\"",
-                    "echo \"TX Button OFF\""
+                    "echo \"TX Button OFF\"",
+                    "Module Version",
+                    "CONNECT,VERQ,SETGROUP,SETVOX,SETMIC,SETVOX,MES,PTT_EINT,cmd0,cmd1,cmd2,cmd3"
             },{
             "RunboX5",
             "Runbo X5-W UHF",
@@ -172,7 +174,9 @@ public class uartIntercom{
             //"echo \"-w=122: 0 0 1 1 1 1 0\" > /sys/class/misc/mtgpio/pin\n" +
             //        "echo \"-w=125: 0 0 0 0 1 1 0\" > /sys/class/misc/mtgpio/pin\n",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 1\" > $g;'",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'"
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'",
+            "HKT-81BK",
+            "true,true,true,true,true,true,true,false,false,false,false,false"
     },{
             "G26",
             "Runbo X5-W VHF",
@@ -183,7 +187,9 @@ public class uartIntercom{
             "ioctl /dev/intercom_A1840 4",
             "ioctl /dev/intercom_A1840 3",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 1\" > $g;'",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'"
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'",
+            "HKT-D150",
+            "true,true,true,true,true,true,true,false,false,false,false,false"
     },{
             "hexing89_we_jb2",
             "Runbo Q5(X6)",
@@ -194,7 +200,9 @@ public class uartIntercom{
             "ioctl /dev/intercom_A1840 4",
             "ioctl /dev/intercom_A1840 3",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 1\" > $g;'",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'"
+            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout12 0\" > $g;'",
+            "HKT-81BK",
+            "true,true,true,true,true,true,true,false,false,false,false,false"
     },{
             "M8",
             "Snowpow M8",
@@ -209,7 +217,9 @@ public class uartIntercom{
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 0\" > $g; echo \"-wdout182 1\" > $g;'",
             //"ioctl /dev/a1852 0xc0044d06",
             "ioctl /dev/a1852 0xc0044d03",
-            "ioctl /dev/a1852 0xc0044d04"
+            "ioctl /dev/a1852 0xc0044d04",
+            "A1842",
+            "true,true,true,true,false,false,true,false,false,false,false,false"
     },{
             "mbk89_wet_jb2",
             "Batl S19",
@@ -221,6 +231,8 @@ public class uartIntercom{
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout75 0\" > $g; echo \"-wdout174 0\" > $g; echo \"-wdout173 1\" > $g; echo \"-wdout76 1\" > $g;'",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 0\" > $g;'",
             "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout178 1\" > $g;'",
+            "SA808",
+            "true,false,true,true,false,false,true,true,false,false,false,false"
     },{
             "bd79_89_w_emmc_sxtd_w63",
             "Batl S09/W63",
@@ -231,14 +243,18 @@ public class uartIntercom{
             "echo \"None\" ",
             "echo \"None\" ",
             "echo \"No Button\"",
-            "echo \"No Button\""
+            "echo \"No Button\"",
+            "SA808",
+            "true,false,true,true,false,false,true,false,false,false,false,false"
     }//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
     };
     private final static String[][] module = {
             {"Name","superID","minFreq","MaxFreq","maxVol","micVol","maxCt","txCt"},
             {"HKT-80BK","80BK","400.0","480.0","8","5","120","true"},
             {"HKT-81BK","81BK","400.0","480.0","8","5","120","true"},
-            {"HKT-D150","D150","130.0","180.0","8","5","120","true"}
+            {"HKT-D150","D150","130.0","180.0","8","5","120","true"},
+            {"SA808","ERR","400.0","480.0","8","0","38","true"},
+            {"A1842","1842","400.0","480.0","8","0","38","false"}
     };
     private final static String AT = "AT";
     private final static String DMO = "+DMO";
@@ -261,6 +277,7 @@ public class uartIntercom{
     private String txOff = "";
     private String dBuf =  "";
     private Boolean Debug = false;
+    private String[] Profile = {};
     private Boolean isPtt = false;
     private SerialPort uart = null;
     private String Ver = "";
@@ -314,6 +331,7 @@ public class uartIntercom{
             maxVol = Integer.parseInt(d[12]);
             maxCt = Integer.parseInt(d[13]);
             txCt = Boolean.parseBoolean(d[14]);
+            Profile = d[15].split(",");
         }else
         for(String[] d:dev)
             if(Build.DEVICE.contains(d[0])){
@@ -326,6 +344,8 @@ public class uartIntercom{
                 headsetMode = d[7];
                 txOn = d[8];
                 txOff = d[9];
+                Ver=d[10];
+                Profile=d[11].split(",");
             }
         //Create format
         Format = NumberFormat.getInstance(Locale.ENGLISH);
@@ -368,8 +388,16 @@ public class uartIntercom{
         out += Double.toString(maxFreq) + "\n";
         out += Integer.toString(maxVol) + "\n";
         out += Integer.toString(maxCt) + "\n";
-        out += Boolean.toString(txCt) + "\n(auto)";
+        out += Boolean.toString(txCt) + "\n";
+        out += MainActivity.join(Profile,",")+"\n(auto)";
         return out;
+    }
+    public Boolean getProfile(int id){
+        return id < Profile.length && Boolean.parseBoolean(Profile[id]);
+    }
+
+    public void setProfile(Boolean value,int id){
+        if(id < Profile.length)Profile[id]=value.toString();
     }
 
     public void setPort(String str){
@@ -401,7 +429,7 @@ public class uartIntercom{
     }
     private String getModule(String param){
         for(String[] m:module){
-            if(param.contains(m[1])){
+            if(param.contains(m[1]) || param.equals(m[0])){
                 minFreq = Double.parseDouble(m[2]);
                 maxFreq = Double.parseDouble(m[3]);
                 maxVol = Integer.parseInt(m[4]);
@@ -415,12 +443,12 @@ public class uartIntercom{
 
     public String getIntercomVersion()
     {
+        if(!getProfile(1))return getModule(Ver);
         if(uart != null){
             uart.write(AT+DMO+VERQ);
             try {
                 String line;
                 while ((line = uart.readLine())==null){Thread.sleep(200L);Log.w("UART","sleep(200L)");} //wait for module respond
-                if(line.contains("ERR")) return "SA808";
                 if(!line.contains(DMO+VERQ)) return Ver;
                 Ver=getModule(line);
             } catch (Exception e) {
@@ -432,6 +460,7 @@ public class uartIntercom{
 
     public String getMessage()
     {
+        if(!getProfile(6))return null;
         String line = uart.readLine();
         if(line == null)return null;
         if(line.contains(DMO+MES))
@@ -469,7 +498,7 @@ public class uartIntercom{
     {
         try {
             cmd(powerOff);
-            Log.e("UART","Powered OFF");
+            Log.w("UART", "Powered OFF");
             uart.close();
             uart = null;
         } catch (Exception e) {
@@ -485,10 +514,12 @@ public class uartIntercom{
             cmd(powerOn);
             Log.w("UART","Powered ONN");
             Thread.sleep(500L);
-            uart.write(AT + DMO + CONNECT);
-            Thread.sleep(200L);
-            String line = uart.readLine();
-            if(line.contains(CONNECT))Log.w("UART","Connected OK");
+            if(getProfile(0)){
+                uart.write(AT + DMO + CONNECT);
+                Thread.sleep(200L);
+                String line = uart.readLine();
+                if(line.contains(CONNECT))Log.w("UART","Connected OK");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             uart = null;
@@ -510,6 +541,7 @@ public class uartIntercom{
 
     public int sendMessage(String paramString)
     {
+        if(!getProfile(6))return 0;
         if(paramString.length() < 100){
             uart.write(AT + DMO + MES + String.format("\\x%d%s", paramString.length(), paramString));
         }else{//Split Messages by 100 byte
@@ -640,6 +672,7 @@ public class uartIntercom{
     }
 
     private void sendFreq(){
+        if(!getProfile(2))return;
         if(uart != null){
             String str = AT+DMO+GRP+(
                     (txCt)?
@@ -650,6 +683,7 @@ public class uartIntercom{
     }
 
     private void sendVol(){
+        if(!getProfile(3))return;
         if(uart != null){
             if(Volume > maxVol)Volume=maxVol;
             uart.write(AT+DMO+VOLUME+Volume.toString());
@@ -657,12 +691,14 @@ public class uartIntercom{
     }
 
     private void sendMic(){
+        if(!getProfile(4))return;
         if(uart != null){
             uart.write(AT+DMO+MIC+String.format("%d,%d,%d",Mic,Scram,Tot));
         }
     }
 
     private void sendVox(){
+        if(!getProfile(6))return;
         if(uart != null){
             uart.write(AT+DMO+VOX+Vox.toString());
         }

@@ -280,6 +280,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        isChat = mIntercom.getProfile(6);
         if(Nick.equals(""))isChat = false;
 
         if(Power){
@@ -842,14 +843,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return Format.format(num);
     }
 
-    public String join(String[] array, String delimiter){
+    public static String join(String[] array, String delimiter){
         if(array.length<1)return "";
         String str = array[0];
         for (int i=1;i<array.length;i++) str += delimiter+array[i];
         return str;
     }
 
-    public String[] del(String[] array, int id){
+    public static String[] del(String[] array, int id){
         if(array.length <= 1)return new String[]{};
         int rid = (id == 0)?1:0;
         String str = array[rid];
@@ -858,7 +859,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return str.split("\\|");
     }
 
-    public int findCt(Double[] array, Double tar){
+    public static int findCt(Double[] array, Double tar){
         int out= 0;
         for(int i=0;i<array.length;i++)if(array[i].equals(tar))out = i;
         return out;
@@ -2160,6 +2161,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             LayoutInflater inflater = getActivity().getLayoutInflater();
             final View Settings = inflater.inflate(R.layout.settings, null);
             assert Settings != null;
+            //Hide disabled functions
+            if(!mIntercom.getProfile(4)){
+                Settings.findViewById(R.id.mic).setVisibility(View.GONE);
+                Settings.findViewById(R.id.scr).setVisibility(View.GONE);
+                Settings.findViewById(R.id.tt).setVisibility(View.GONE);
+            }
+            if(!mIntercom.getProfile(5))Settings.findViewById(R.id.vx).setVisibility(View.GONE);
+            if(!mIntercom.getProfile(6))Settings.findViewById(R.id.nick).setVisibility(View.GONE);
             final EditText nick = (EditText)Settings.findViewById(R.id.set_nick);
             nick.setText(Nick);
             final EditText min = (EditText)Settings.findViewById(R.id.set_min);
