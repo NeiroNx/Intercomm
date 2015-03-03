@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.text.DecimalFormat;
@@ -709,6 +710,8 @@ public class uartIntercom{
         private static final String TAG = "SerialPort";
         private File mFd;
         private Process mInput;
+        private InputStream mInStream;
+        private InputStreamReader mInStreamReader;
         private BufferedReader mReader;
 
         public SerialPort(File device, int baudrate) throws SecurityException, IOException {
@@ -725,13 +728,15 @@ public class uartIntercom{
                 Log.e(TAG, "native open returns null");
                 throw new IOException();
             }
-            mReader = new BufferedReader(new InputStreamReader(new FileInputStream(mFd)));
+            mReader = new BufferedReader(mInStreamReader = new InputStreamReader(mInStream = new FileInputStream(mFd)));
             Log.d(TAG, "Opened port: " + device.getAbsolutePath());
         }
         public void close(){
             try {
                 mInput.destroy();
                 mReader.close();
+                mInStreamReader.close();
+                mInStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }

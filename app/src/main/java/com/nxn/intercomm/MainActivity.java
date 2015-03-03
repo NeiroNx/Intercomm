@@ -1,5 +1,6 @@
 package com.nxn.intercomm;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -151,8 +152,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public int TONES = 121;
     public static final Double[] steps = {0.005,0.00625,0.01,0.01250,0.015,0.02,0.025,0.03,0.05,0.1}; //Frequency step array
     public static final Double[] tones = {0.0,67.0,71.9,74.4,77.0,79.7,82.5,85.4,88.5,91.5,94.8,97.4,100.0,103.5,107.2,110.9,114.8,118.8,123.0,127.3,131.8,136.5,141.3,146.2,151.4,156.7,162.2,167.9,173.8,179.9,186.2,192.8,203.5,210.7,218.1,225.7,233.6,241.8,250.3};
-    public static final String[] dtones = {};
-    public static final String[] dpolar = {};
+    //public static final String[] dtones = {};
+    //public static final String[] dpolar = {};
     public static final Long[] delays = {100L,200L,500L,1000L,2000L,3000L,5000L,10000L,60000L,300000L};
     public static final String Smiles = ":),:D,*ROFL*,8P,*HAHA*,*PREVED*,:(,:'(,:-\\,:!,*VAVA*,*BYE*,=O,*MEGA_SHOK*,%),*ANGRY*,>:O,*PORKA*,;),*SARCASTIC*,:P,*CRAZY*,8),*DRINK*,*GOOD*,*STOP*,*OK*,;D,=],*FRIEND*,*DANCE*,*KISSED*,@}->--,*SIGH*,*FIE*,*KISSING*,:-[,*TO_PICK_ONES_NOSE*,*TIRED*,*LAZY*,*WALL*,*S_BUBNOM*,]:>,:|,X),*THANK*,*SEARCH*,*BEGU*,*SMOKE*,*COFFEE*,*BEACH*,*NYAM*,*HELP*,*F_TOPKU*,:*,*UNKNOWN*,*TOILET*,*COLD*,*BLIND*,*GRABLI*,*YAHOO*,*BRAVO*,*YEEES!*,*MEDAL*,\\m/,*WINNER*,*HOSPITAL*,*STINK*,*STINKER*,*SHOUT*,*NOT_I*,*SEX_BEHIND*,*ROCK*,[:},*HI*,*KUKU*,*READ*,*RUSSIAN*,*GIVE_HEART*,O:),*GAMER*,*DOWNLOAD*,*WRITE*,*SUICIDE*,*BOUQUET*,*SKULL*,*RTFM*,@=,(_|_),*SLOW*,*BB*,*V*,*YES*,X:,*NONO*,*TRAINING*,*FOCUS*,*SUN*,*PLEASANTRY*,*IN LOVE*,*NOT_AT_ALL!*,*RACING*,*PADONAK*,*SPITEFUL*,*SORRY*,*UMNIK*,*SCRATCH*,*BUTCHER*,*TEASE*,*KING*,*BUBA*";
     public String Ver = "";
@@ -1093,11 +1094,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mChannels.main = this;
         super.onPostCreate(savedInstanceState);
     }
-    /*@Override
-    public boolean onKeyDown(int KeyCode,KeyEvent event){
-        Toast.makeText(this, "KeyCode="+KeyCode+" Ev="+event.getCharacters(), Toast.LENGTH_SHORT).show();
-        return false;
-    }*/
     /**
      * TODO: SET Checkbox in menu
      */
@@ -1371,7 +1367,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if(TabPos == 1 || TabPos == 0){
                 imm.hideSoftInputFromWindow(mViewPager.getWindowToken(), 0);
             }else{
-                imm.showSoftInput(mViewPager.getRootView().findViewById(R.id.message),0);
+                if(mViewPager.getRootView()!=null)imm.showSoftInput(mViewPager.getRootView().findViewById(R.id.message),0);
             }
         }else{
             mViewPager.setCurrentItem(TabPos);
@@ -1666,10 +1662,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Spinner rxct = (Spinner)rootView.findViewById(R.id.rxctcss);
             Spinner txct = (Spinner)rootView.findViewById(R.id.txctcss);
             SeekBar vol = (SeekBar)rootView.findViewById(R.id.volume);
-            /**
-             * TODO: Check weather of views before set him
-             */
-            //if(savedInstanceState.isEmpty())
             try{
                 txct.setEnabled(main.isTxCt);
                 snd.setOnClickListener(this);
@@ -1796,7 +1788,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     list.setAdapter(main.ChannelsAdapter());
                     list.setSelection(main.curChannel);
                     Toast.makeText(main, getString(R.string.invert), Toast.LENGTH_SHORT).show();
-                    main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList,"|"));
+                    main.editor.putString(APP_PREFERENCES_CHANNELS, MainActivity.join(main.ChannelList, "|"));
                     main.editor.commit();
                     break;
                 case R.id.check_all:
@@ -1806,7 +1798,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     list1.setAdapter(main.ChannelsAdapter());
                     list1.setSelection(main.curChannel);
                     Toast.makeText(main, getString(R.string.check_all), Toast.LENGTH_SHORT).show();
-                    main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList,"|"));
+                    main.editor.putString(APP_PREFERENCES_CHANNELS,MainActivity.join(main.ChannelList,"|"));
                     main.editor.commit();
                     break;
             }else isLongTouch=false;
@@ -1896,7 +1888,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 // Get the layout inflater
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                final View Settings = inflater.inflate(R.layout.channel, null);
+                @SuppressLint("InflateParams") final View Settings = inflater.inflate(R.layout.channel, null, false);
                 assert Settings != null;
                 String[] ch = main.curChannelList[main.curChannel].split(",");
                 Log.e("Channel",main.curChannelList[main.curChannel]);
@@ -1949,7 +1941,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                 Spinner group_list = (Spinner)main.mViewPager.findViewById(R.id.group_list);
                                 group_list.setSelection(main.curGroup);
                                 main.setCh(true);
-                                main.editor.putString(APP_PREFERENCES_CHANNELS,main.join(main.ChannelList, "|"));
+                                main.editor.putString(APP_PREFERENCES_CHANNELS,MainActivity.join(main.ChannelList, "|"));
                                 main.editor.putString(APP_PREFERENCES_CHANNEL,main.curChannel.toString());
                                 main.editor.commit();
                             }
@@ -2038,7 +2030,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             switch (view.getId()){
                 case R.id.send:
                     EditText message = (EditText)getView().findViewById(R.id.message);
-                    String msg = message.getText().toString();
+                    String msg = (message.getText()!=null)?message.getText().toString():"";
                     if(!msg.equals("")){
                         if(msg.charAt(0)=='/'){//CMD parsing
                             if(msg.indexOf("/name ") == 0){
@@ -2065,26 +2057,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 case R.id.smile:
                     final AlertDialog dialog = new AlertDialog.Builder(main).setCancelable(true).create();
                     LayoutInflater inflater = getActivity().getLayoutInflater();
-                    final View sm = inflater.inflate(R.layout.smiles, null);
-                    GridLayout rel = (GridLayout)sm.findViewById(R.id.smiles);
+                    @SuppressLint("InflateParams") final View sm = inflater.inflate(R.layout.smiles, null, false);
+                    GridLayout rel = (sm!=null)?(GridLayout)sm.findViewById(R.id.smiles):null;
                     OnClickListener onClickListener = new OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             EditText message = (EditText)getView().findViewById(R.id.message);
-                            message.getText().append(Smiles.split(",")[view.getId()]);
+                            if(message.getText()!=null)message.getText().append(Smiles.split(",")[view.getId()]);
                             dialog.cancel();
                         }
                     };
                     for (int i=0; i<111; i++) {
                         ImageButton btn = new ImageButton(main);
 
-                        String src = String.format("%c%c",'a'+i/('z'-'a'+1),'a'+i%('z'-'a'+1));//num to 2char code
+                        String src = String.format("%c%c",(char)('a'+i/('z'-'a'+1)),(char)('a'+i%('z'-'a'+1)));//num to 2char code
                         src = src.equals("do")?"do1":src;//костыль
                         btn.setId(i);
                         btn.setImageResource(main.getResources().getIdentifier(src, "drawable", main.getPackageName()));
                         btn.setContentDescription(src);
                         btn.setOnClickListener(onClickListener);
-                        rel.addView(btn);
+                        if(rel!=null)rel.addView(btn);
                     }
                     dialog.setView(sm);
                     dialog.show();
@@ -2121,8 +2113,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             ImageButton btn = (ImageButton)getView().findViewById(R.id.send);
-            if(keyCode == KeyEvent.KEYCODE_ENTER)return btn.callOnClick();
-            return false;
+            return keyCode == KeyEvent.KEYCODE_ENTER && btn.callOnClick();
         }
     }
 
@@ -2159,7 +2150,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View Settings = inflater.inflate(R.layout.settings, null);
+            @SuppressLint("InflateParams") final View Settings = inflater.inflate(R.layout.settings, null, false);
             assert Settings != null;
             //Hide disabled functions
             if(!mIntercom.getProfile(4)){
@@ -2300,7 +2291,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View ed = inflater.inflate(R.layout.input, null);
+            @SuppressLint("InflateParams") final View ed = inflater.inflate(R.layout.input, null, false);
+            assert ed !=null;
             final EditText input = (EditText)ed.findViewById(R.id.input);
             if(ActionInput.equals("import")||ActionInput.equals("export")){
                 input.setText(FileName);
@@ -2316,7 +2308,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            String str = input.getText().toString();
+                            String str = (input.getText() != null)?input.getText().toString():"";
                             if (ActionInput.equals("import")) {
                                 String imported = "";
 
@@ -2366,9 +2358,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View About = inflater.inflate(R.layout.about, null);
+            @SuppressLint("InflateParams") final View About = inflater.inflate(R.layout.about, null, false);
+            assert About!=null;
             TextView version = (TextView)About.findViewById(R.id.version);
             try {
+                if(getApplicationContext()!=null && getApplicationContext().getPackageManager()!= null)
                 version.setText(getApplicationContext().getPackageManager()
                         .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName);
             } catch (Exception e) {
@@ -2397,7 +2391,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View Help = inflater.inflate(R.layout.help, null);
+            @SuppressLint("InflateParams") final View Help = inflater.inflate(R.layout.help, null, false);
+            assert Help!=null;
             final WebView helpText = (WebView)Help.findViewById(R.id.helpText);
             helpText.loadUrl("file:///android_asset/"+getString(R.string.help_dir)+"/index.html");
             ImageButton prew = (ImageButton)Help.findViewById(R.id.help_prew);
@@ -2442,7 +2437,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View Settings = inflater.inflate(R.layout.channel, null);
+            @SuppressLint("InflateParams") final View Settings = inflater.inflate(R.layout.channel, null, false);
             assert Settings != null;
             final EditText name = (EditText)Settings.findViewById(R.id.ch_name);
             final EditText rx = (EditText)Settings.findViewById(R.id.ch_rxfreq);
@@ -2478,6 +2473,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setPositiveButton(((!setSOS)?R.string.ch_add:R.string.ch_apply), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            assert name.getText()!=null && rx.getText()!=null&&tx.getText()!=null;
                             if(!setSOS){
                                 //add ch to list
                                 String result =
