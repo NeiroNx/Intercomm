@@ -155,7 +155,7 @@ public class uartIntercom{
                     "echo \"TX Button ON\"",
                     "echo \"TX Button OFF\"",
                     "Module Version",
-                    "CONNECT,VERQ,SETGROUP,SETVOX,SETMIC,SETVOX,MES,PTT_EINT,cmd0,cmd1,cmd2,cmd3"
+                    "CONNECT,VERQ,SETGROUP,SETVOLUME,SETMIC,SETVOX,MES,PTT_EINT,cmd0,cmd1,cmd2,cmd3"
             },{
             "RunboX5",
             "Runbo X5-W UHF",
@@ -209,16 +209,29 @@ public class uartIntercom{
             "Snowpow M8",
             "/dev/ttyMT1",
             "/dev/a1852",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout73 1\" > $g; echo \"-wdout116 1\" > $g; echo \"-wdout126 1\" > $g;'",
-            //"ioctl /dev/a1852 0xc0044d01 && ioctl /dev/a1852 0xc0044d05",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout73 0\" > $g; echo \"-wdout116 0\" > $g; echo \"-wdout126 0\" > $g;'",
-            //"ioctl /dev/a1852 0xc0044d02 && ioctl /dev/a1852 0xc0044d06",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 1\" > $g; echo \"-wdout182 0\" > $g;'",
-            //"ioctl /dev/a1852 0xc0044d05",
-            "su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 0\" > $g; echo \"-wdout182 1\" > $g;'",
-            //"ioctl /dev/a1852 0xc0044d06",
-            "ioctl /dev/a1852 0xc0044d03",
-            "ioctl /dev/a1852 0xc0044d04",
+            //"su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout73 1\" > $g; echo \"-wdout116 1\" > $g; echo \"-wdout126 1\" > $g;'",
+            "ioctl /dev/a1852 -0x3ffbb2ff && ioctl /dev/a1852 -0x3ffbb2fb",
+            //"su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout73 0\" > $g; echo \"-wdout116 0\" > $g; echo \"-wdout126 0\" > $g;'",
+            "ioctl /dev/a1852 -0x3ffbb2fe && ioctl /dev/a1852 -0x3ffbb2fa",
+            //"su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 1\" > $g; echo \"-wdout182 0\" > $g;'",
+            "ioctl /dev/a1852 -0x3ffbb2fb",
+            //"su -c 'g=\"/sys/class/misc/mtgpio/pin\";echo \"-wdout125 0\" > $g; echo \"-wdout182 1\" > $g;'",
+            "ioctl /dev/a1852 -0x3ffbb2fa",
+            "ioctl /dev/a1852 -0x3ffbb2fd",
+            "ioctl /dev/a1852 -0x3ffbb2fc",
+            "A1842",
+            "true,true,true,true,false,false,true,false,false,false,false,false"
+    },{
+            "M9",
+            "Snowpow M9",
+            "/dev/ttyMT1",
+            "/dev/a1852",
+            "ioctl /dev/a1852 -0x3ffbb2ff",
+            "ioctl /dev/a1852 -0x3ffbb2fe",
+            "ioctl /dev/a1852 -0x3ffbb2fb",
+            "ioctl /dev/a1852 -0x3ffbb2fa",
+            "ioctl /dev/a1852 -0x3ffbb2fd",
+            "ioctl /dev/a1852 -0x3ffbb2fc",
             "A1842",
             "true,true,true,true,false,false,true,false,false,false,false,false"
     },{
