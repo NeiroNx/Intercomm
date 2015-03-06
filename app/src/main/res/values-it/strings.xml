@@ -58,7 +58,7 @@
     <string name="sos_set">Imposta pulsante SOS</string>
     <string name="offset_label">Shift TX</string>
     <string name="change_theme">Cambia tema</string>
-    <string name="groups_list">Tutto,Preferiti,PMR,LPD</string>
+    <string name="groups_list">Tutto,Preferiti,PMR,LPD,FRS,GMRS</string>
     <string name="group_label">Gruppo</string>
     <string name="filter_label">Filtro</string>
     <string name="block">Blocco</string>
