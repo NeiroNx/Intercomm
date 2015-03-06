@@ -28,11 +28,6 @@
         app:showAsAction="never"
         android:orderInCategory="3"
         android:icon="@android:drawable/ic_menu_call"/>
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="10"
-        android:icon="@android:drawable/ic_menu_preferences"
-        app:showAsAction="never" />
     <item android:id="@+id/change_theme"
         android:title="@string/change_theme"
         android:orderInCategory="10"
@@ -53,13 +48,13 @@
         android:title="@string/power"
         android:checkable="true"
         android:icon="@android:drawable/ic_lock_power_off"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:orderInCategory="2"/>
     <item android:id="@+id/action_quit"
         android:title="@string/action_quit"
         android:orderInCategory="20"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
     <item android:id="@+id/three_dots_item"
         android:icon="@android:drawable/ic_menu_more"
         android:title="@string/action_settings"
@@ -89,7 +84,6 @@
                 android:title="@string/clear_history"
                 android:orderInCategory="2"
                 app:showAsAction="ifRoom"
-                android:actionViewClass="mChat"
                 android:icon="@android:drawable/ic_menu_delete"/>
             <item android:id="@+id/action_settings"
                 android:title="@string/action_settings"

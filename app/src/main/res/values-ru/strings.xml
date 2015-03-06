@@ -24,7 +24,7 @@
     <string name="clear_history">Очистить историю</string>
     <string name="share_gps">Ссылка GPS</string>
     <string name="not_send"> (Не отправлено)</string>
-    <string name="sound" />
+    <string name="sound" >звук</string>
     <string name="name">Имя канала</string>
     <string name="rxfreq_label">Прием МГц</string>
     <string name="txfreq_label">Перед. МГц</string>

@@ -106,7 +106,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * Settings declaration
      */
     public SharedPreferences mSettings;
-    public SharedPreferences.Editor editor;
     public static final String APP_PREFERENCES = "IntercomSettings";
     public static final String APP_PREFERENCES_TAB = "tab";
     public static final String APP_PREFERENCES_NICK = "nick";
@@ -227,7 +226,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          * Settings get
          */
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        editor = mSettings.edit();
         TabPos = Integer.parseInt(mSettings.getString(APP_PREFERENCES_TAB, "0"));
         Nick = mSettings.getString(APP_PREFERENCES_NICK, Nick);
         History = mSettings.getString(APP_PREFERENCES_HISTORY, "<h1>"+getString(R.string.title_chat)+"</h1>");
@@ -489,8 +487,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         ScrollView scroll = (ScrollView)mViewPager.findViewById(R.id.scrollView);
         if(chat != null)chat.setText(Html.fromHtml(History + "<br/>", htmlImageGetter, htmlTagHandler));
         if(scroll != null)scroll.fullScroll(View.FOCUS_DOWN);
-        editor.putString(APP_PREFERENCES_HISTORY,History);
-        editor.commit();
+        mSettings.edit().putString(APP_PREFERENCES_HISTORY,History);
+        mSettings.edit().apply();
     }
 
     public Html.ImageGetter htmlImageGetter = new Html.ImageGetter() {
@@ -683,8 +681,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(ChannelList.length > 0)
         if(ChannelList[0].split(",").length == 7){
             for(int i=0;i<ChannelList.length;i++)ChannelList[i] += (ChannelList[i].contains("PMR"))?",2":((ChannelList[i].contains("LPD"))?",3":",0");
-            editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList,"|"));
-            editor.commit();
+            mSettings.edit().putString(APP_PREFERENCES_CHANNELS,join(ChannelList,"|"));
+            mSettings.edit().commit();
         }
     }
 
@@ -737,8 +735,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 txct.setSelection(curTxCt);
                 Spinner sq = (Spinner)mViewPager.findViewById(R.id.sq);
                 sq.setSelection(Sq);
-                editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                editor.commit();
+                mSettings.edit().putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                mSettings.edit().apply();
             }catch (NullPointerException e){
                 //
             }
@@ -798,8 +796,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         chh[6] = Boolean.toString(nView.isChecked());
                         ChannelList[getPosList(pos,curGroup)] = join(chh, ",");
                         curChannelList = getChannelList(curGroup);
-                        editor.putString(APP_PREFERENCES_CHANNELS, join(ChannelList, "|"));
-                        editor.commit();
+                        mSettings.edit().putString(APP_PREFERENCES_CHANNELS, join(ChannelList, "|"));
+                        mSettings.edit().apply();
                     }
                 });
                 View txt_layout = row.findViewById(R.id.txt_layout);
@@ -1046,45 +1044,45 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
     @Override
     public void onStop(){
-        editor.putString(APP_PREFERENCES_TAB,Integer.toString(TabPos));
-        editor.putString(APP_PREFERENCES_NICK,Nick);
-        editor.putString(APP_PREFERENCES_HISTORY,History);
-        editor.putString(APP_PREFERENCES_POWER,Power.toString());
-        editor.putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
-        editor.putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
-        editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
-        editor.putString(APP_PREFERENCES_GROUPS,Groups);
-        editor.putString(APP_PREFERENCES_GROUP,curGroup.toString());
-        editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-        editor.putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
-        editor.putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
-        editor.putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
-        editor.putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
-        editor.putString(APP_PREFERENCES_RX_SOS,sosRxFreq.toString());
-        editor.putString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString());
-        editor.putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
-        editor.putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
-        editor.putString(APP_PREFERENCES_STEP,Step.toString());
-        editor.putString(APP_PREFERENCES_OFFSET,Offset.toString());
-        editor.putString(APP_PREFERENCES_VOLUME,Volume.toString());
-        editor.putString(APP_PREFERENCES_MIC_VOLUME,Mic.toString());
-        editor.putString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString());
-        editor.putString(APP_PREFERENCES_TOT,Tot.toString());
-        editor.putString(APP_PREFERENCES_VOX,Vox.toString());
-        editor.putString(APP_PREFERENCES_GPS_MODE,isGps.toString());
-        editor.putString(APP_PREFERENCES_FULL_MODE,isDebug.toString());
-        editor.putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
-        editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
-        editor.putString(APP_PREFERENCES_SQ,Sq.toString());
-        editor.putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
-        editor.putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
-        editor.putString(APP_PREFERENCES_PORT, Port);
-        editor.putString(APP_PREFERENCES_THEME,Theme);
-        editor.putString(APP_PREFERENCES_KEY_PTT,keyPtt.toString());
-        editor.putString(APP_PREFERENCES_KEY_SOS,keySos.toString());
-        editor.putString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString());
-        editor.putString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString());
-        editor.commit();
+        mSettings.edit().putString(APP_PREFERENCES_TAB,Integer.toString(TabPos));
+        mSettings.edit().putString(APP_PREFERENCES_NICK,Nick);
+        mSettings.edit().putString(APP_PREFERENCES_HISTORY,History);
+        mSettings.edit().putString(APP_PREFERENCES_POWER,Power.toString());
+        mSettings.edit().putString(APP_PREFERENCES_MIN_FREQ,minFreq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_MAX_FREQ,maxFreq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+        mSettings.edit().putString(APP_PREFERENCES_GROUPS,Groups);
+        mSettings.edit().putString(APP_PREFERENCES_GROUP,curGroup.toString());
+        mSettings.edit().putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+        mSettings.edit().putString(APP_PREFERENCES_RX_FREQ,curRxFreq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_TX_FREQ,curTxFreq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_RX_CTCSS,curRxCt.toString());
+        mSettings.edit().putString(APP_PREFERENCES_TX_CTCSS,curTxCt.toString());
+        mSettings.edit().putString(APP_PREFERENCES_RX_SOS,sosRxFreq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
+        mSettings.edit().putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
+        mSettings.edit().putString(APP_PREFERENCES_STEP,Step.toString());
+        mSettings.edit().putString(APP_PREFERENCES_OFFSET,Offset.toString());
+        mSettings.edit().putString(APP_PREFERENCES_VOLUME,Volume.toString());
+        mSettings.edit().putString(APP_PREFERENCES_MIC_VOLUME,Mic.toString());
+        mSettings.edit().putString(APP_PREFERENCES_SCRAM_VOLUME,Scram.toString());
+        mSettings.edit().putString(APP_PREFERENCES_TOT,Tot.toString());
+        mSettings.edit().putString(APP_PREFERENCES_VOX,Vox.toString());
+        mSettings.edit().putString(APP_PREFERENCES_GPS_MODE,isGps.toString());
+        mSettings.edit().putString(APP_PREFERENCES_FULL_MODE,isDebug.toString());
+        mSettings.edit().putString(APP_PREFERENCES_SPEAKER,isSpeaker.toString());
+        mSettings.edit().putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
+        mSettings.edit().putString(APP_PREFERENCES_SQ,Sq.toString());
+        mSettings.edit().putString(APP_PREFERENCES_DELAY,ScanDelay.toString());
+        mSettings.edit().putString(APP_PREFERENCES_SCAN_CT,ScanRxCt.toString());
+        mSettings.edit().putString(APP_PREFERENCES_PORT, Port);
+        mSettings.edit().putString(APP_PREFERENCES_THEME,Theme);
+        mSettings.edit().putString(APP_PREFERENCES_KEY_PTT,keyPtt.toString());
+        mSettings.edit().putString(APP_PREFERENCES_KEY_SOS,keySos.toString());
+        mSettings.edit().putString(APP_PREFERENCES_KEY_BLOCK,keyBlock.toString());
+        mSettings.edit().putString(APP_PREFERENCES_KEY_SEARCH,keySearch.toString());
+        mSettings.edit().commit();
         super.onStop();
     }
     @Override
@@ -1180,8 +1178,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }else{
                     Theme = "Black";
                 }
-                editor.putString(APP_PREFERENCES_THEME,Theme);
-                editor.commit();
+                mSettings.edit().putString(APP_PREFERENCES_THEME,Theme);
+                mSettings.edit().apply();
                 //getTheme().applyStyle(Theme.equals("Black") ? R.style.Black : R.style.Light, true);
                 this.unregisterReceiver(mStateReceiver);
                 applyTheme();
@@ -1191,8 +1189,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     History = "<h1>"+getString(R.string.title_chat)+"</h1>";
                     TextView chat = (TextView)mViewPager.findViewById(R.id.chat);
                     chat.setText(Html.fromHtml(History+"<br/>", htmlImageGetter, htmlTagHandler));
-                    editor.putString(APP_PREFERENCES_HISTORY,History);
-                    editor.commit();
+                    mSettings.edit().putString(APP_PREFERENCES_HISTORY,History);
+                    mSettings.edit().apply();
                 }else{
                     item.setEnabled(false);
                 }
@@ -1209,9 +1207,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         ChannelList = getString(R.string.channels_std).split("\\|");
                                         curChannelList = getChannelList(curGroup);
                                         curChannel = 0;
-                                        editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                                        editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
-                                        editor.commit();
+                                        mSettings.edit().putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                                        mSettings.edit().putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+                                        mSettings.edit().apply();
                                         list.setAdapter(ChannelsAdapter());
                                         setCh(true);
                                     }
@@ -1253,9 +1251,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                         ChannelList = new String[]{};
                                         curChannelList = new String[]{};
                                         curChannel=-1;
-                                        editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                                        editor.putString(APP_PREFERENCES_CHANNELS,"");
-                                        editor.commit();
+                                        mSettings.edit().putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                                        mSettings.edit().putString(APP_PREFERENCES_CHANNELS,"");
+                                        mSettings.edit().apply();
                                         list.setAdapter(ChannelsAdapter());
                                         setCh(true);
                                     }
@@ -1273,9 +1271,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ChannelList=del(ChannelList,getPosList(curChannel,curGroup));
                 curChannelList = getChannelList(curGroup);
                 if(curChannel>curChannelList.length-1)curChannel=curChannelList.length-1;
-                editor.putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
-                editor.putString(APP_PREFERENCES_CHANNELS, join(ChannelList, "|"));
-                editor.commit();
+                mSettings.edit().putString(APP_PREFERENCES_CHANNEL,curChannel.toString());
+                mSettings.edit().putString(APP_PREFERENCES_CHANNELS, join(ChannelList, "|"));
+                mSettings.edit().apply();
                 list.setAdapter(ChannelsAdapter());
                 setCh(true);
                 return true;
@@ -1341,8 +1339,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     item.setIcon(android.R.drawable.ic_lock_idle_charging);
                 }
                 item.setChecked(Power);
-                editor.putString(APP_PREFERENCES_POWER,Power.toString());
-                editor.commit();
+                mSettings.edit().putString(APP_PREFERENCES_POWER,Power.toString());
+                mSettings.edit().apply();
                 Notify();
                 return true;
         }
@@ -1788,8 +1786,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     list.setAdapter(main.ChannelsAdapter());
                     list.setSelection(main.curChannel);
                     Toast.makeText(main, getString(R.string.invert), Toast.LENGTH_SHORT).show();
-                    main.editor.putString(APP_PREFERENCES_CHANNELS, MainActivity.join(main.ChannelList, "|"));
-                    main.editor.commit();
+                    main.mSettings.edit().putString(APP_PREFERENCES_CHANNELS, MainActivity.join(main.ChannelList, "|"));
+                    main.mSettings.edit().apply();
                     break;
                 case R.id.check_all:
                     main.setScanEnable(main.curGroup);
@@ -1798,8 +1796,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     list1.setAdapter(main.ChannelsAdapter());
                     list1.setSelection(main.curChannel);
                     Toast.makeText(main, getString(R.string.check_all), Toast.LENGTH_SHORT).show();
-                    main.editor.putString(APP_PREFERENCES_CHANNELS,MainActivity.join(main.ChannelList,"|"));
-                    main.editor.commit();
+                    main.mSettings.edit().putString(APP_PREFERENCES_CHANNELS,MainActivity.join(main.ChannelList,"|"));
+                    main.mSettings.edit().apply();
                     break;
             }else isLongTouch=false;
 
@@ -1873,8 +1871,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             main.curChannel = 0;
             ListView list = (ListView)getView().findViewById(R.id.listView);
             list.setAdapter(main.ChannelsAdapter());
-            main.editor.putString(APP_PREFERENCES_GROUP,main.curGroup.toString());
-            main.editor.commit();
+            main.mSettings.edit().putString(APP_PREFERENCES_GROUP,main.curGroup.toString());
+            main.mSettings.edit().apply();
         }
 
         @Override
@@ -1882,6 +1880,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
 
+        @SuppressLint("ValidFragment")
         public class ChannelEditDialog extends DialogFragment{
             @Override
             public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -1941,9 +1940,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                 Spinner group_list = (Spinner)main.mViewPager.findViewById(R.id.group_list);
                                 group_list.setSelection(main.curGroup);
                                 main.setCh(true);
-                                main.editor.putString(APP_PREFERENCES_CHANNELS,MainActivity.join(main.ChannelList, "|"));
-                                main.editor.putString(APP_PREFERENCES_CHANNEL,main.curChannel.toString());
-                                main.editor.commit();
+                                main.mSettings.edit().putString(APP_PREFERENCES_CHANNELS,MainActivity.join(main.ChannelList, "|"));
+                                main.mSettings.edit().putString(APP_PREFERENCES_CHANNEL,main.curChannel.toString());
+                                main.mSettings.edit().apply();
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -2143,6 +2142,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     };
 
+    @SuppressLint("ValidFragment")
     public class SettingsDialog extends DialogFragment{
         @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         @Override
@@ -2252,28 +2252,28 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             mIntercom.setVox(Vox);
                             Spinner groups_list = (Spinner) mViewPager.findViewById(R.id.group_list);
                             groups_list.setAdapter(getGroups());
-                            editor.putString(APP_PREFERENCES_NICK, Nick);
-                            editor.putString(APP_PREFERENCES_MIN_FREQ, minFreq.toString());
-                            editor.putString(APP_PREFERENCES_MAX_FREQ, maxFreq.toString());
-                            editor.putString(APP_PREFERENCES_STEP, Step.toString());
-                            editor.putString(APP_PREFERENCES_OFFSET, Offset.toString());
-                            editor.putString(APP_PREFERENCES_DELAY, ScanDelay.toString());
-                            editor.putString(APP_PREFERENCES_SCAN_CT, ScanRxCt.toString());
-                            editor.putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
-                            editor.putString(APP_PREFERENCES_GROUPS, Groups);
-                            editor.putString(APP_PREFERENCES_KEY_PTT, keyPtt.toString());
-                            editor.putString(APP_PREFERENCES_KEY_SOS, keySos.toString());
-                            editor.putString(APP_PREFERENCES_KEY_BLOCK, keyBlock.toString());
-                            editor.putString(APP_PREFERENCES_KEY_SEARCH, keySearch.toString());
-                            editor.putString(APP_PREFERENCES_GPS_MODE, isGps.toString());
-                            editor.putString(APP_PREFERENCES_FULL_MODE, isDebug.toString());
-                            editor.putString(APP_PREFERENCES_MIC_VOLUME, Mic.toString());
-                            editor.putString(APP_PREFERENCES_SCRAM_VOLUME, Scram.toString());
-                            editor.putString(APP_PREFERENCES_TOT, Tot.toString());
-                            editor.putString(APP_PREFERENCES_VOX, Vox.toString());
-                            editor.putString(APP_PREFERENCES_PORT,Port);
-                            editor.putString(APP_PREFERENCES_HW_CONFIG,HWConfig);
-                            editor.commit();
+                            mSettings.edit().putString(APP_PREFERENCES_NICK, Nick);
+                            mSettings.edit().putString(APP_PREFERENCES_MIN_FREQ, minFreq.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_MAX_FREQ, maxFreq.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_STEP, Step.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_OFFSET, Offset.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_DELAY, ScanDelay.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_SCAN_CT, ScanRxCt.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_VIBRO, Vibrato.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_GROUPS, Groups);
+                            mSettings.edit().putString(APP_PREFERENCES_KEY_PTT, keyPtt.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_KEY_SOS, keySos.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_KEY_BLOCK, keyBlock.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_KEY_SEARCH, keySearch.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_GPS_MODE, isGps.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_FULL_MODE, isDebug.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_MIC_VOLUME, Mic.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_SCRAM_VOLUME, Scram.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_TOT, Tot.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_VOX, Vox.toString());
+                            mSettings.edit().putString(APP_PREFERENCES_PORT,Port);
+                            mSettings.edit().putString(APP_PREFERENCES_HW_CONFIG,HWConfig);
+                            mSettings.edit().apply();
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -2285,6 +2285,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
     } 
+    @SuppressLint("ValidFragment")
     public class InputDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -2352,6 +2353,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    @SuppressLint("ValidFragment")
     public class AboutDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -2385,6 +2387,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    @SuppressLint("ValidFragment")
     public class HelpDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -2431,6 +2434,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    @SuppressLint("ValidFragment")
     public class ChannelAddDialog extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanseState){
@@ -2494,18 +2498,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                 list.setAdapter(ChannelsAdapter());
                                 Spinner group_list = (Spinner)mViewPager.findViewById(R.id.group_list);
                                 group_list.setSelection(curGroup);
-                                editor.putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
-                                editor.commit();
+                                mSettings.edit().putString(APP_PREFERENCES_CHANNELS,join(ChannelList, "|"));
+                                mSettings.edit().apply();
                             }else{
                                 sosRxFreq = Double.parseDouble(rx.getText().toString());
                                 sosTxFreq = Double.parseDouble(tx.getText().toString());
                                 sosRxCt = rxct.getSelectedItemPosition();
                                 sosTxCt = txct.getSelectedItemPosition();
-                                editor.putString(APP_PREFERENCES_RX_SOS,sosRxFreq.toString());
-                                editor.putString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString());
-                                editor.putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
-                                editor.putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
-                                editor.commit();
+                                mSettings.edit().putString(APP_PREFERENCES_RX_SOS,sosRxFreq.toString());
+                                mSettings.edit().putString(APP_PREFERENCES_TX_SOS,sosTxFreq.toString());
+                                mSettings.edit().putString(APP_PREFERENCES_RX_CTCSS_SOS,sosRxCt.toString());
+                                mSettings.edit().putString(APP_PREFERENCES_TX_CTCSS_SOS,sosTxCt.toString());
+                                mSettings.edit().apply();
                             }
                         }
                     })

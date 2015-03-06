@@ -32,6 +32,13 @@ android {
         release {
             //runProguard false
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    output.outputFile = new File(output.outputFile.parent,
+                            "Intercomm."+defaultConfig.versionName+".apk"
+                    )
+                }
+            }
         }
     }
 }
@@ -39,5 +46,5 @@ android {
 dependencies {
 //    compile 'com.android.support:gridlayout-v7:19.0.1'
 //    compile 'com.android.support:support-v4:19.1.0'
-      compile 'com.android.support:appcompat-v7:19.1.0'
+      compile 'com.android.support:appcompat-v7:19.0.1'
 }
