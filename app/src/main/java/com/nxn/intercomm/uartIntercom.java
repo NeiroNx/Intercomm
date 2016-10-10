@@ -260,7 +260,21 @@ public class uartIntercom{
             "echo \"No Button\"",
             "SA808",
             "true,false,true,true,false,false,true,false,false,false,false,false"
-    }//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
+    },//{"/dev/intercom_A1840","/dev/SA808","/dev/a1852"};
+    {
+            "x5",
+            "ZGPAX S9",
+            "/dev/ttyMT1",
+            "/dev/null",  // no proper device found.
+            "su -c 'g=\"/sys/devices/virtual/misc/mtgpio/pin\";echo \"-w=135:0 0 0 1 0 1 0\" > $g;echo \"-w=101:1 1 0 0 1 0 0\" > $g;'",
+            "su -c 'g=\"/sys/devices/virtual/misc/mtgpio/pin\";echo \"-w=135:0 0 0 0 0 1 0\" > $g;echo \"-w=101:1 1 1 0 1 0 0\" > $g;'",
+            "echo \"None\" ",  //not debugged yet
+            "echo \"None\" ",  //not debugged yet
+            "su -c 'g=\"/sys/devices/virtual/misc/mtgpio/pin\";echo \"-w=136:0 0 0 1 1 1 0\" > $g;'", // PTT - hardware button with no key-event
+            "su -c 'g=\"/sys/devices/virtual/misc/mtgpio/pin\";echo \"-w=136:0 0 0 0 1 1 0\" > $g;'", // Maybe not necessary.
+            "HKT-81BK",
+            "true,true,true,true,true,true,true,false,false,false,false,false"
+    }
     };
     private final static String[][] module = {
             {"Name","superID","minFreq","MaxFreq","maxVol","micVol","maxCt","txCt"},
